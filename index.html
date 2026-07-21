@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Sarabun', sans-serif; background-color: #f4f6f9; }
+    .container { max-width: 1100px; margin-top: 30px; margin-bottom: 50px;}
+    .card { border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: none; }
+    .table-responsive { border-radius: 8px; overflow: hidden; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .section-title { font-weight: 600; color: #495057; border-bottom: 2px solid #e9ecef; padding-bottom: 10px; margin-bottom: 15px;}
+    tfoot { background-color: #e9ecef; }
+    .qty-input { width: 70px; text-align: center; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h3 class="text-center text-primary mb-4">🩺 ระบบประเมินราคาอุปกรณ์/อวัยวะเทียม</h3>
+    
+    <div class="card p-4 mb-4">
+      <!-- ส่วนที่ 1: ตรวจสอบ HN และสิทธิ -->
+      <div class="row g-3 mb-4 pb-4 border-bottom">
+        <div class="col-md-5">
+          <label class="form-label fw-bold text-secondary">ค้นหาด้วย HN (ดึงสิทธิอัตโนมัติ)</label>
+          <div class="input-group">
+            <input type="text" id="hnInput" class="form-control" placeholder="ระบุ HN เช่น 001" onkeypress="if(event.key==='Enter') checkHN()">
+            <button class="btn btn-info fw-bold text-white" onclick="checkHN()" id="btnCheckHn">ตรวจสอบ</button>
+          </div>
+        </div>
+        <div class="col-md-7">
+          <label class="form-label fw-bold text-secondary">สิทธิ์การรักษา (คำนวณยอดอัตโนมัติเมื่อเปลี่ยน)</label>
+          <select id="rightsType" class="form-select border-primary" onchange="renderCart()">
+            <option value="ucs">หลักประกันสุขภาพแห่งชาติ (UCS)</option>
+            <option value="ofc">ข้าราชการ (OFC)</option>
+            <option value="lgo">องค์กรปกครองส่วนท้องถิ่น (LGO)</option>
+            <option value="bkk">กรุงเทพมหานคร (BKK)</option>
+            <option value="bmt">เมืองพัทยา (BMT)</option>
+            <option value="nhs">รัฐวิสาหกิจ (NHS)</option>
+            <option value="sss">ประกันสังคม (SSS)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- ส่วนที่ 2: ค้นหาอุปกรณ์ -->
+      <div class="row g-3">
+        <div class="col-md-12">
+          <label class="form-label fw-bold text-secondary">ค้นหาอุปกรณ์ (รหัส หรือ ชื่ออุปกรณ์)</label>
+          <div class="input-group">
+            <input type="text" id="keyword" class="form-control" placeholder="เช่น 72999 หรือ เลนส์ตา" onkeypress="if(event.key==='Enter') performSearch()">
+            <button class="btn btn-outline-primary fw-bold" onclick="performSearch()">🔍 ค้นหาอุปกรณ์</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="loading" class="text-center d-none my-3">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <div id="errorAlert" class="alert alert-danger d-none"></div>
+
+    <div id="searchResultsSection" class="d-none mb-5">
+      <h5 class="section-title text-primary">รายการที่ค้นพบ (กด ➕ เพื่อเพิ่ม)</h5>
+      <div class="table-responsive">
+        <table class="table table-hover table-sm mb-0">
+          <thead class="table-light">
+            <tr>
+              <th width="15%">รหัส (ADP)</th>
+              <th width="50%">ชื่อรายการ</th>
+              <th width="20%" class="text-end">ราคาต้นทุน (Unitcost)</th>
+              <th width="15%" class="text-center">เลือก</th>
+            </tr>
+          </thead>
+          <tbody id="searchResultsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <h5 class="section-title text-success">📋 สรุปยอดประเมินสิทธิ (คำนวณตาม Unitcost)</h5>
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-success text-center align-middle">
+          <tr>
+            <th width="12%">รหัส</th>
+            <th width="32%">ชื่อรายการ</th>
+            <th width="12%">จำนวน</th>
+            <th width="12%" class="text-end">ราคาต้นทุน</th>
+            <th width="12%" class="text-end">เบิกได้</th>
+            <th width="12%" class="text-end">เกินสิทธิ</th>
+            <th width="8%">ลบ</th>
+          </tr>
+        </thead>
+        <tbody id="cartBody">
+          <tr><td colspan="7" class="text-center text-muted py-3">ยังไม่มีรายการถูกเลือก กรุณาค้นหาและกดเพิ่ม</td></tr>
+        </tbody>
+        <tfoot id="cartFoot"></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let currentSearchResults = [];
+    let cartItems = [];
+
+    // ฟังก์ชันตรวจสอบ HN
+    function checkHN() {
+      const hn = document.getElementById('hnInput').value.trim();
+      if (!hn) return;
+      
+      const btn = document.getElementById('btnCheckHn');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = 'กำลังค้นหา...';
+      btn.disabled = true;
+      
+      document.getElementById('errorAlert').classList.add('d-none');
+      
+      google.script.run
+        .withSuccessHandler((res) => {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+          
+          if (res.error) {
+            const alertBox = document.getElementById('errorAlert');
+            alertBox.textContent = res.error;
+            alertBox.classList.remove('d-none');
+          } else if (res.right) {
+            const select = document.getElementById('rightsType');
+            let found = false;
+            for (let i = 0; i < select.options.length; i++) {
+              if (select.options[i].value === res.right) {
+                select.selectedIndex = i;
+                found = true;
+                break;
+              }
+            }
+            if (found) {
+              renderCart(); // คำนวณรายการในตะกร้าใหม่ทันทีเมื่อสิทธิเปลี่ยน
+            } else {
+               alert('พบสิทธิ ' + res.right.toUpperCase() + ' แต่ไม่มีในตัวเลือกของระบบ');
+            }
+          }
+        })
+        .checkPatientRight(hn);
+    }
+
+    // ฟังก์ชันค้นหาอุปกรณ์
+    function performSearch() {
+      const keyword = document.getElementById('keyword').value.trim();
+      const errorAlert = document.getElementById('errorAlert');
+      
+      errorAlert.classList.add('d-none');
+      document.getElementById('searchResultsSection').classList.add('d-none');
+      
+      if (!keyword) {
+        errorAlert.textContent = "กรุณาระบุคำค้นหาอุปกรณ์";
+        errorAlert.classList.remove('d-none');
+        return;
+      }
+      
+      document.getElementById('loading').classList.remove('d-none');
+      
+      google.script.run
+        .withSuccessHandler(displaySearchResults)
+        .searchEquipmentData(keyword);
+    }
+
+    function displaySearchResults(res) {
+      document.getElementById('loading').classList.add('d-none');
+      const errorAlert = document.getElementById('errorAlert');
+      const tbody = document.getElementById('searchResultsBody');
+      const section = document.getElementById('searchResultsSection');
+      
+      if (res.error) {
+        errorAlert.textContent = res.error;
+        errorAlert.classList.remove('d-none');
+        return;
+      }
+      
+      currentSearchResults = res.data;
+      tbody.innerHTML = '';
+      
+      if (currentSearchResults.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">❌ ไม่พบข้อมูลอุปกรณ์ที่ค้นหา</td></tr>';
+      } else {
+        currentSearchResults.forEach((item, index) => {
+          const row = `<tr>
+            <td class="align-middle">${item.code}</td>
+            <td class="align-middle">${item.name}</td>
+            <td class="text-end align-middle">${item.unitcost.toLocaleString()} ฿</td>
+            <td class="text-center align-middle">
+              <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="addToCart(${index})">➕ เพิ่ม</button>
+            </td>
+          </tr>`;
+          tbody.innerHTML += row;
+        });
+      }
+      section.classList.remove('d-none');
+    }
+
+    function addToCart(index) {
+      const item = { ...currentSearchResults[index], qty: 1 };
+      cartItems.push(item);
+      
+      document.getElementById('keyword').value = '';
+      document.getElementById('searchResultsSection').classList.add('d-none');
+      
+      renderCart();
+    }
+
+    function updateQty(index, newQty) {
+      const qty = parseInt(newQty);
+      if (qty >= 1) {
+        cartItems[index].qty = qty;
+        renderCart();
+      }
+    }
+
+    function removeFromCart(index) {
+      cartItems.splice(index, 1);
+      renderCart();
+    }
+
+    function renderCart() {
+      const tbody = document.getElementById('cartBody');
+      const tfoot = document.getElementById('cartFoot');
+      const rightsType = document.getElementById('rightsType').value;
+      
+      tbody.innerHTML = '';
+      tfoot.innerHTML = '';
+      
+      if (cartItems.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-3">ยังไม่มีรายการถูกเลือก กรุณาค้นหาและกดเพิ่ม</td></tr>';
+        return;
+      }
+      
+      let totalQty = 0;
+      let totalUnitcost = 0;
+      let totalCovered = 0;
+      let totalExtra = 0;
+      
+      cartItems.forEach((item, index) => {
+        let covered = 0;
+        if (rightsType === 'ucs') covered = item.ucs;
+        else if (rightsType === 'ofc') covered = item.ofc;
+        else if (rightsType === 'lgo') covered = item.lgo;
+        else if (rightsType === 'bkk') covered = item.bkk;
+        else if (rightsType === 'bmt') covered = item.bmt;
+        else if (rightsType === 'nhs') covered = item.nhs;
+        else if (rightsType === 'sss') covered = item.sss;
+        
+        // คำนวณส่วนเกิน = unitcost - เบิกได้
+        let extra = item.unitcost - covered;
+        if (extra < 0) extra = 0; 
+        
+        const rowUnitcost = item.unitcost * item.qty;
+        const rowCovered = covered * item.qty;
+        const rowExtra = extra * item.qty;
+        
+        totalQty += item.qty;
+        totalUnitcost += rowUnitcost;
+        totalCovered += rowCovered;
+        totalExtra += rowExtra;
+        
+        const row = `<tr>
+          <td class="text-center align-middle">${item.code}</td>
+          <td class="align-middle">${item.name}</td>
+          <td class="text-center align-middle">
+            <input type="number" class="form-control form-control-sm qty-input" min="1" value="${item.qty}" onchange="updateQty(${index}, this.value)">
+          </td>
+          <td class="text-end align-middle text-dark">${rowUnitcost.toLocaleString()}</td>
+          <td class="text-end text-success align-middle">${rowCovered.toLocaleString()}</td>
+          <td class="text-end text-danger align-middle fw-bold">${rowExtra.toLocaleString()}</td>
+          <td class="text-center align-middle">
+            <button class="btn btn-sm btn-outline-danger" onclick="removeFromCart(${index})">❌</button>
+          </td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+      
+      tfoot.innerHTML = `<tr>
+          <td colspan="2" class="text-end fs-6 text-success"><strong>รวมสุทธิ :</strong></td>
+          <td class="text-center fs-6"><strong>${totalQty.toLocaleString()} ชิ้น</strong></td>
+          <td class="text-end fs-6 text-dark"><strong>${totalUnitcost.toLocaleString()}</strong></td>
+          <td class="text-end text-success fs-5"><strong>${totalCovered.toLocaleString()}</strong></td>
+          <td class="text-end text-danger fs-5"><strong>${totalExtra.toLocaleString()}</strong></td>
+          <td></td>
+        </tr>`;
+    }
+  </script>
+</body>
+</html>
