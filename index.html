@@ -196,15 +196,15 @@
         
         <div id="errorVerify" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
 
-        <!-- รายละเอียดแบบเจาะจง (Table 1) -->
+        <!-- รายละเอียดแบบเจาะจง (ตรวจสอบข้อผิดพลาด) -->
         <div id="verifyResultsSection" class="custom-card d-none">
           <div class="card-header-custom bg-light">
-             <h5 class="card-header-title text-success"><i class="bi bi-bar-chart-fill me-2"></i>รายละเอียดรายการรายชิ้น (ตรวจสอบข้อผิดพลาด)</h5>
+             <h5 class="card-header-title text-danger"><i class="bi bi-search me-2"></i>รายละเอียดรายการรายชิ้น (ไว้สำหรับตรวจสอบว่าคีย์ผิดหรือไม่)</h5>
           </div>
           <div class="card-body-custom p-0">
             <div class="table-responsive border-0">
               <table class="table table-hover mb-0">
-                <thead class="table-success td-center align-middle">
+                <thead class="table-danger td-center align-middle">
                   <tr>
                     <th class="td-text" width="28%">รายการอุปกรณ์ (จาก Excel)</th>
                     <th width="8%">จำนวน</th>
@@ -221,11 +221,11 @@
           </div>
         </div>
 
-        <!-- สรุปรายการเพื่อส่งเบิกแบบจัดกลุ่ม (Table 2 - ใหม่!) -->
+        <!-- รายงานสรุปค่าใช้จ่ายแบบจัดกลุ่ม (Summary Report) ตามโครงสร้างใหม่ -->
         <div id="groupedSummarySection" class="custom-card d-none mt-4 border border-secondary border-opacity-25">
           <div class="card-header-custom bg-white border-bottom">
              <div class="d-flex justify-content-between align-items-center">
-                 <h5 class="card-header-title text-dark fs-4"><i class="bi bi-collection me-2 text-primary"></i>อวัยวะเทียม/อุปกรณ์บำบัดรักษา</h5>
+                 <h5 class="card-header-title text-dark fs-4"><i class="bi bi-collection me-2 text-primary"></i>รายงานสรุปอวัยวะเทียม/อุปกรณ์บำบัดรักษา</h5>
                  <span class="text-muted fw-bold" id="summaryItemCount">จำนวน 0 รายการ</span>
              </div>
           </div>
@@ -234,12 +234,12 @@
               <table class="table table-hover table-bordered mb-0">
                 <thead class="bg-light text-center align-middle" style="color: #495057;">
                   <tr>
-                    <th class="td-text py-3" width="30%">รหัสอุปกรณ์</th>
+                    <th class="td-text py-3" width="30%">รหัสและรายการอุปกรณ์</th>
                     <th class="py-3" width="8%">หน่วย</th>
-                    <th class="td-num py-3" width="12%">ราคากลาง</th>
-                    <th class="py-3" width="10%">จำนวน</th>
-                    <th class="td-num py-3" width="13%">พึงเบิกได้</th>
-                    <th class="td-num py-3" width="13%">ขอเบิก</th>
+                    <th class="td-num py-3" width="12%">ราคาอ้างอิง</th>
+                    <th class="py-3" width="8%">จำนวน</th>
+                    <th class="td-num py-3" width="14%">ราคารวม</th>
+                    <th class="td-num py-3" width="14%">เบิกได้(ตามสิทธิ)</th>
                     <th class="td-num py-3" width="14%">ส่วนเกิน</th>
                   </tr>
                 </thead>
@@ -249,17 +249,17 @@
             
             <div class="p-4 bg-white border-top">
                <div class="d-flex justify-content-end align-items-center gap-4 flex-wrap">
-                  <span class="fw-bold text-muted me-3 fs-5">รวม :</span>
+                  <span class="fw-bold text-muted me-3 fs-5">สรุปยอดรวม :</span>
                   <div>
-                     <label class="form-label text-muted mb-1 fs-6">พึงเบิกได้ :</label>
-                     <input type="text" class="form-control form-control-lg text-end fw-bold text-success border-0" id="sumCovTotal" readonly style="width: 170px; background-color: #f8f9fa;">
-                  </div>
-                  <div>
-                     <label class="form-label text-muted mb-1 fs-6">ขอเบิก :</label>
+                     <label class="form-label text-muted mb-1 fs-6">รวมราคารวม :</label>
                      <input type="text" class="form-control form-control-lg text-end fw-bold text-dark border-0" id="sumReqTotal" readonly style="width: 170px; background-color: #f8f9fa;">
                   </div>
                   <div>
-                     <label class="form-label text-muted mb-1 fs-6">ส่วนเกิน :</label>
+                     <label class="form-label text-muted mb-1 fs-6">รวมเบิกได้ :</label>
+                     <input type="text" class="form-control form-control-lg text-end fw-bold text-success border-0" id="sumCovTotal" readonly style="width: 170px; background-color: #f8f9fa;">
+                  </div>
+                  <div>
+                     <label class="form-label text-muted mb-1 fs-6">รวมส่วนเกิน :</label>
                      <input type="text" class="form-control form-control-lg text-end fw-bold text-danger border-0" id="sumExcess" readonly style="width: 170px; background-color: #f8f9fa;">
                   </div>
                </div>
@@ -300,7 +300,7 @@
       if(page === 'table' && document.getElementById('tableS1Body').innerHTML.includes('กำลังดึงข้อมูล')) searchSheet1();
     }
 
-    // ================= วิเคราะห์ไฟล์ Excel =================
+    // ================= วิเคราะห์ไฟล์ Excel อัปเกรดการหาสิทธิ =================
     function processExcel() {
       const fileInput = document.getElementById('excelUpload');
       const errorAlert = document.getElementById('errorVerify');
@@ -324,6 +324,29 @@
           const sheetName = workbook.SheetNames[0];
           const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
+          // -------------------------------------------------------------
+          // ระบบอัจฉริยะ (Smart Right Detection): หาสิทธิหลักของคนไข้
+          // -------------------------------------------------------------
+          let allRightsStr = fileInput.files[0].name; // สแกนชื่อไฟล์ด้วย
+          for (let i = 0; i < rows.length; i++) {
+              if (rows[i][4]) allRightsStr += " " + rows[i][4].toString(); // สแกนคอลัมน์ E ทั้งไฟล์
+          }
+          
+          let allR = allRightsStr.toUpperCase();
+          let mainRightKey = "UCS"; // สิทธิเริ่มต้น
+          
+          // ตรวจสอบตามลำดับความสำคัญ (หลีกเลี่ยง พรบ และ ชำระเงินเอง)
+          if (allR.includes('OFC') || allR.includes('ข้าราชการ')) mainRightKey = "OFC";
+          else if (allR.includes('LGO') || allR.includes('อปท') || allR.includes('ส่วนท้องถิ่น')) mainRightKey = "LGO";
+          else if (allR.includes('BKK') || allR.includes('กทม') || allR.includes('กรุงเทพ')) mainRightKey = "BKK";
+          else if (allR.includes('BMT') || allR.includes('พัทยา')) mainRightKey = "BMT";
+          else if (allR.includes('NHS') || allR.includes('รัฐวิสาหกิจ')) mainRightKey = "NHS";
+          else if (allR.includes('SSS') || allR.includes('ประกันสังคม')) mainRightKey = "SSS";
+          else if (allR.includes('UC') || allR.includes('UCS') || allR.includes('บัตรทอง')) mainRightKey = "UCS";
+
+          // -------------------------------------------------------------
+          // เริ่มดึงข้อมูลเฉพาะหมวด [02]
+          // -------------------------------------------------------------
           let isSection02 = false, extracted = [];
           for (let i = 0; i < rows.length; i++) {
             let colA = rows[i][0] ? rows[i][0].toString().trim() : "";
@@ -338,7 +361,7 @@
                extracted.push({
                    name: rows[i][1].toString(),
                    unit: rows[i][2] || "-",             
-                   rightStr: rows[i][4] || "",          
+                   rightStr: mainRightKey, // <--- ใช้สิทธิหลักที่พบแทนสิทธิยิบย่อย          
                    qty: Number(rows[i][6]) || 0,        
                    unitPrice: Number(rows[i][7]) || 0,  
                    adpCode: adpCode
@@ -374,7 +397,7 @@
         return;
       }
       
-      // 1. สร้างตารางรายละเอียดแบบเจาะจง (เพื่อหาส่วนที่ผิดปกติ)
+      // ================= 1. ตารางตรวจสอบข้อผิดพลาด (Table 1) =================
       tbody.innerHTML = '';
       let mismatchCount = 0; 
       
@@ -410,15 +433,15 @@
       }
       document.getElementById('verifyResultsSection').classList.remove('d-none');
 
-      // 2. สร้างตารางจัดกลุ่มแบบใหม่ (Grouped Summary Table) เหมือนในรูปภาพ!
+      // ================= 2. รายงานสรุปค่าใช้จ่าย จัดกลุ่ม (Summary Table) =================
       let grouped = {};
       res.data.forEach(item => {
           let code = item.adpCode && item.adpCode !== "-" ? item.adpCode : "UNKNOWN_" + Math.random();
           if(!grouped[code]) {
               grouped[code] = {
                   code: item.adpCode !== "-" ? item.adpCode : "",
-                  name: item.officialName || item.name, // ใช้ชื่อทางการจาก ชีต1 (ถ้ามี)
-                  unit: item.officialUnit || item.unit, // ใช้หน่วยทางการจาก ชีต1 (ถ้ามี)
+                  name: item.officialName || item.name.replace(/\[.*?\]/g, '').trim(), // ลบเลขรหัสข้างหลังออกถ้าไม่มีชื่อทางการ
+                  unit: item.officialUnit || item.unit, 
                   basePrice: item.coveredUnitPrice,
                   qty: 0,
                   reqTotal: 0,
@@ -426,8 +449,8 @@
               };
           }
           grouped[code].qty += item.qty;
-          grouped[code].reqTotal += item.totalPrice; // ขอเบิก = ราคารวมทั้งหมด
-          grouped[code].covTotal += item.totalCovered; // พึงเบิกได้
+          grouped[code].reqTotal += item.totalPrice; 
+          grouped[code].covTotal += item.totalCovered; 
       });
       
       const summaryTbody = document.getElementById('summaryTableBody');
@@ -436,7 +459,7 @@
 
       Object.values(grouped).forEach(g => {
           groupCount++;
-          let excess = Math.max(g.reqTotal - g.covTotal, 0); // คำนวณส่วนเกินของกลุ่ม
+          let excess = Math.max(g.reqTotal - g.covTotal, 0); 
           let displayName = g.code ? `${g.code} ${g.name}` : g.name;
           
           summaryTbody.innerHTML += `<tr>
@@ -444,22 +467,21 @@
               <td class="td-center text-muted">${g.unit}</td>
               <td class="td-num">${g.basePrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
               <td class="td-center fw-bold fs-5">${g.qty}</td>
-              <td class="td-num text-success fw-bold">${g.covTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
               <td class="td-num text-dark fw-bold">${g.reqTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+              <td class="td-num text-success fw-bold">${g.covTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
               <td class="td-num text-danger">${excess.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
           </tr>`;
       });
 
-      // อัปเดตตัวเลขในกล่องสรุปด้านล่าง
       document.getElementById('summaryItemCount').textContent = `จำนวน ${groupCount} รายการ`;
-      document.getElementById('sumCovTotal').value = res.summary.totalCovered.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
       document.getElementById('sumReqTotal').value = res.summary.totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('sumCovTotal').value = res.summary.totalCovered.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
       document.getElementById('sumExcess').value = res.summary.totalExcess.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
       
       document.getElementById('groupedSummarySection').classList.remove('d-none');
     }
 
-    // ================= โค้ดเดิม (หน้า 1 และ หน้า 2) เปลี่ยนเป็น Fetch =================
+    // ================= โค้ดเดิม =================
     async function searchSheet1() {
       const code = document.getElementById('searchS1Code').value.trim(), name = document.getElementById('searchS1Name').value.trim();
       document.getElementById('loadingS1').classList.remove('d-none'); document.getElementById('errorS1').classList.add('d-none'); document.getElementById('tableS1Body').innerHTML = '';
