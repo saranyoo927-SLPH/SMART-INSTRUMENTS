@@ -171,7 +171,6 @@
       </div>
 
       <!-- ================= PAGE 3: วิเคราะห์ไฟล์ Excel ================= -->
-      <!-- ซ่อนโค้ดเก่าไว้เพื่อความกระชับ (เหมือนเดิม 100%) -->
       <div id="page-verify" class="d-none">
         <div class="page-header"><h2 class="page-title text-success"><i class="bi bi-file-earmark-check"></i> ตรวจสอบหมวดค่ารักษา: [02] อวัยวะเทียม</h2></div>
         
@@ -241,7 +240,7 @@
         </div>
       </div>
 
-      <!-- ================= PAGE 4 (ใหม่!): รายงานการใช้อุปกรณ์ ปี 2569 ================= -->
+      <!-- ================= PAGE 4: รายงานการใช้อุปกรณ์ ปี 2569 ================= -->
       <div id="page-report" class="d-none">
         <div class="page-header"><h2 class="page-title text-primary"><i class="bi bi-graph-up-arrow"></i> รายงานข้อมูลการใช้อุปกรณ์รวม (ปี 2569)</h2></div>
         
@@ -271,7 +270,7 @@
 
         <div id="reportSection" class="custom-card d-none shadow">
           <div class="card-header-custom bg-white border-bottom d-flex justify-content-between align-items-center">
-             <h5 class="card-header-title text-dark fs-4"><i class="bi bi-bar-chart-steps me-2 text-primary"></i>สรุปปริมาณและมูลค่าการใช้อุปกรณ์</h5>
+             <h5 class="card-header-title text-dark fs-4"><i class="bi bi-bar-chart-steps me-2 text-primary"></i>สรุปปริมาณและมูลค่าการใช้อุปกรณ์ (เรียงตามรหัส)</h5>
              <span class="badge bg-primary fs-6" id="reportItemCount">พบ 0 รายการ</span>
           </div>
           <div class="card-body-custom p-0">
@@ -313,14 +312,9 @@
 
     async function callGoogleAPI(action, payload) {
       try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: action, ...payload })
-        });
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: action, ...payload }) });
         return await response.json();
-      } catch (error) {
-        return { error: "ไม่สามารถเชื่อมต่อฐานข้อมูลได้ (โปรดตรวจสอบ API URL)" };
-      }
+      } catch (error) { return { error: "ไม่สามารถเชื่อมต่อฐานข้อมูลได้ (โปรดตรวจสอบ API URL)" }; }
     }
 
     function switchPage(page) {
@@ -333,7 +327,7 @@
       if(page === 'table' && document.getElementById('tableS1Body').innerHTML.includes('กำลังดึงข้อมูล')) searchSheet1();
     }
 
-    // ================= วิเคราะห์รายงานประจำปี (จากคอลัมน์ P หรือ Unnamed: 15) =================
+    // ================= วิเคราะห์รายงานประจำปี (อัปเกรดเรียงตามรหัส และดึงราคาสุทธิ) =================
     function processReportExcel() {
       const fileInput = document.getElementById('reportUpload');
       const errorAlert = document.getElementById('errorReport');
@@ -358,16 +352,10 @@
           const sheetName = workbook.SheetNames[0];
           const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
-          let aggregated = {}; // สำหรับเก็บผลรวม
+          let aggregated = {}; 
           let foundCount = 0;
 
-          // สมมติว่าข้อมูลเริ่มตั้งแต่แถวที่ 2 (index 1 ข้าม header)
           for (let i = 1; i < rows.length; i++) {
-            
-            // เนื่องจากผู้ใช้โหลดไฟล์แบบไม่คงที่ ให้สแกนหาคอลัมน์สุดท้ายของแถวนั้นๆ
-            // หรือเจาะจงคอลัมน์ P (index 15) ถ้าระบบ HIS ส่งมาแบบคงที่
-            // เพื่อความชัวร์ เราจะอ่านข้อมูลจากทุกคอลัมน์ในแถวนั้นที่มีลักษณะเป็นอาร์เรย์ [ ... | 02 | ... ]
-            
             let rowData = Object.values(rows[i]);
             let targetText = "";
             for(let cell of rowData) {
@@ -375,42 +363,38 @@
                     targetText += cell + " ";
                 }
             }
-            
             if (!targetText) continue;
 
-            // ค้นหาข้อความทั้งหมดที่อยู่ในวงเล็บ [ ... ]
-            // ตัวอย่าง: [ 2025-09-30 00:00:00 | 02 | 3940967 | 7402 สารยึดกระดุก (Bone cement)... | 1 | 4300.000 | 4300.000 ]
             let itemMatches = targetText.match(/\[(.*?)\]/g);
             if(itemMatches) {
                for(let itemBlock of itemMatches) {
-                   // ลบวงเล็บหัวท้ายออก
                    let cleanText = itemBlock.replace(/\[|\]/g, '').trim();
                    let parts = cleanText.split('|').map(s => s.trim());
                    
-                   // เช็คว่าเป็นหมวด 02 และมีชิ้นส่วนครบ (อย่างน้อย 6 ชิ้น)
+                   // ตรวจสอบโครงสร้าง: วันที่ | 02 | รหัสใน | ชื่อ | จำนวน | ราคาต่อหน่วย | ราคารวม
                    if(parts.length >= 6 && parts[1] === "02") {
-                       let rawName = parts[3]; // "7402 สารยึดกระดุก (Bone cement)..."
+                       let rawName = parts[3]; 
                        let qty = parseFloat(parts[4]) || 0;
-                       let price = parseFloat(parts[5]) || 0;
+                       let unitPrice = parseFloat(parts[5]) || 0;
                        
-                       // แกะรหัสออกจากชื่อ
+                       // *** แก้ไขจุดสำคัญ: ใช้ราคารวมจากไฟล์ (ช่องสุดท้าย) ถ้ามี ถ้าไม่มีค่อยเอามาคูณเอง ***
+                       let totalPrice = parts.length >= 7 ? parseFloat(parts[6]) || (qty * unitPrice) : (qty * unitPrice);
+                       
                        let code = "-";
                        let name = rawName;
-                       let codeMatch = rawName.match(/^([A-Za-z0-9]+)\s+(.*)$/);
+                       let codeMatch = rawName.match(/^([A-Za-z0-9\-]+)\s+(.*)$/);
                        if(codeMatch) {
                            code = codeMatch[1];
                            name = codeMatch[2];
                        }
 
-                       // สร้าง Key สำหรับรวมกลุ่ม
-                       let key = code + "_" + price;
-                       
+                       let key = code + "_" + unitPrice;
                        if (!aggregated[key]) {
-                          aggregated[key] = { code: code, name: name, qty: 0, unitPrice: price, total: 0 };
+                          aggregated[key] = { code: code, name: name, qty: 0, unitPrice: unitPrice, total: 0 };
                        }
                        
                        aggregated[key].qty += qty;
-                       aggregated[key].total += (qty * price);
+                       aggregated[key].total += totalPrice; // ใช้ยอด Total ที่ดึงมาตรงๆ (แก้ปัญหายอดไม่ชน HIS)
                        foundCount++;
                    }
                }
@@ -418,13 +402,13 @@
           }
 
           let reportData = Object.values(aggregated);
-          
-          if(reportData.length === 0) {
-             throw new Error("ไม่พบข้อมูลการใช้อุปกรณ์หมวด 02 (รูปแบบ [ วันที่ | 02 | ... ]) ในไฟล์นี้ครับ");
-          }
+          if(reportData.length === 0) throw new Error("ไม่พบข้อมูลการใช้อุปกรณ์หมวด 02 ในไฟล์นี้ครับ");
 
-          // เรียงลำดับตามราคารวม (จากมากไปน้อย)
-          reportData.sort((a, b) => b.total - a.total);
+          // *** แก้ไขจุดสำคัญ: เรียงลำดับตาม รหัส (ADP) จากน้อยไปมาก ***
+          reportData.sort((a, b) => {
+             // ถ้าเป็นตัวเลขให้เรียงแบบตัวเลข ถ้ามีตัวอักษรผสมให้เรียงตามตัวอักษร
+             return a.code.localeCompare(b.code, undefined, {numeric: true, sensitivity: 'base'});
+          });
 
           const tbody = document.getElementById('reportTableBody');
           tbody.innerHTML = '';
@@ -446,7 +430,7 @@
             </tr>`;
           });
 
-          document.getElementById('reportItemCount').textContent = `รวบรวมได้ ${reportData.length} กลุ่มรายการ`;
+          document.getElementById('reportItemCount').textContent = `แยกได้ทั้งหมด ${reportData.length} รายการ`;
           document.getElementById('grandTotalQty').textContent = grandQty.toLocaleString();
           document.getElementById('grandTotalPrice').textContent = grandPrice.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' ฿';
           
@@ -462,7 +446,7 @@
       reader.readAsArrayBuffer(fileInput.files[0]);
     }
 
-    // ================= ซ่อนโค้ดเก่า หน้า 1-3 =================
+    // ================= ฟังก์ชันอื่นๆ เหมือนเดิมทั้งหมด =================
     function processExcel() {
       const fileInput = document.getElementById('excelUpload'); const errorAlert = document.getElementById('errorVerify'); document.getElementById('verifyResultsSection').classList.add('d-none'); document.getElementById('groupedSummarySection').classList.add('d-none'); errorAlert.classList.add('d-none');
       if (!fileInput.files.length) { errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ Excel ก่อนครับ'; errorAlert.classList.remove('d-none'); return; }
