@@ -170,9 +170,9 @@
         </div>
       </div>
 
-      <!-- ================= PAGE 3: วิเคราะห์ไฟล์ Excel ================= -->
+      <!-- ================= PAGE 3: วิเคราะห์รายบุคคล ================= -->
       <div id="page-verify" class="d-none">
-        <div class="page-header"><h2 class="page-title text-success"><i class="bi bi-file-earmark-check"></i> ตรวจสอบหมวดค่ารักษา: [02] อวัยวะเทียม</h2></div>
+        <div class="page-header"><h2 class="page-title text-success"><i class="bi bi-person-check-fill"></i> วิเคราะห์รายบุคคล (ตรวจสอบหมวด 02)</h2></div>
         
         <div class="custom-card border-success border-top border-4">
           <div class="card-body-custom">
@@ -327,7 +327,7 @@
       if(page === 'table' && document.getElementById('tableS1Body').innerHTML.includes('กำลังดึงข้อมูล')) searchSheet1();
     }
 
-    // ================= วิเคราะห์รายงานประจำปี (อัปเกรดเรียงตามรหัส และดึงราคาสุทธิ) =================
+    // ================= วิเคราะห์รายงานประจำปี (อัปเกรดการจัดกลุ่มตาม Raw Name อย่างละเอียด) =================
     function processReportExcel() {
       const fileInput = document.getElementById('reportUpload');
       const errorAlert = document.getElementById('errorReport');
@@ -353,8 +353,7 @@
           const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
 
           let aggregated = {}; 
-          let foundCount = 0;
-
+          
           for (let i = 1; i < rows.length; i++) {
             let rowData = Object.values(rows[i]);
             let targetText = "";
@@ -365,37 +364,38 @@
             }
             if (!targetText) continue;
 
+            // ค้นหาทุก Block เช่น [ 2026-01-08... | 02 | ... | 7313 K-wire 1.0x150mm. | 2 | 300 | 600 ]
             let itemMatches = targetText.match(/\[(.*?)\]/g);
             if(itemMatches) {
                for(let itemBlock of itemMatches) {
                    let cleanText = itemBlock.replace(/\[|\]/g, '').trim();
                    let parts = cleanText.split('|').map(s => s.trim());
                    
-                   // ตรวจสอบโครงสร้าง: วันที่ | 02 | รหัสใน | ชื่อ | จำนวน | ราคาต่อหน่วย | ราคารวม
                    if(parts.length >= 6 && parts[1] === "02") {
-                       let rawName = parts[3]; 
+                       let rawName = parts[3]; // แกะชื่อเต็มๆ ดิบๆ มาเลย (เช่น 7313 K-wire 1.0x150mm.)
                        let qty = parseFloat(parts[4]) || 0;
                        let unitPrice = parseFloat(parts[5]) || 0;
-                       
-                       // *** แก้ไขจุดสำคัญ: ใช้ราคารวมจากไฟล์ (ช่องสุดท้าย) ถ้ามี ถ้าไม่มีค่อยเอามาคูณเอง ***
                        let totalPrice = parts.length >= 7 ? parseFloat(parts[6]) || (qty * unitPrice) : (qty * unitPrice);
                        
                        let code = "-";
                        let name = rawName;
+                       
+                       // พยายามแยกรหัสกับชื่อออก แต่ถ้าไม่ได้ก็ให้ code เป็น - แล้วใช้ rawName เป็นชื่อ
                        let codeMatch = rawName.match(/^([A-Za-z0-9\-]+)\s+(.*)$/);
                        if(codeMatch) {
                            code = codeMatch[1];
                            name = codeMatch[2];
                        }
 
-                       let key = code + "_" + unitPrice;
+                       // 🔥 กุญแจสำคัญ: จัดกลุ่มด้วย ชื่อเต็มแบบดิบๆ + ราคาต่อหน่วย เพื่อไม่ให้ชื่อย่อยหาย!
+                       let key = rawName + "_" + unitPrice;
+                       
                        if (!aggregated[key]) {
-                          aggregated[key] = { code: code, name: name, qty: 0, unitPrice: unitPrice, total: 0 };
+                          aggregated[key] = { code: code, name: name, rawName: rawName, qty: 0, unitPrice: unitPrice, total: 0 };
                        }
                        
                        aggregated[key].qty += qty;
-                       aggregated[key].total += totalPrice; // ใช้ยอด Total ที่ดึงมาตรงๆ (แก้ปัญหายอดไม่ชน HIS)
-                       foundCount++;
+                       aggregated[key].total += totalPrice;
                    }
                }
             }
@@ -404,9 +404,10 @@
           let reportData = Object.values(aggregated);
           if(reportData.length === 0) throw new Error("ไม่พบข้อมูลการใช้อุปกรณ์หมวด 02 ในไฟล์นี้ครับ");
 
-          // *** แก้ไขจุดสำคัญ: เรียงลำดับตาม รหัส (ADP) จากน้อยไปมาก ***
+          // เรียงลำดับตาม รหัส (ADP) > ถ้าไม่มีรหัสให้เรียงตามชื่อ
           reportData.sort((a, b) => {
-             // ถ้าเป็นตัวเลขให้เรียงแบบตัวเลข ถ้ามีตัวอักษรผสมให้เรียงตามตัวอักษร
+             if (a.code === "-" && b.code !== "-") return 1;
+             if (a.code !== "-" && b.code === "-") return -1;
              return a.code.localeCompare(b.code, undefined, {numeric: true, sensitivity: 'base'});
           });
 
@@ -446,7 +447,7 @@
       reader.readAsArrayBuffer(fileInput.files[0]);
     }
 
-    // ================= ฟังก์ชันอื่นๆ เหมือนเดิมทั้งหมด =================
+    // ================= ฟังก์ชันอื่นๆ เหมือนเดิม (ย่อไว้) =================
     function processExcel() {
       const fileInput = document.getElementById('excelUpload'); const errorAlert = document.getElementById('errorVerify'); document.getElementById('verifyResultsSection').classList.add('d-none'); document.getElementById('groupedSummarySection').classList.add('d-none'); errorAlert.classList.add('d-none');
       if (!fileInput.files.length) { errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ Excel ก่อนครับ'; errorAlert.classList.remove('d-none'); return; }
