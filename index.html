@@ -271,10 +271,9 @@
         <div id="reportSection" class="custom-card d-none shadow">
           <div class="card-header-custom bg-white border-bottom">
              <div class="d-flex justify-content-between align-items-center mb-3">
-                 <h5 class="card-header-title text-dark fs-4"><i class="bi bi-bar-chart-steps me-2 text-primary"></i>สรุปปริมาณและมูลค่าการใช้อุปกรณ์ (เรียงตามรหัส)</h5>
+                 <h5 class="card-header-title text-dark fs-4"><i class="bi bi-bar-chart-steps me-2 text-primary"></i>สรุปปริมาณและมูลค่าการใช้อุปกรณ์ (เรียงตามชื่ออุปกรณ์)</h5>
                  <span class="badge bg-primary fs-6" id="reportItemCount">พบ 0 รายการ</span>
              </div>
-             <!-- ฟังก์ชันค้นหาแยกตามรหัสและชื่ออุปกรณ์ (ใหม่!) -->
              <div class="row g-3 pt-2 border-top">
                  <div class="col-md-4">
                      <label class="form-label text-muted">🔍 ค้นหาด้วยรหัส ADP</label>
@@ -321,6 +320,9 @@
   </div>
 
   <script>
+    // =========================================================================
+    // 👇👇👇 เอาลิงก์ Web App URL (ที่ลงท้ายด้วย /exec) มาวางด้านล่างนี้ 👇👇👇
+    // =========================================================================
     const API_URL = 'https://script.google.com/macros/s/AKfycbxLy8-GzLbliBTDsQBLa1D0vDxyNbdiGSSAtPeOuOwQvZ9qyu70SuVcwy-dHbciwPU2jQ/exec'; 
 
     async function callGoogleAPI(action, payload) {
@@ -340,8 +342,8 @@
       if(page === 'table' && document.getElementById('tableS1Body').innerHTML.includes('กำลังดึงข้อมูล')) searchSheet1();
     }
 
-    // ================= โค้ดรายงานปี 2569 พร้อมระบบกรองข้อมูล =================
-    let globalReportData = []; // เก็บข้อมูลดิบไว้กรอง
+    // ================= รายงานปี 2569 (แก้ให้เรียงตาม "ชื่อ" เป็นหลัก) =================
+    let globalReportData = []; 
 
     function processReportExcel() {
       const fileInput = document.getElementById('reportUpload');
@@ -415,13 +417,18 @@
           globalReportData = Object.values(aggregated);
           if(globalReportData.length === 0) throw new Error("ไม่พบข้อมูลการใช้อุปกรณ์หมวด 02 ในไฟล์นี้ครับ");
 
+          // *** เรียงลำดับตาม 'ชื่ออุปกรณ์' (name) เป็นหลัก หากชื่อเหมือนกัน ให้เรียงตามราคา ***
           globalReportData.sort((a, b) => {
-             if (a.code === "-" && b.code !== "-") return 1;
-             if (a.code !== "-" && b.code === "-") return -1;
-             return a.code.localeCompare(b.code, undefined, {numeric: true, sensitivity: 'base'});
+             let nameA = a.name.toLowerCase();
+             let nameB = b.name.toLowerCase();
+             
+             if (nameA < nameB) return -1;
+             if (nameA > nameB) return 1;
+             
+             // ถ้าชื่อเหมือนกันเป๊ะ ให้เรียงตามราคา
+             return a.unitPrice - b.unitPrice;
           });
 
-          // แสดงผลตารางครั้งแรก (แบบเต็ม)
           renderReportTable(globalReportData);
           
           document.getElementById('loadingReport').classList.add('d-none');
@@ -436,18 +443,14 @@
       reader.readAsArrayBuffer(fileInput.files[0]);
     }
 
-    // ฟังก์ชันวาดตารางและคำนวณยอดรวม
     function renderReportTable(dataList) {
       const tbody = document.getElementById('reportTableBody');
       tbody.innerHTML = '';
-      
-      let grandQty = 0;
-      let grandPrice = 0;
+      let grandQty = 0, grandPrice = 0;
 
       dataList.forEach((item, index) => {
         grandQty += item.qty;
         grandPrice += item.total;
-
         tbody.innerHTML += `<tr>
           <td class="td-center text-muted">${index + 1}</td>
           <td class="td-center fw-bold text-secondary">${item.code}</td>
@@ -463,28 +466,24 @@
       document.getElementById('grandTotalPrice').textContent = grandPrice.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' ฿';
     }
 
-    // ฟังก์ชันกรองข้อมูลแบบ Real-time ตามรหัสและชื่อ
     function filterReportTable() {
       const codeQuery = document.getElementById('filterCode').value.toLowerCase().trim();
       const nameQuery = document.getElementById('filterName').value.toLowerCase().trim();
-
       const filtered = globalReportData.filter(item => {
         const matchCode = item.code.toLowerCase().includes(codeQuery);
         const matchName = item.name.toLowerCase().includes(nameQuery) || item.rawName.toLowerCase().includes(nameQuery);
         return matchCode && matchName;
       });
-
       renderReportTable(filtered);
     }
 
-    // ฟังก์ชันล้างตัวกรอง
     function resetReportFilter() {
       document.getElementById('filterCode').value = '';
       document.getElementById('filterName').value = '';
       renderReportTable(globalReportData);
     }
 
-    // ================= ฟังก์ชันอื่นๆ เหมือนเดิม =================
+    // ================= โค้ดเดิม (หน้า 1-3) ย่อไว้เพื่อความกระชับ =================
     function processExcel() {
       const fileInput = document.getElementById('excelUpload'); const errorAlert = document.getElementById('errorVerify'); document.getElementById('verifyResultsSection').classList.add('d-none'); document.getElementById('groupedSummarySection').classList.add('d-none'); errorAlert.classList.add('d-none');
       if (!fileInput.files.length) { errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ Excel ก่อนครับ'; errorAlert.classList.remove('d-none'); return; }
