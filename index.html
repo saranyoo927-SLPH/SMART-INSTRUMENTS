@@ -87,8 +87,261 @@
 
     <main class="main-content">
       
-      <!-- ================= PAGE 1-5 (ซ่อนไว้เหมือนเดิม) ================= -->
-      <div id="page-calc">...</div><div id="page-table">...</div><div id="page-verify">...</div><div id="page-audit">...</div><div id="page-report">...</div>
+      <!-- ================= PAGE 1: ประเมินสิทธิ ================= -->
+      <div id="page-calc">
+        <div class="page-header"><h2 class="page-title"><i class="bi bi-clipboard2-pulse text-primary"></i> ระบบประเมินราคาอุปกรณ์</h2></div>
+        <div class="custom-card">
+          <div class="card-body-custom">
+            <div class="row g-4">
+              <div class="col-xl-5 col-lg-6">
+                <label class="form-label">ตรวจสอบสิทธิด้วย HN</label>
+                <div class="input-group">
+                  <input type="text" id="hnInput" class="form-control" placeholder="ระบุ HN เช่น 001" onkeypress="if(event.key==='Enter') checkHN()">
+                  <button class="btn btn-info text-white fw-bold px-4" onclick="checkHN()" id="btnCheckHn">ตรวจสอบ</button>
+                </div>
+              </div>
+              <div class="col-xl-7 col-lg-6">
+                <label class="form-label">สิทธิ์การรักษา</label>
+                <select id="rightsType" class="form-select border-primary" onchange="renderCart()">
+                  <option value="ucs">หลักประกันสุขภาพแห่งชาติ (UCS)</option><option value="ofc">ข้าราชการ (OFC)</option>
+                  <option value="lgo">องค์กรปกครองส่วนท้องถิ่น (LGO)</option><option value="bkk">กรุงเทพมหานคร (BKK)</option>
+                  <option value="bmt">เมืองพัทยา (BMT)</option><option value="nhs">รัฐวิสาหกิจ (NHS)</option><option value="sss">ประกันสังคม (SSS)</option>
+                </select>
+              </div>
+            </div>
+            <hr class="my-4 text-muted">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">ค้นหาอุปกรณ์ (ระบุรหัส ADP หรือ ชื่ออุปกรณ์)</label>
+                <div class="input-group input-group-lg">
+                  <input type="text" id="keyword" class="form-control" placeholder="เช่น 72999 หรือ เลนส์ตา" onkeypress="if(event.key==='Enter') performSearch()">
+                  <button class="btn btn-primary px-4 fw-bold" onclick="performSearch()">ค้นหา</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="loading" class="text-center d-none my-4"><div class="spinner-border text-primary" role="status"></div></div>
+        <div id="errorAlert" class="alert alert-danger d-none shadow-sm rounded-3"></div>
+        <div id="searchResultsSection" class="custom-card d-none">
+          <div class="card-header-custom bg-light"><h5 class="card-header-title text-primary"><i class="bi bi-list-check me-2"></i>ผลการค้นหา (เลือกเพื่อเพิ่ม)</h5></div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead><tr><th class="td-center">รหัส (ADP)</th><th class="td-text">ชื่อรายการ</th><th class="td-num">ราคาต้นทุน</th><th class="td-center">เลือก</th></tr></thead>
+                <tbody id="searchResultsBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="custom-card">
+          <div class="card-header-custom d-flex justify-content-between align-items-center">
+             <h5 class="card-header-title text-success mb-0"><i class="bi bi-file-earmark-spreadsheet me-2"></i>สรุปยอดประเมินสิทธิ (Manual)</h5>
+             <button class="btn btn-sm btn-outline-danger fw-bold px-3" onclick="clearCalcData()"><i class="bi bi-trash3-fill me-1"></i> ล้างข้อมูลทั้งหมด</button>
+          </div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive">
+              <table class="table table-hover table-summary mb-0 align-middle">
+                <thead><tr><th class="td-center">รหัส</th><th class="td-text">ชื่อรายการ</th><th class="td-center">จำนวน</th><th class="td-num">ราคาต้นทุน</th><th class="td-num">เบิกได้</th><th class="td-num">เกินสิทธิ</th><th class="td-center">ลบ</th></tr></thead>
+                <tbody id="cartBody"><tr><td colspan="7" class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-2 text-light"></i>ยังไม่มีรายการ</td></tr></tbody>
+                <tfoot id="cartFoot"></tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ================= PAGE 2: ตารางอ้างอิง ================= -->
+      <div id="page-table" class="d-none">
+        <div class="page-header"><h2 class="page-title"><i class="bi bi-table text-primary"></i> ตารางอ้างอิงค่าอวัยวะเทียม</h2></div>
+        <div class="custom-card">
+          <div class="card-body-custom">
+             <div class="row g-3 align-items-end">
+                <div class="col-md-3"><label class="form-label">รหัส ADP</label><input type="text" id="searchS1Code" class="form-control" onkeypress="if(event.key==='Enter') searchSheet1()"></div>
+                <div class="col-md-7"><label class="form-label">ชื่อรายการอุปกรณ์</label><input type="text" id="searchS1Name" class="form-control" onkeypress="if(event.key==='Enter') searchSheet1()"></div>
+                <div class="col-md-2"><button class="btn btn-primary fw-bold w-100" onclick="searchSheet1()"><i class="bi bi-search me-1"></i> ค้นหา</button></div>
+             </div>
+          </div>
+        </div>
+        <div id="loadingS1" class="text-center d-none my-4"><div class="spinner-border text-primary" role="status"></div></div>
+        <div id="errorS1" class="alert alert-danger d-none"></div>
+        <div class="custom-card">
+          <div class="card-body-custom p-0">
+            <div class="table-responsive">
+              <table class="table table-hover table-striped table-corporate table-sm mb-0 text-nowrap">
+                <thead class="td-center"><tr><th>รหัส</th><th class="td-text">ชื่อรายการ</th><th>หมวด</th><th>หน่วย</th><th class="td-num">OFC</th><th class="td-num">UCS</th><th class="td-num">LGO</th><th class="td-num">BKK</th><th class="td-num">BMT</th><th class="td-num">NHS</th><th class="td-num">SSS</th></tr></thead>
+                <tbody id="tableS1Body"><tr><td colspan="11" class="text-center text-muted py-5">กำลังดึงข้อมูล...</td></tr></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 3: วิเคราะห์รายบุคคล ================= -->
+      <div id="page-verify" class="d-none">
+        <div class="page-header"><h2 class="page-title text-success"><i class="bi bi-person-check-fill"></i> วิเคราะห์รายบุคคล (ตรวจสอบหมวด 02)</h2></div>
+        <div class="custom-card border-success border-top border-4">
+          <div class="card-body-custom">
+             <div class="row g-3 align-items-end">
+                <div class="col-md-8">
+                  <label class="form-label fw-bold">อัปโหลดไฟล์ Excel (เพื่อตรวจสอบสิทธิการเบิกจ่าย)</label>
+                  <input type="file" class="form-control form-control-lg" id="excelUpload" accept=".xls,.xlsx">
+                </div>
+                <div class="col-md-4">
+                  <button class="btn btn-success btn-lg w-100 fw-bold" onclick="processExcel()">
+                    <i class="bi bi-cpu-fill me-1"></i> วิเคราะห์ข้อมูลอัตโนมัติ
+                  </button>
+                </div>
+             </div>
+          </div>
+        </div>
+        <div id="loadingVerify" class="text-center d-none my-4">
+           <div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status"></div>
+           <div class="mt-3 fw-bold text-success">กำลังอ่านและวิเคราะห์ไฟล์...</div>
+        </div>
+        <div id="errorVerify" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
+        <div id="verifyResultsSection" class="custom-card d-none">
+          <div class="card-header-custom bg-light"><h5 class="card-header-title text-danger"><i class="bi bi-search me-2"></i>รายละเอียดรายการรายชิ้น (ตรวจสอบข้อผิดพลาด)</h5></div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive border-0">
+              <table class="table table-hover mb-0">
+                <thead class="table-danger td-center align-middle">
+                  <tr><th class="td-text" width="28%">รายการอุปกรณ์ (จาก Excel)</th><th width="8%">จำนวน</th><th width="10%">หน่วยนับ</th><th class="td-num" width="14%">ราคาต่อหน่วย</th><th class="td-num" width="13%">ราคารวม</th><th class="td-num" width="13%">เบิกได้ (ตามสิทธิ)</th><th class="td-num" width="14%">เกินสิทธิ</th></tr>
+                </thead>
+                <tbody id="verifyTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="groupedSummarySection" class="custom-card d-none mt-4 border border-secondary border-opacity-25">
+          <div class="card-header-custom bg-white border-bottom">
+             <div class="d-flex justify-content-between align-items-center">
+                 <h5 class="card-header-title text-dark fs-4"><i class="bi bi-collection me-2 text-primary"></i>รายงานสรุปอวัยวะเทียม/อุปกรณ์บำบัดรักษา</h5>
+                 <span class="text-muted fw-bold" id="summaryItemCount">จำนวน 0 รายการ</span>
+             </div>
+          </div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive border-0 rounded-0">
+              <table class="table table-hover table-bordered mb-0">
+                <thead class="bg-light text-center align-middle" style="color: #495057;">
+                  <tr><th class="td-text py-3" width="30%">รหัสและรายการอุปกรณ์</th><th class="py-3" width="8%">หน่วย</th><th class="td-num py-3" width="12%">ราคาอ้างอิง</th><th class="py-3" width="8%">จำนวน</th><th class="td-num py-3" width="14%">ราคารวม</th><th class="td-num py-3" width="14%">เบิกได้(ตามสิทธิ)</th><th class="td-num py-3" width="14%">ส่วนเกิน</th></tr>
+                </thead>
+                <tbody id="summaryTableBody"></tbody>
+              </table>
+            </div>
+            <div class="p-4 bg-white border-top">
+               <div class="d-flex justify-content-end align-items-center gap-4 flex-wrap">
+                  <span class="fw-bold text-muted me-3 fs-5">สรุปยอดรวม :</span>
+                  <div><label class="form-label text-muted mb-1 fs-6">รวมราคารวม :</label><input type="text" class="form-control form-control-lg text-end fw-bold text-dark border-0" id="sumReqTotal" readonly style="width: 170px; background-color: #f8f9fa;"></div>
+                  <div><label class="form-label text-muted mb-1 fs-6">รวมเบิกได้ :</label><input type="text" class="form-control form-control-lg text-end fw-bold text-success border-0" id="sumCovTotal" readonly style="width: 170px; background-color: #f8f9fa;"></div>
+                  <div><label class="form-label text-muted mb-1 fs-6">รวมส่วนเกิน :</label><input type="text" class="form-control form-control-lg text-end fw-bold text-danger border-0" id="sumExcess" readonly style="width: 170px; background-color: #f8f9fa;"></div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 4: ตรวจสอบความสอดคล้อง (กลุ่ม) ================= -->
+      <div id="page-audit" class="d-none">
+        <div class="page-header"><h2 class="page-title text-success"><i class="bi bi-shield-fill-check"></i> ตรวจสอบความสอดคล้องการเบิกค่าอุปกรณ์ (กลุ่ม)</h2></div>
+        <div class="custom-card border-success border-top border-4">
+          <div class="card-body-custom">
+             <div class="row g-3 align-items-end">
+                <div class="col-md-8">
+                  <label class="form-label fw-bold">อัปโหลดไฟล์รายงานคนไข้รายวัน/รายเดือน (เช่น IP 1-7 july 2026.xls)</label>
+                  <input type="file" class="form-control form-control-lg border-success" id="auditUpload" accept=".xls,.xlsx">
+                </div>
+                <div class="col-md-4">
+                  <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" onclick="processAuditExcel()">
+                    <i class="bi bi-robot me-1"></i> เริ่มการตรวจสอบอัตโนมัติ
+                  </button>
+                </div>
+             </div>
+             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> ระบบจะอ่านข้อมูล AN(คอลัมน์ A), HN(คอลัมน์ B), วันที่จำหน่าย(คอลัมน์ H), สิทธิ(คอลัมน์ AL), และรายการอุปกรณ์(คอลัมน์ BB, BC)</div>
+          </div>
+        </div>
+        <div id="loadingAudit" class="text-center d-none my-5">
+           <div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status"></div>
+           <div class="mt-3 fw-bold text-success">กำลังตรวจสอบเทียบกับตารางอ้างอิง...</div>
+        </div>
+        <div id="errorAudit" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
+        <div id="auditSection" class="custom-card d-none shadow">
+          <div class="card-header-custom bg-white border-bottom d-flex justify-content-between align-items-center">
+             <h5 class="card-header-title text-dark fs-4"><i class="bi bi-list-columns-reverse me-2 text-success"></i>สรุปผลการตรวจสอบความสอดคล้อง</h5>
+             <span class="badge bg-success fs-6" id="auditItemCount">ตรวจสอบทั้งหมด 0 ราย</span>
+          </div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive border-0 rounded-0">
+              <table class="table table-hover table-striped mb-0">
+                <thead class="table-success td-center align-middle">
+                  <tr><th width="5%">ลำดับ</th><th width="12%">AN</th><th width="12%">HN</th><th width="12%">วันที่จำหน่าย</th><th class="td-text" width="20%">สิทธิการรักษา</th><th class="td-num" width="14%">ยอดรวมอุปกรณ์</th><th width="13%">ผลการตรวจสอบ</th><th width="12%">รายละเอียด</th></tr>
+                </thead>
+                <tbody id="auditTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 5: รายงานการใช้อุปกรณ์ ปี 2569 ================= -->
+      <div id="page-report" class="d-none">
+        <div class="page-header"><h2 class="page-title text-primary"><i class="bi bi-graph-up-arrow"></i> รายงานข้อมูลการใช้อุปกรณ์รวม (ปี 2569)</h2></div>
+        <div class="custom-card border-primary border-top border-4">
+          <div class="card-body-custom">
+             <div class="row g-3 align-items-end">
+                <div class="col-md-8">
+                  <label class="form-label fw-bold">อัปโหลดไฟล์ Excel ทะเบียนคนไข้ (ระบบจะแกะข้อมูลจากคอลัมน์ P)</label>
+                  <input type="file" class="form-control form-control-lg border-primary" id="reportUpload" accept=".xls,.xlsx">
+                </div>
+                <div class="col-md-4">
+                  <button class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" onclick="processReportExcel()">
+                    <i class="bi bi-magic me-1"></i> ประมวลผลและสรุปยอด
+                  </button>
+                </div>
+             </div>
+             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> ระบบจะสแกนหาข้อความที่มีแพทเทิร์น <code>[ วันที่ | 02 | รหัสภายใน | รหัสและชื่ออุปกรณ์ | จำนวน | ราคา | ราคา ]</code> ให้อัตโนมัติ</div>
+          </div>
+        </div>
+        <div id="loadingReport" class="text-center d-none my-5">
+           <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+           <div class="mt-3 fw-bold text-primary">กำลังแกะโครงสร้างข้อความและสรุปข้อมูล...</div>
+        </div>
+        <div id="errorReport" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
+        <div id="reportSection" class="custom-card d-none shadow">
+          <div class="card-header-custom bg-white border-bottom">
+             <div class="d-flex justify-content-between align-items-center mb-3">
+                 <h5 class="card-header-title text-dark fs-4"><i class="bi bi-bar-chart-steps me-2 text-primary"></i>สรุปปริมาณและมูลค่าการใช้อุปกรณ์ (เรียงตามชื่ออุปกรณ์)</h5>
+                 <span class="badge bg-primary fs-6" id="reportItemCount">พบ 0 รายการ</span>
+             </div>
+             <div class="row g-3 pt-2 border-top">
+                 <div class="col-md-4">
+                     <label class="form-label text-muted">🔍 ค้นหาด้วยรหัส ADP</label>
+                     <input type="text" id="filterCode" class="form-control" placeholder="เช่น 3002, 7313..." oninput="filterReportTable()">
+                 </div>
+                 <div class="col-md-6">
+                     <label class="form-label text-muted">🔍 ค้นหาด้วยชื่ออุปกรณ์</label>
+                     <input type="text" id="filterName" class="form-control" placeholder="พิมพ์ชื่ออุปกรณ์ที่ต้องการ..." oninput="filterReportTable()">
+                 </div>
+                 <div class="col-md-2 d-flex align-items-end">
+                     <button class="btn btn-outline-secondary w-100" onclick="resetReportFilter()">ล้างตัวกรอง</button>
+                 </div>
+             </div>
+          </div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive border-0 rounded-0">
+              <table class="table table-hover table-striped mb-0">
+                <thead class="table-primary td-center align-middle">
+                  <tr><th width="5%">ลำดับ</th><th width="10%">รหัส (ADP)</th><th class="td-text" width="40%">ชื่ออุปกรณ์</th><th width="15%">จำนวนรวม (ชิ้น)</th><th class="td-num" width="15%">ราคาต่อหน่วย</th><th class="td-num" width="15%">ราคารวมสุทธิ</th></tr>
+                </thead>
+                <tbody id="reportTableBody"></tbody>
+                <tfoot class="bg-light">
+                  <tr><td colspan="3" class="td-num fs-5 text-dark fw-bold">รวมทั้งสิ้น (Grand Total):</td><td class="td-center fs-4 fw-bold text-primary" id="grandTotalQty">0</td><td></td><td class="td-num fs-4 fw-bold text-danger" id="grandTotalPrice">0.00 ฿</td></tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!-- ================= PAGE 6: อัปเดตราคาตามประกาศ (รองรับทั้ง PDF และ Excel) ================= -->
       <div id="page-sync" class="d-none">
@@ -153,7 +406,35 @@
     </main>
   </div>
 
-  <div class="modal fade" id="patientDetailModal" tabindex="-1" aria-hidden="true">...</div>
+  <!-- ================= Modal สำหรับหน้าตรวจสอบรายบุคคล (จากหน้า Audit) ================= -->
+  <div class="modal fade" id="patientDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold" id="modalTitle">รายละเอียดการเบิกอุปกรณ์</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body bg-light">
+           <div class="table-responsive bg-white rounded shadow-sm border-0">
+               <table class="table table-hover mb-0">
+                  <thead class="text-white td-center align-middle" id="modalThead">
+                     <tr>
+                       <th class="td-text" width="30%">รายการอุปกรณ์ (จาก Excel)</th>
+                       <th width="8%">จำนวน</th>
+                       <th class="td-num" width="14%">ราคาต่อหน่วย</th>
+                       <th class="td-num" width="15%">ราคารวม</th>
+                       <th class="td-num" width="15%">เบิกได้ (ตามสิทธิ)</th>
+                       <th class="td-num" width="18%">เกินสิทธิ</th>
+                     </tr>
+                  </thead>
+                  <tbody id="modalTbody"></tbody>
+                  <tfoot id="modalTfoot" class="bg-light"></tfoot>
+               </table>
+           </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
     // =========================================================================
@@ -168,8 +449,15 @@
       } catch (error) { return { error: "ไม่สามารถเชื่อมต่อฐานข้อมูลได้ (โปรดตรวจสอบ API URL)" }; }
     }
 
+    // ฟังก์ชันเปลี่ยนหน้าจอ (Switch Page) แบบสมบูรณ์
     function switchPage(page) {
-      document.querySelectorAll('.main-content > div').forEach(el => el.classList.add('d-none'));
+      document.getElementById('page-calc').classList.add('d-none');
+      document.getElementById('page-table').classList.add('d-none');
+      document.getElementById('page-verify').classList.add('d-none');
+      document.getElementById('page-audit').classList.add('d-none');
+      document.getElementById('page-report').classList.add('d-none');
+      document.getElementById('page-sync').classList.add('d-none');
+      
       document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
       
       document.getElementById('page-' + page).classList.remove('d-none');
@@ -178,7 +466,11 @@
       if(page === 'table' && document.getElementById('tableS1Body').innerHTML.includes('กำลังดึงข้อมูล')) searchSheet1();
     }
 
-    let currentSearchResults = []; let cartItems = []; let globalReportData = []; let globalAuditData = []; 
+    // ตัวแปรส่วนกลาง
+    let currentSearchResults = [];
+    let cartItems = [];
+    let globalReportData = [];
+    let globalAuditData = [];
     let currentSyncList = [];
     let selectedRightsToUpdate = [];
 
@@ -190,19 +482,27 @@
     function removeFromCart(i) { cartItems.splice(i, 1); renderCart(); }
     function clearCalcData() { document.getElementById('hnInput').value = ''; document.getElementById('keyword').value = ''; document.getElementById('rightsType').selectedIndex = 0; document.getElementById('searchResultsSection').classList.add('d-none'); document.getElementById('errorAlert').classList.add('d-none'); cartItems = []; renderCart(); }
     function renderCart() { const tbody = document.getElementById('cartBody'), tfoot = document.getElementById('cartFoot'), rt = document.getElementById('rightsType').value; tbody.innerHTML = ''; tfoot.innerHTML = ''; if (cartItems.length === 0) return tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-2 text-light"></i>ยังไม่มีรายการ</td></tr>'; let totals = { qty: 0, uc: 0, cov: 0, ex: 0 }; cartItems.forEach((item, i) => { let cov = item[rt] || 0, ex = Math.max(item.unitcost - cov, 0); totals.qty += item.qty; totals.uc += (item.unitcost * item.qty); totals.cov += (cov * item.qty); totals.ex += (ex * item.qty); tbody.innerHTML += `<tr><td class="td-center fw-bold text-secondary">${item.code}</td><td class="td-text fw-semibold">${item.name}</td><td class="td-center"><input type="number" class="form-control form-control-sm qty-input" min="1" value="${item.qty}" onchange="updateQty(${i}, this.value)"></td><td class="td-num text-muted">${(item.unitcost * item.qty).toLocaleString()}</td><td class="td-num text-success fw-bold">${(cov * item.qty).toLocaleString()}</td><td class="td-num text-danger fw-bold">${(ex * item.qty).toLocaleString()}</td><td class="td-center"><button class="btn btn-sm btn-outline-danger border-0" onclick="removeFromCart(${i})"><i class="bi bi-trash3-fill"></i></button></td></tr>`; }); tfoot.innerHTML = `<tr><td colspan="2" class="td-num fs-6 text-success"><strong>รวม :</strong></td><td class="td-center fs-6"><strong>${totals.qty} ชิ้น</strong></td><td class="td-num fs-6 text-muted"><strong>${totals.uc.toLocaleString()}</strong></td><td class="td-num text-success fs-5"><strong>${totals.cov.toLocaleString()}</strong></td><td class="td-num text-danger fs-5"><strong>${totals.ex.toLocaleString()}</strong></td><td></td></tr>`; }
+
+    // ================= 2. ตารางอ้างอิง (Table) =================
     async function searchSheet1() { const code = document.getElementById('searchS1Code').value.trim(), name = document.getElementById('searchS1Name').value.trim(); document.getElementById('loadingS1').classList.remove('d-none'); document.getElementById('errorS1').classList.add('d-none'); document.getElementById('tableS1Body').innerHTML = ''; try { const res = await callGoogleAPI('searchSheet1Data', { code: code, name: name }); document.getElementById('loadingS1').classList.add('d-none'); if (res.error) return; const tbody = document.getElementById('tableS1Body'); res.data.forEach(item => { tbody.innerHTML += `<tr><td class="td-center fw-bold text-dark">${item.code}</td><td class="td-text text-wrap" style="min-width: 280px; font-weight: 500;">${item.name}</td><td class="td-center text-muted">${item.cat}</td><td class="td-center text-muted">${item.unit}</td><td class="td-num text-dark">${item.ofc.toLocaleString()}</td><td class="td-num text-dark">${item.ucs.toLocaleString()}</td><td class="td-num text-dark">${item.lgo.toLocaleString()}</td><td class="td-num text-dark">${item.bkk.toLocaleString()}</td><td class="td-num text-dark">${item.bmt.toLocaleString()}</td><td class="td-num text-dark">${item.nhs.toLocaleString()}</td><td class="td-num text-dark">${item.sss.toLocaleString()}</td></tr>`; }); } catch (e) { document.getElementById('loadingS1').classList.add('d-none'); } }
+
+    // ================= 3. วิเคราะห์รายบุคคล (Verify) =================
     function processExcel() { const fileInput = document.getElementById('excelUpload'); const errorAlert = document.getElementById('errorVerify'); document.getElementById('verifyResultsSection').classList.add('d-none'); document.getElementById('groupedSummarySection').classList.add('d-none'); errorAlert.classList.add('d-none'); if (!fileInput.files.length) { errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ Excel ก่อนครับ'; errorAlert.classList.remove('d-none'); return; } document.getElementById('loadingVerify').classList.remove('d-none'); const reader = new FileReader(); reader.onload = async function(e) { try { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const sheetName = workbook.SheetNames[0]; const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1}); let allRightsStr = fileInput.files[0].name; for (let i = 0; i < rows.length; i++) { if (rows[i][4]) allRightsStr += " " + rows[i][4].toString(); } let allR = allRightsStr.toUpperCase(), mainRightKey = "UCS"; if (allR.includes('OFC') || allR.includes('ข้าราชการ')) mainRightKey = "OFC"; else if (allR.includes('LGO') || allR.includes('อปท') || allR.includes('ส่วนท้องถิ่น')) mainRightKey = "LGO"; else if (allR.includes('BKK') || allR.includes('กทม') || allR.includes('กรุงเทพ')) mainRightKey = "BKK"; else if (allR.includes('BMT') || allR.includes('พัทยา')) mainRightKey = "BMT"; else if (allR.includes('NHS') || allR.includes('รัฐวิสาหกิจ')) mainRightKey = "NHS"; else if (allR.includes('SSS') || allR.includes('ประกันสังคม')) mainRightKey = "SSS"; else if (allR.includes('UC') || allR.includes('UCS') || allR.includes('บัตรทอง')) mainRightKey = "UCS"; let isSection02 = false, extracted = []; for (let i = 0; i < rows.length; i++) { let colA = rows[i][0] ? rows[i][0].toString().trim() : ""; if (colA.includes("[02] อวัยวะเทียม")) { isSection02 = true; continue; } if (isSection02 && colA.includes("หมวดค่ารักษา:")) break; if (isSection02 && rows[i][1]) { let adpCode = ""; let match = rows[i][1].toString().match(/\[([^\]]+)\][^\[\]]*$/); if (match) adpCode = match[1]; extracted.push({ name: rows[i][1].toString(), unit: rows[i][2] || "-", rightStr: mainRightKey, qty: Number(rows[i][6]) || 0, unitPrice: Number(rows[i][7]) || 0, adpCode: adpCode }); } } if(extracted.length === 0) throw new Error('ไม่พบข้อมูล "หมวดค่ารักษา: [02]"'); const res = await callGoogleAPI('analyzeUploadedData', { items: extracted }); displayVerifyResults(res); } catch (err) { document.getElementById('loadingVerify').classList.add('d-none'); errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i> ${err.message}`; errorAlert.classList.remove('d-none'); } }; reader.readAsArrayBuffer(fileInput.files[0]); }
     function displayVerifyResults(res) { document.getElementById('loadingVerify').classList.add('d-none'); const errorAlert = document.getElementById('errorVerify'); const tbody = document.getElementById('verifyTableBody'); errorAlert.classList.add('d-none'); errorAlert.classList.remove('alert-warning'); errorAlert.classList.add('alert-danger'); if (res.error) { errorAlert.textContent = res.error; errorAlert.classList.remove('d-none'); return; } tbody.innerHTML = ''; let mismatchCount = 0; res.data.forEach(item => { let isMismatch = (item.unitPrice !== item.coveredUnitPrice) && (item.coveredUnitPrice > 0); let trClass = "", unitPriceCell = ""; if (isMismatch) { mismatchCount++; trClass = "table-warning border-warning"; unitPriceCell = `<td class="td-num"><div class="text-danger fw-bold fs-5">${item.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div><div class="badge bg-danger badge-alert mt-2 px-2 py-1 shadow-sm text-wrap lh-base" style="font-size:0.8rem;"><i class="bi bi-exclamation-triangle-fill"></i> ไม่ตรงตาราง<br>อ้างอิง: ${item.coveredUnitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div></td>`; } else if (item.coveredUnitPrice === 0 && item.adpCode && item.adpCode !== "-") { unitPriceCell = `<td class="td-num"><div class="text-dark">${item.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div><div class="badge bg-secondary mt-1 px-2 py-1" style="font-size:0.7rem;">ไม่มีราคาในตาราง</div></td>`; } else { unitPriceCell = `<td class="td-num text-dark fw-bold">${item.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>`; } tbody.innerHTML += `<tr class="${trClass}"><td class="td-text fw-semibold">${item.name}<div class="text-muted small mt-1"><span class="badge bg-secondary">รหัส: ${item.adpCode}</span> <span class="badge bg-info text-dark">สิทธิตรวจพบ: ${item.rightUsed}</span></div></td><td class="td-center fw-bold text-primary fs-5">${item.qty}</td><td class="td-center text-muted">${item.unit}</td>${unitPriceCell}<td class="td-num text-dark fw-bold">${item.totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num text-success fw-bold">${item.totalCovered.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num text-danger fw-bold fs-6">${item.excess.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>`; }); if (mismatchCount > 0) { errorAlert.classList.replace('alert-danger', 'alert-warning'); errorAlert.innerHTML = `<div class="d-flex align-items-center"><i class="bi bi-exclamation-triangle-fill fs-2 me-3 text-danger"></i> <div><div class="fs-5 text-dark"><strong>แจ้งเตือน:</strong> ตรวจพบรายการที่ "ราคาต่อหน่วย" ไม่ตรงกับตารางอ้างอิงจำนวน <span class="text-danger fs-4">${mismatchCount}</span> รายการ</div><div class="text-muted fw-normal">กรุณาตรวจสอบว่าอาจเกิดจากการนำ "ราคารวม" มาคีย์ใส่ช่อง "ราคาต่อหน่วย" แล้วใส่จำนวนเป็น 1 หรือไม่</div></div></div>`; errorAlert.classList.remove('d-none'); } document.getElementById('verifyResultsSection').classList.remove('d-none'); let grouped = {}; res.data.forEach(item => { let code = item.adpCode && item.adpCode !== "-" ? item.adpCode : "UNKNOWN_" + Math.random(); if(!grouped[code]) { grouped[code] = { code: item.adpCode !== "-" ? item.adpCode : "", name: item.officialName || item.name.replace(/\[.*?\]/g, '').trim(), unit: item.officialUnit || item.unit, basePrice: item.coveredUnitPrice, qty: 0, reqTotal: 0, covTotal: 0 }; } grouped[code].qty += item.qty; grouped[code].reqTotal += item.totalPrice; grouped[code].covTotal += item.totalCovered; }); const summaryTbody = document.getElementById('summaryTableBody'); summaryTbody.innerHTML = ''; let groupCount = 0; Object.values(grouped).forEach(g => { groupCount++; let excess = Math.max(g.reqTotal - g.covTotal, 0); let displayName = g.code ? `${g.code} ${g.name}` : g.name; summaryTbody.innerHTML += `<tr><td class="td-text fw-semibold text-dark">${displayName}</td><td class="td-center text-muted">${g.unit}</td><td class="td-num">${g.basePrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td><td class="td-center fw-bold fs-5">${g.qty}</td><td class="td-num text-dark fw-bold">${g.reqTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td><td class="td-num text-success fw-bold">${g.covTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td><td class="td-num text-danger">${excess.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td></tr>`; }); document.getElementById('summaryItemCount').textContent = `จำนวน ${groupCount} รายการ`; document.getElementById('sumReqTotal').value = res.summary.totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}); document.getElementById('sumCovTotal').value = res.summary.totalCovered.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}); document.getElementById('sumExcess').value = res.summary.totalExcess.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}); document.getElementById('groupedSummarySection').classList.remove('d-none'); }
+
+    // ================= 4. ตรวจสอบกลุ่ม (Audit) =================
     function formatThaiDate(dateVal) { if (!dateVal) return "-"; let dStr = dateVal.toString().trim(); if (dStr.length === 8 && /^\d+$/.test(dStr)) { return `${dStr.substring(6, 8)}/${dStr.substring(4, 6)}/${dStr.substring(0, 4)}`; } return dStr; }
     function processAuditExcel() { const fileInput = document.getElementById('auditUpload'); const errorAlert = document.getElementById('errorAudit'); const section = document.getElementById('auditSection'); errorAlert.classList.add('d-none'); section.classList.add('d-none'); if (!fileInput.files.length) { errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ Excel ก่อนครับ'; errorAlert.classList.remove('d-none'); return; } document.getElementById('loadingAudit').classList.remove('d-none'); const reader = new FileReader(); reader.onload = async function(e) { try { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const sheetName = workbook.SheetNames[0]; const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1}); let patients = []; for (let i = 1; i < rows.length; i++) { let an = rows[i][0]; let hn = rows[i][1]; let date = formatThaiDate(rows[i][7]); let rightStr = rows[i][37] ? rows[i][37].toString() : ""; let devicesStr = rows[i][53] ? rows[i][53].toString() : ""; let totalClaim = rows[i][54] ? parseFloat(rows[i][54]) : 0; if (!devicesStr || !devicesStr.includes("| 02 |")) continue; let itemMatches = devicesStr.match(/\[(.*?)\]/g); if (!itemMatches) continue; let parsedDevices = []; for (let itemBlock of itemMatches) { let cleanText = itemBlock.replace(/\[|\]/g, '').trim(); let parts = cleanText.split('|').map(s => s.trim()); if(parts.length >= 6 && parts[1] === "02") { let rawName = parts[3]; let qty = parseFloat(parts[4]) || 0; let unitPrice = parseFloat(parts[5]) || 0; let totalPrice = parts.length >= 7 ? parseFloat(parts[6]) || (qty * unitPrice) : (qty * unitPrice); let code = "-"; let codeMatch = rawName.match(/^([A-Za-z0-9\-]+)\s+(.*)$/); if(codeMatch) code = codeMatch[1]; parsedDevices.push({ name: rawName, adpCode: code, qty: qty, unitPrice: unitPrice, totalPrice: totalPrice }); } } if (parsedDevices.length > 0) { patients.push({ an: an || "-", hn: hn || "-", date: date || "-", rightStr: rightStr, totalClaim: totalClaim, devices: parsedDevices }); } } if(patients.length === 0) throw new Error("ไม่พบข้อมูลผู้ป่วยที่มีการใช้อุปกรณ์หมวด [02] ในไฟล์นี้"); const res = await callGoogleAPI('analyzeBatchData', { patients: patients }); if (res.error) throw new Error(res.error); globalAuditData = res.data; renderAuditTable(globalAuditData); } catch (err) { document.getElementById('loadingAudit').classList.add('d-none'); errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i> ${err.message}`; errorAlert.classList.remove('d-none'); } }; reader.readAsArrayBuffer(fileInput.files[0]); }
     function renderAuditTable(dataList) { const tbody = document.getElementById('auditTableBody'); tbody.innerHTML = ''; dataList.forEach((p, index) => { let statusBadge = p.status === 'ปกติ' ? `<span class="badge bg-success fs-6 px-3 py-2 shadow-sm"><i class="bi bi-check-circle me-1"></i> ปกติ</span>` : `<span class="badge bg-danger fs-6 px-3 py-2 shadow-sm badge-alert"><i class="bi bi-exclamation-triangle me-1"></i> ผิดปกติ (${p.mismatchCount})</span>`; tbody.innerHTML += `<tr><td class="td-center text-muted">${index + 1}</td><td class="td-center fw-bold text-dark">${p.an}</td><td class="td-center fw-bold text-secondary">${p.hn}</td><td class="td-center text-muted">${p.date}</td><td class="td-text text-dark">${p.rightStr}<br><span class="badge bg-info text-dark mt-1">สิทธิอ้างอิง: ${p.mappedRight}</span></td><td class="td-num fw-bold text-primary fs-6">${p.totalClaim.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-center">${statusBadge}</td><td class="td-center"><button class="btn btn-sm btn-outline-primary fw-bold px-3 py-1" onclick="openPatientDetail(${index})"><i class="bi bi-eye"></i> รายละเอียด</button></td></tr>`; }); document.getElementById('auditItemCount').textContent = `ตรวจสอบทั้งหมด ${dataList.length} ราย`; document.getElementById('loadingAudit').classList.add('d-none'); document.getElementById('auditSection').classList.remove('d-none'); }
     function openPatientDetail(index) { const p = globalAuditData[index]; document.getElementById('modalTitle').innerHTML = `<i class="bi bi-person-lines-fill me-2"></i>รายละเอียดผู้ป่วย: AN <span class="text-warning">${p.an}</span> | HN <span class="text-warning">${p.hn}</span>`; const thead = document.getElementById('modalThead'); if(p.status === 'ผิดปกติ') { thead.className = "table-danger text-dark td-center align-middle"; } else { thead.className = "table-success text-dark td-center align-middle"; } const tbody = document.getElementById('modalTbody'); tbody.innerHTML = ''; p.devices.forEach(d => { let trClass = "", unitPriceCell = ""; if (d.isMismatch) { trClass = "table-warning border-warning"; unitPriceCell = `<td class="td-num"><div class="text-danger fw-bold fs-5">${d.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div><div class="badge bg-danger badge-alert mt-2 px-2 py-1 shadow-sm text-wrap lh-base" style="font-size:0.8rem;"><i class="bi bi-exclamation-triangle-fill"></i> อ้างอิง: ${d.coveredUnitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div></td>`; } else if (d.coveredUnitPrice === 0 && d.adpCode !== "-") { unitPriceCell = `<td class="td-num"><div class="text-dark">${d.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div><div class="badge bg-secondary mt-1 px-2 py-1" style="font-size:0.7rem;">ไม่มีราคาในตาราง</div></td>`; } else { unitPriceCell = `<td class="td-num text-dark fw-bold">${d.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>`; } tbody.innerHTML += `<tr class="${trClass}"><td class="td-text fw-semibold">${d.name} <div class="text-muted small mt-1"><span class="badge bg-secondary">รหัส: ${d.adpCode}</span></div></td><td class="td-center fw-bold fs-5 text-primary">${d.qty}</td>${unitPriceCell}<td class="td-num text-dark fw-bold">${d.totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num text-success fw-bold">${(d.coveredUnitPrice * d.qty).toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num text-danger fw-bold fs-6">${d.excess.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>`; }); document.getElementById('modalTfoot').innerHTML = `<tr><td colspan="3" class="td-num fs-5 text-dark fw-bold">สรุปยอดรวม (Total):</td><td class="td-num fs-5 fw-bold text-dark">${p.totalCost.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num fs-5 fw-bold text-success">${p.totalCovered.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num fs-5 fw-bold text-danger">${p.totalExcess.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>`; const modal = new bootstrap.Modal(document.getElementById('patientDetailModal')); modal.show(); }
+
+    // ================= 5. รายงานประจำปี 2569 (Report) =================
     function processReportExcel() { const fileInput = document.getElementById('reportUpload'); const errorAlert = document.getElementById('errorReport'); const section = document.getElementById('reportSection'); errorAlert.classList.add('d-none'); section.classList.add('d-none'); if (!fileInput.files.length) { errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ข้อมูลการใช้อุปกรณ์ก่อนครับ'; errorAlert.classList.remove('d-none'); return; } document.getElementById('loadingReport').classList.remove('d-none'); const reader = new FileReader(); reader.onload = function(e) { try { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const sheetName = workbook.SheetNames[0]; const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1}); let aggregated = {}; for (let i = 1; i < rows.length; i++) { let rowData = Object.values(rows[i]); let targetText = ""; for(let cell of rowData) { if(typeof cell === 'string' && cell.includes("[") && cell.includes("| 02 |")) { targetText += cell + " "; } } if (!targetText) continue; let itemMatches = targetText.match(/\[(.*?)\]/g); if(itemMatches) { for(let itemBlock of itemMatches) { let cleanText = itemBlock.replace(/\[|\]/g, '').trim(); let parts = cleanText.split('|').map(s => s.trim()); if(parts.length >= 6 && parts[1] === "02") { let rawName = parts[3]; let qty = parseFloat(parts[4]) || 0; let unitPrice = parseFloat(parts[5]) || 0; let totalPrice = parts.length >= 7 ? parseFloat(parts[6]) || (qty * unitPrice) : (qty * unitPrice); let code = "-"; let name = rawName; let codeMatch = rawName.match(/^([A-Za-z0-9\-]+)\s+(.*)$/); if(codeMatch) { code = codeMatch[1]; name = codeMatch[2]; } let key = rawName + "_" + unitPrice; if (!aggregated[key]) { aggregated[key] = { code: code, name: name, rawName: rawName, qty: 0, unitPrice: unitPrice, total: 0 }; } aggregated[key].qty += qty; aggregated[key].total += totalPrice; } } } } globalReportData = Object.values(aggregated); if(globalReportData.length === 0) throw new Error("ไม่พบข้อมูลการใช้อุปกรณ์หมวด 02 ในไฟล์นี้ครับ"); globalReportData.sort((a, b) => { let nameA = a.name.toLowerCase(); let nameB = b.name.toLowerCase(); if (nameA < nameB) return -1; if (nameA > nameB) return 1; return a.unitPrice - b.unitPrice; }); renderReportTable(globalReportData); document.getElementById('loadingReport').classList.add('d-none'); section.classList.remove('d-none'); } catch (err) { document.getElementById('loadingReport').classList.add('d-none'); errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i>เกิดข้อผิดพลาด: ${err.message}`; errorAlert.classList.remove('d-none'); } }; reader.readAsArrayBuffer(fileInput.files[0]); }
     function renderReportTable(dataList) { const tbody = document.getElementById('reportTableBody'); tbody.innerHTML = ''; let grandQty = 0, grandPrice = 0; dataList.forEach((item, index) => { grandQty += item.qty; grandPrice += item.total; tbody.innerHTML += `<tr><td class="td-center text-muted">${index + 1}</td><td class="td-center fw-bold text-secondary">${item.code}</td><td class="td-text fw-semibold text-dark">${item.name}</td><td class="td-center fw-bold fs-5 text-primary">${item.qty.toLocaleString()}</td><td class="td-num text-muted">${item.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num fw-bold text-dark">${item.total.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>`; }); document.getElementById('reportItemCount').textContent = `แสดง ${dataList.length} รายการ`; document.getElementById('grandTotalQty').textContent = grandQty.toLocaleString(); document.getElementById('grandTotalPrice').textContent = grandPrice.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' ฿'; }
     function filterReportTable() { const codeQuery = document.getElementById('filterCode').value.toLowerCase().trim(); const nameQuery = document.getElementById('filterName').value.toLowerCase().trim(); const filtered = globalReportData.filter(item => { const matchCode = item.code.toLowerCase().includes(codeQuery); const matchName = item.name.toLowerCase().includes(nameQuery) || item.rawName.toLowerCase().includes(nameQuery); return matchCode && matchName; }); renderReportTable(filtered); }
     function resetReportFilter() { document.getElementById('filterCode').value = ''; document.getElementById('filterName').value = ''; renderReportTable(globalReportData); }
 
-    // ================= 6. อัปเดตราคาตามประกาศ (Sync File - รองรับ PDF และ Excel) =================
+    // ================= 6. อัปเดตราคาตามประกาศ (Sync PDF & Excel) =================
     async function processSyncFile() {
       const fileInput = document.getElementById('syncUpload');
       const errorAlert = document.getElementById('errorSync');
@@ -230,7 +530,6 @@
               let rawUpdates = [];
 
               if (fileName.endsWith('.pdf')) {
-                  // --- ส่วนการประมวลผลไฟล์ PDF ---
                   document.getElementById('syncLoadingText').innerText = "กำลังอ่านข้อความจากไฟล์ PDF...";
                   const typedarray = new Uint8Array(e.target.result);
                   const pdf = await pdfjsLib.getDocument(typedarray).promise;
@@ -278,7 +577,6 @@
                   }
               } 
               else if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) {
-                  // --- ส่วนการประมวลผลไฟล์ Excel ---
                   document.getElementById('syncLoadingText').innerText = "กำลังอ่านข้อมูลจากตาราง Excel...";
                   const data = new Uint8Array(e.target.result);
                   const workbook = XLSX.read(data, {type: 'array'});
@@ -294,7 +592,6 @@
                         if(val.includes('อัตรา') || val.includes('ราคา')) priceIdx = j;
                      }
                      if(codeIdx !== -1 && priceIdx !== -1) {
-                         // เจอหัวตารางแล้ว ดึงข้อมูลบรรทัดถัดไปทั้งหมด
                          for(let r = i+1; r < rows.length; r++) {
                              let c = rows[r][codeIdx];
                              let p = rows[r][priceIdx];
@@ -409,10 +706,5 @@
         }
     }
   </script>
-
-  <!-- ซ่อนหน้า HTML โครงสร้างเก่าไว้ด้านล่างสุด เพื่อป้องกัน Error (กรณีไม่ได้โหลด DOM ไว้) -->
-  <div class="d-none">
-     <div id="page-calc"></div><div id="page-table"></div><div id="page-verify"></div><div id="page-audit"></div><div id="page-report"></div><div id="page-sync"></div>
-  </div>
 </body>
 </html>
