@@ -9,15 +9,14 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   
-  <!-- ไลบรารี -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   
-  <!-- เพิ่มไลบรารีอ่าน PDF -->
+  <!-- ไลบรารีสำหรับอ่าน PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <script>
-    // กำหนด Worker สำหรับ PDF.js ให้ทำงานได้
+    // กำหนด Worker เพื่อให้ PDF.js สามารถประมวลผลไฟล์ได้
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
   </script>
 
@@ -204,7 +203,6 @@
            <div class="mt-3 fw-bold text-success">กำลังอ่านและวิเคราะห์ไฟล์...</div>
         </div>
         <div id="errorVerify" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
-        
         <div id="verifyResultsSection" class="custom-card d-none">
           <div class="card-header-custom bg-light"><h5 class="card-header-title text-danger"><i class="bi bi-search me-2"></i>รายละเอียดรายการรายชิ้น (ตรวจสอบข้อผิดพลาด)</h5></div>
           <div class="card-body-custom p-0">
@@ -218,7 +216,6 @@
             </div>
           </div>
         </div>
-        
         <div id="groupedSummarySection" class="custom-card d-none mt-4 border border-secondary border-opacity-25">
           <div class="card-header-custom bg-white border-bottom">
              <div class="d-flex justify-content-between align-items-center">
@@ -247,9 +244,9 @@
         </div>
       </div>
 
-      <!-- ================= PAGE 4: ตรวจสอบความสอดคล้อง (แบบกลุ่ม) ================= -->
+      <!-- ================= PAGE 4: ตรวจสอบความสอดคล้อง (กลุ่ม) ================= -->
       <div id="page-audit" class="d-none">
-        <div class="page-header"><h2 class="page-title text-success"><i class="bi bi-shield-fill-check"></i> ตรวจสอบความสอดคล้องการเบิกค่าอุปกรณ์ (แบบกลุ่ม)</h2></div>
+        <div class="page-header"><h2 class="page-title text-success"><i class="bi bi-shield-fill-check"></i> ตรวจสอบความสอดคล้องการเบิกค่าอุปกรณ์ (กลุ่ม)</h2></div>
         <div class="custom-card border-success border-top border-4">
           <div class="card-body-custom">
              <div class="row g-3 align-items-end">
@@ -263,7 +260,7 @@
                   </button>
                 </div>
              </div>
-             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> ระบบจะอ่านข้อมูล AN(คอลัมน์ A), HN(คอลัมน์ B), วันที่จำหน่าย(คอลัมน์ H), สิทธิ(คอลัมน์ AL), และรายการอุปกรณ์(คอลัมน์ BB, BC)</div>
+             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> ระบบจะตรวจสอบความสอดคล้องของราคาต่อหน่วยที่บันทึกมา เทียบกับฐานข้อมูลราคาใน "ชีต1"</div>
           </div>
         </div>
         <div id="loadingAudit" class="text-center d-none my-5">
@@ -280,7 +277,7 @@
             <div class="table-responsive border-0 rounded-0">
               <table class="table table-hover table-striped mb-0">
                 <thead class="table-success td-center align-middle">
-                  <tr><th width="5%">ลำดับ</th><th width="12%">AN</th><th width="12%">HN</th><th width="12%">วันที่จำหน่าย</th><th class="td-text" width="20%">สิทธิการรักษา</th><th class="td-num" width="14%">ยอดรวมอุปกรณ์</th><th width="13%">ผลการตรวจสอบ</th><th width="12%">รายละเอียด</th></tr>
+                  <tr><th width="5%">ลำดับ</th><th width="12%">AN</th><th width="12%">HN</th><th width="12%">วันที่จำหน่าย</th><th class="td-text" width="20%">สิทธิการรักษา</th><th class="td-num" width="14%">ยอดรวมเบิกค่าอุปกรณ์</th><th width="13%">ผลการตรวจสอบ</th><th width="12%">รายละเอียด</th></tr>
                 </thead>
                 <tbody id="auditTableBody"></tbody>
               </table>
@@ -305,7 +302,6 @@
                   </button>
                 </div>
              </div>
-             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> ระบบจะสแกนหาข้อความที่มีแพทเทิร์น <code>[ วันที่ | 02 | รหัสภายใน | รหัสและชื่ออุปกรณ์ | จำนวน | ราคา | ราคา ]</code> ให้อัตโนมัติ</div>
           </div>
         </div>
         <div id="loadingReport" class="text-center d-none my-5">
@@ -351,12 +347,13 @@
 
       <!-- ================= PAGE 6: ตรวจสอบความสอดคล้องกับประกาศฯ (อัปเดตราคาจาก PDF) ================= -->
       <div id="page-sync" class="d-none">
-        <div class="page-header"><h2 class="page-title text-warning"><i class="bi bi-arrow-repeat"></i> อัปเดตราคาให้ตรงกับประกาศล่าสุด (รองรับ PDF)</h2></div>
+        <div class="page-header"><h2 class="page-title text-warning"><i class="bi bi-arrow-repeat"></i> อัปเดตราคาให้ตรงกับประกาศล่าสุด</h2></div>
         
         <div class="custom-card border-warning border-top border-4">
           <div class="card-body-custom">
              <div class="row g-3 align-items-end">
                 <div class="col-md-5">
+                  <!-- เปลี่ยนป้ายกำกับและ accept ให้เป็น .pdf อย่างเดียวแล้วครับ -->
                   <label class="form-label fw-bold">1. เลือกไฟล์ประกาศ (รูปแบบ PDF)</label>
                   <input type="file" class="form-control form-control-lg border-warning" id="syncUpload" accept=".pdf">
                 </div>
@@ -440,7 +437,7 @@
 
   <script>
     // =========================================================================
-    // API URL ของคุณ (ห้ามลบ)
+    // API URL ของคุณ
     // =========================================================================
     const API_URL = 'https://script.google.com/macros/s/AKfycbxLy8-GzLbliBTDsQBLa1D0vDxyNbdiGSSAtPeOuOwQvZ9qyu70SuVcwy-dHbciwPU2jQ/exec'; 
 
@@ -518,67 +515,77 @@
       fileReader.onload = async function() {
           try {
               const typedarray = new Uint8Array(this.result);
-              // โหลด PDF ด้วย PDF.js
               const pdf = await pdfjsLib.getDocument(typedarray).promise;
-              let fullText = "";
+              let rawUpdates = [];
               
-              // อ่านทีละหน้า
+              document.getElementById('syncLoadingText').innerText = "กำลังวิเคราะห์รหัสและราคา...";
+              
               for (let i = 1; i <= pdf.numPages; i++) {
                   const page = await pdf.getPage(i);
                   const textContent = await page.getTextContent();
-                  const pageStrings = textContent.items.map(item => item.str);
-                  fullText += pageStrings.join(" ") + "\n";
-              }
+                  const items = textContent.items;
+                  
+                  let yGroups = {};
+                  items.forEach(item => {
+                      let placed = false;
+                      for(let key in yGroups) {
+                          if (Math.abs(Number(key) - item.transform[5]) < 5) {
+                              yGroups[key].push(item);
+                              placed = true;
+                              break;
+                          }
+                      }
+                      if (!placed) {
+                          yGroups[item.transform[5]] = [item];
+                      }
+                  });
+                  
+                  let sortedY = Object.keys(yGroups).map(Number).sort((a,b) => b - a);
+                  
+                  sortedY.forEach(y => {
+                      let lineItems = yGroups[y].sort((a, b) => a.transform[4] - b.transform[4]);
+                      let lineText = lineItems.map(item => item.str.trim()).filter(s => s !== "").join(" ");
+                      
+                      if (!lineText) return;
 
-              document.getElementById('syncLoadingText').innerText = "กำลังวิเคราะห์รหัสและราคา...";
-              
-              // -------------------------------------------------------------
-              // ลอจิกการสกัด "รหัส 4 หลัก" และ "ราคา" จาก Text ที่อ่านได้จาก PDF
-              // -------------------------------------------------------------
-              // เราจะใช้ Regex หาตัวเลข 4 หลักที่เป็นรหัส (เช่น 4305, 7001) และตัวเลขราคาที่มีลูกน้ำตามหลัง (เช่น 25,000 หรือ 25,000.00)
-              // เนื่องจากโครงสร้าง PDF เมื่อแปลงเป็น Text อาจจะกระจัดกระจาย เราต้องหา Pattern ที่ใกล้เคียงตารางที่สุด
-              
-              let rawUpdates = [];
-              let codePattern = /\b([0-9]{4}[A-Z]?)\b/g; // จับรหัส 4 หลักและอาจมีตัวอักษรท้ายเช่น 7004A
-              let lines = fullText.split('\n');
-              
-              lines.forEach(line => {
-                  let codesInLine = line.match(codePattern);
-                  if (codesInLine) {
-                      // หาตัวเลขที่มี comma ซึ่งมักจะเป็นราคา
-                      let priceMatch = line.match(/([0-9]{1,3}(,[0-9]{3})+(\.[0-9]{1,2})?)/);
-                      if (priceMatch) {
-                          let code = codesInLine[0]; // เอารหัสแรกที่เจอในบรรทัด
-                          let priceStr = priceMatch[0].replace(/,/g, '');
-                          let price = parseFloat(priceStr);
+                      let codeMatch = lineText.match(/(?:^|\s)([0-9]{4}[A-Za-z]?)(?=\s|$)/g);
+                      if (codeMatch) {
+                          let code = null;
+                          for(let c of codeMatch) {
+                              c = c.trim();
+                              if(c !== '2566' && c !== '2567' && c !== '2568' && c !== '2569') {
+                                  code = c;
+                                  break;
+                              }
+                          }
                           
-                          // กรองรหัสที่เป็น พ.ศ. (เช่น 2568, 2569) ทิ้ง
-                          if (code !== '2568' && code !== '2569' && code !== '2566' && code !== '2567' && price > 0) {
-                              rawUpdates.push({ code: code, price: price });
+                          if (code) {
+                              let tokens = lineText.split(/\s+/);
+                              let price = 0;
+                              
+                              for (let j = tokens.length - 1; j >= 0; j--) {
+                                  let token = tokens[j].replace(/บาท/g, '').replace(/,/g, '').trim();
+                                  if (/^[0-9]+(\.[0-9]+)?$/.test(token)) {
+                                      let p = parseFloat(token);
+                                      if (p > 10 && token !== code) {
+                                          price = p;
+                                          break;
+                                      }
+                                  }
+                              }
+                              
+                              if (price > 0) {
+                                  if (!rawUpdates.find(u => u.code === code)) {
+                                      rawUpdates.push({ code: code, price: price });
+                                  }
+                              }
                           }
                       }
-                  }
-              });
-
-              // หาก Regex บรรทัดต่อบรรทัดไม่ได้ผล (เพราะ Text สลับที่) เราจะใช้ Regex ค้นหาทั่วทั้งไฟล์
-              if (rawUpdates.length === 0) {
-                  // หารหัส 4 หลักที่ตามด้วยข้อความและราคา (แบบกว้างๆ)
-                  const generalPattern = /\b([0-9]{4}[A-Z]?)\b[\s\S]{1,100}?([0-9]{1,3}(,[0-9]{3})+)/g;
-                  let match;
-                  while ((match = generalPattern.exec(fullText)) !== null) {
-                      let code = match[1];
-                      let price = parseFloat(match[2].replace(/,/g, ''));
-                      if (code !== '2568' && code !== '2569' && code !== '2566' && code !== '2567' && price > 0) {
-                          // เช็คไม่ให้ซ้ำ
-                          if (!rawUpdates.find(u => u.code === code)) {
-                              rawUpdates.push({ code: code, price: price });
-                          }
-                      }
-                  }
+                  });
               }
 
               if (rawUpdates.length === 0) {
-                  throw new Error('ไม่พบข้อมูลรหัสและราคาในรูปแบบตารางจากไฟล์ PDF นี้ครับ');
+                  throw new Error('ไม่พบข้อมูลรหัสและราคาจากไฟล์ PDF นี้ กรุณาตรวจสอบรูปแบบไฟล์ครับ');
               }
 
               document.getElementById('syncLoadingText').innerText = "กำลังเทียบราคากับฐานข้อมูล ชีต1...";
@@ -609,9 +616,7 @@
           let foundCurrent = currentData.find(c => c.code.toLowerCase() === upd.code.toLowerCase());
           if (foundCurrent) {
               let oldPrice = foundCurrent[primaryRight];
-              // ถ้าราคาไม่ตรงกัน ให้เอามาแสดง
               if (oldPrice !== upd.price) {
-                  // ป้องกันการซ้ำกันของรหัสเดียวกันที่อาจเกิดจากการดึง Regex กว้างไป
                   if (!pendingPriceUpdates.find(p => p.code === upd.code)) {
                       diffCount++;
                       pendingPriceUpdates.push({ code: upd.code, newPrice: upd.price });
@@ -646,11 +651,7 @@
         btn.disabled = true;
 
         try {
-            const res = await callGoogleAPI('updateSheet1Prices', { 
-                updates: pendingPriceUpdates, 
-                rights: selectedRightsToUpdate 
-            });
-            
+            const res = await callGoogleAPI('updateSheet1Prices', { updates: pendingPriceUpdates, rights: selectedRightsToUpdate });
             if (res.error) throw new Error(res.error);
             
             Swal.fire({
@@ -663,7 +664,6 @@
                 document.getElementById('syncUpload').value = '';
                 pendingPriceUpdates = [];
             });
-
         } catch (e) {
             Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: e.message });
         } finally {
