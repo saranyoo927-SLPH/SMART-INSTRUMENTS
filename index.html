@@ -90,7 +90,7 @@
       <!-- ================= PAGE 1-5 (ซ่อนไว้เหมือนเดิม) ================= -->
       <div id="page-calc">...</div><div id="page-table">...</div><div id="page-verify">...</div><div id="page-audit">...</div><div id="page-report">...</div>
 
-      <!-- ================= PAGE 6: อัปเดตราคาตามประกาศ (แก้ไขรายตัว) ================= -->
+      <!-- ================= PAGE 6: อัปเดตราคาตามประกาศ (รองรับทั้ง PDF และ Excel) ================= -->
       <div id="page-sync" class="d-none">
         <div class="page-header"><h2 class="page-title text-warning"><i class="bi bi-arrow-repeat"></i> อัปเดตราคาให้ตรงกับประกาศล่าสุด</h2></div>
         
@@ -98,8 +98,8 @@
           <div class="card-body-custom">
              <div class="row g-3 align-items-end">
                 <div class="col-md-5">
-                  <label class="form-label fw-bold">1. เลือกไฟล์ประกาศ (รองรับ PDF)</label>
-                  <input type="file" class="form-control form-control-lg border-warning" id="syncUpload" accept=".pdf">
+                  <label class="form-label fw-bold">1. เลือกไฟล์ประกาศ (รองรับ PDF หรือ Excel)</label>
+                  <input type="file" class="form-control form-control-lg border-warning" id="syncUpload" accept=".pdf,.xls,.xlsx">
                 </div>
                 <div class="col-md-4">
                   <label class="form-label fw-bold">2. เลือกสิทธิที่ต้องการตรวจสอบและอัปเดต</label>
@@ -111,18 +111,18 @@
                   </select>
                 </div>
                 <div class="col-md-3">
-                  <button class="btn btn-warning btn-lg w-100 fw-bold shadow-sm" onclick="processSyncPDF()">
+                  <button class="btn btn-warning btn-lg w-100 fw-bold shadow-sm" onclick="processSyncFile()">
                     <i class="bi bi-search me-1"></i> ตรวจสอบการเปลี่ยนแปลง
                   </button>
                 </div>
              </div>
-             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> ระบบจะสแกนหาตัวเลขที่คาดว่าจะเป็น <strong>"รหัส"</strong> และ <strong>"ราคา"</strong> จากไฟล์ PDF และให้คุณกดยืนยันทีละรายการเพื่อความถูกต้อง</div>
+             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> หากเป็นไฟล์ <strong>Excel</strong> จะต้องมีคอลัมน์ชื่อ "รหัส" และ "ราคา/อัตราจ่าย" | หากเป็นไฟล์ <strong>PDF</strong> ระบบจะแกะข้อมูลจากข้อความตารางให้อัตโนมัติ</div>
           </div>
         </div>
 
         <div id="loadingSync" class="text-center d-none my-5">
            <div class="spinner-border text-warning" style="width: 3rem; height: 3rem;" role="status"></div>
-           <div class="mt-3 fw-bold text-warning" id="syncLoadingText">กำลังอ่านและประมวลผลไฟล์ PDF...</div>
+           <div class="mt-3 fw-bold text-warning" id="syncLoadingText">กำลังอ่านและประมวลผลไฟล์...</div>
         </div>
         
         <div id="errorSync" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
@@ -179,11 +179,10 @@
     }
 
     let currentSearchResults = []; let cartItems = []; let globalReportData = []; let globalAuditData = []; 
-    // ย้ายตัวแปรสำหรับเก็บรายการรออัปเดต
     let currentSyncList = [];
     let selectedRightsToUpdate = [];
 
-    // ================= โค้ดเดิมทั้งหมด (ย่อไว้) =================
+    // ================= 1. ประเมินสิทธิ (Calc) =================
     async function checkHN() { const hn = document.getElementById('hnInput').value.trim(); if (!hn) return; const btn = document.getElementById('btnCheckHn'); btn.innerHTML = '...'; btn.disabled = true; document.getElementById('errorAlert').classList.add('d-none'); try { const res = await callGoogleAPI('checkPatientRight', { hn: hn }); btn.innerHTML = 'ตรวจสอบ'; btn.disabled = false; if (res.error) { document.getElementById('errorAlert').innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i>${res.error}`; document.getElementById('errorAlert').classList.remove('d-none'); } else if (res.right) { const select = document.getElementById('rightsType'); for (let i = 0; i < select.options.length; i++) if (select.options[i].value === res.right) { select.selectedIndex = i; renderCart(); break; } } } catch (e) { btn.innerHTML = 'ตรวจสอบ'; btn.disabled = false; } }
     async function performSearch() { const kw = document.getElementById('keyword').value.trim(); if (!kw) return; document.getElementById('searchResultsSection').classList.add('d-none'); document.getElementById('loading').classList.remove('d-none'); try { const res = await callGoogleAPI('searchEquipmentData', { keyword: kw }); document.getElementById('loading').classList.add('d-none'); currentSearchResults = res.data || []; const tbody = document.getElementById('searchResultsBody'); tbody.innerHTML = ''; if (currentSearchResults.length === 0) tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger py-4"><i class="bi bi-search me-2"></i>ไม่พบข้อมูลที่ค้นหา</td></tr>'; else currentSearchResults.forEach((item, index) => tbody.innerHTML += `<tr><td class="td-center fw-bold text-secondary">${item.code}</td><td class="td-text fw-semibold">${item.name}</td><td class="td-num text-dark">${item.unitcost.toLocaleString()} ฿</td><td class="td-center"><button class="btn btn-sm btn-outline-primary fw-bold px-3" onclick="addToCart(${index})"><i class="bi bi-plus-lg"></i> เพิ่ม</button></td></tr>`); document.getElementById('searchResultsSection').classList.remove('d-none'); } catch (e) { document.getElementById('loading').classList.add('d-none'); } }
     function addToCart(i) { cartItems.push({ ...currentSearchResults[i], qty: 1 }); document.getElementById('keyword').value = ''; document.getElementById('searchResultsSection').classList.add('d-none'); renderCart(); }
@@ -203,8 +202,8 @@
     function filterReportTable() { const codeQuery = document.getElementById('filterCode').value.toLowerCase().trim(); const nameQuery = document.getElementById('filterName').value.toLowerCase().trim(); const filtered = globalReportData.filter(item => { const matchCode = item.code.toLowerCase().includes(codeQuery); const matchName = item.name.toLowerCase().includes(nameQuery) || item.rawName.toLowerCase().includes(nameQuery); return matchCode && matchName; }); renderReportTable(filtered); }
     function resetReportFilter() { document.getElementById('filterCode').value = ''; document.getElementById('filterName').value = ''; renderReportTable(globalReportData); }
 
-    // ================= 6. อัปเดตราคาตามประกาศ (Sync PDF) เปลี่ยนให้อัปเดตทีละรายการ =================
-    async function processSyncPDF() {
+    // ================= 6. อัปเดตราคาตามประกาศ (Sync File - รองรับ PDF และ Excel) =================
+    async function processSyncFile() {
       const fileInput = document.getElementById('syncUpload');
       const errorAlert = document.getElementById('errorSync');
       const section = document.getElementById('syncSection');
@@ -214,67 +213,107 @@
       errorAlert.classList.add('d-none'); section.classList.add('d-none');
       
       if (!fileInput.files.length) { 
-          errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ PDF ประกาศราคาใหม่ก่อนครับ'; 
+          errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ PDF หรือ Excel ประกาศราคาใหม่ก่อนครับ'; 
           errorAlert.classList.remove('d-none'); 
           return; 
       }
 
       document.getElementById('loadingSync').classList.remove('d-none');
-      document.getElementById('syncLoadingText').innerText = "กำลังอ่านข้อความจากไฟล์ PDF...";
+      document.getElementById('syncLoadingText').innerText = "กำลังอ่านและประมวลผลไฟล์...";
 
       const file = fileInput.files[0];
+      const fileName = file.name.toLowerCase();
       const fileReader = new FileReader();
 
-      fileReader.onload = async function() {
+      fileReader.onload = async function(e) {
           try {
-              const typedarray = new Uint8Array(this.result);
-              const pdf = await pdfjsLib.getDocument(typedarray).promise;
-              let fullText = "";
-              
-              for (let i = 1; i <= pdf.numPages; i++) {
-                  const page = await pdf.getPage(i);
-                  const textContent = await page.getTextContent();
-                  const pageStrings = textContent.items.map(item => item.str);
-                  fullText += pageStrings.join(" ") + "\n";
-              }
-
-              document.getElementById('syncLoadingText').innerText = "กำลังวิเคราะห์รหัสและราคา...";
-              
               let rawUpdates = [];
-              let codePattern = /\b([0-9]{4}[A-Z]?)\b/g; 
-              let lines = fullText.split('\n');
-              
-              lines.forEach(line => {
-                  let codesInLine = line.match(codePattern);
-                  if (codesInLine) {
-                      let priceMatch = line.match(/([0-9]{1,3}(,[0-9]{3})+(\.[0-9]{1,2})?)/);
-                      if (priceMatch) {
-                          let code = codesInLine[0];
-                          let priceStr = priceMatch[0].replace(/,/g, '');
-                          let price = parseFloat(priceStr);
-                          
-                          if (code !== '2568' && code !== '2569' && code !== '2566' && code !== '2567' && price > 0) {
-                              rawUpdates.push({ code: code, price: price });
-                          }
-                      }
-                  }
-              });
 
-              if (rawUpdates.length === 0) {
-                  const generalPattern = /\b([0-9]{4}[A-Z]?)\b[\s\S]{1,100}?([0-9]{1,3}(,[0-9]{3})+)/g;
-                  let match;
-                  while ((match = generalPattern.exec(fullText)) !== null) {
-                      let code = match[1];
-                      let price = parseFloat(match[2].replace(/,/g, ''));
-                      if (code !== '2568' && code !== '2569' && code !== '2566' && code !== '2567' && price > 0) {
-                          if (!rawUpdates.find(u => u.code === code)) {
-                              rawUpdates.push({ code: code, price: price });
+              if (fileName.endsWith('.pdf')) {
+                  // --- ส่วนการประมวลผลไฟล์ PDF ---
+                  document.getElementById('syncLoadingText').innerText = "กำลังอ่านข้อความจากไฟล์ PDF...";
+                  const typedarray = new Uint8Array(e.target.result);
+                  const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                  let fullText = "";
+                  
+                  for (let i = 1; i <= pdf.numPages; i++) {
+                      const page = await pdf.getPage(i);
+                      const textContent = await page.getTextContent();
+                      const pageStrings = textContent.items.map(item => item.str);
+                      fullText += pageStrings.join(" ") + "\n";
+                  }
+
+                  document.getElementById('syncLoadingText').innerText = "กำลังวิเคราะห์รหัสและราคาจาก PDF...";
+                  let codePattern = /\b([0-9]{4}[A-Z]?)\b/g; 
+                  let lines = fullText.split('\n');
+                  
+                  lines.forEach(line => {
+                      let codesInLine = line.match(codePattern);
+                      if (codesInLine) {
+                          let priceMatch = line.match(/([0-9]{1,3}(,[0-9]{3})+(\.[0-9]{1,2})?)/);
+                          if (priceMatch) {
+                              let code = codesInLine[0];
+                              let priceStr = priceMatch[0].replace(/,/g, '');
+                              let price = parseFloat(priceStr);
+                              
+                              if (code !== '2568' && code !== '2569' && code !== '2566' && code !== '2567' && price > 0) {
+                                  rawUpdates.push({ code: code, price: price });
+                              }
+                          }
+                      }
+                  });
+
+                  if (rawUpdates.length === 0) {
+                      const generalPattern = /\b([0-9]{4}[A-Z]?)\b[\s\S]{1,100}?([0-9]{1,3}(,[0-9]{3})+)/g;
+                      let match;
+                      while ((match = generalPattern.exec(fullText)) !== null) {
+                          let code = match[1];
+                          let price = parseFloat(match[2].replace(/,/g, ''));
+                          if (code !== '2568' && code !== '2569' && code !== '2566' && code !== '2567' && price > 0) {
+                              if (!rawUpdates.find(u => u.code === code)) {
+                                  rawUpdates.push({ code: code, price: price });
+                              }
                           }
                       }
                   }
+              } 
+              else if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) {
+                  // --- ส่วนการประมวลผลไฟล์ Excel ---
+                  document.getElementById('syncLoadingText').innerText = "กำลังอ่านข้อมูลจากตาราง Excel...";
+                  const data = new Uint8Array(e.target.result);
+                  const workbook = XLSX.read(data, {type: 'array'});
+                  const sheetName = workbook.SheetNames[0];
+                  const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
+
+                  let codeIdx = -1, priceIdx = -1;
+                  for (let i = 0; i < Math.min(10, rows.length); i++) {
+                     let row = rows[i];
+                     for(let j=0; j<row.length; j++) {
+                        let val = (row[j]||'').toString().replace(/\s/g, '');
+                        if(val.includes('รหัส')) codeIdx = j;
+                        if(val.includes('อัตรา') || val.includes('ราคา')) priceIdx = j;
+                     }
+                     if(codeIdx !== -1 && priceIdx !== -1) {
+                         // เจอหัวตารางแล้ว ดึงข้อมูลบรรทัดถัดไปทั้งหมด
+                         for(let r = i+1; r < rows.length; r++) {
+                             let c = rows[r][codeIdx];
+                             let p = rows[r][priceIdx];
+                             if (c && p !== undefined && p !== "") {
+                                 rawUpdates.push({
+                                     code: c.toString().trim(),
+                                     price: parseFloat(p.toString().replace(/,/g, '')) || 0
+                                 });
+                             }
+                         }
+                         break;
+                     }
+                  }
+              } 
+              else {
+                  throw new Error("นามสกุลไฟล์ไม่รองรับ กรุณาเลือกไฟล์ .pdf, .xls หรือ .xlsx เท่านั้นครับ");
               }
 
-              if (rawUpdates.length === 0) throw new Error('ไม่พบข้อมูลรหัสและราคาในรูปแบบตารางจากไฟล์ PDF นี้ครับ (ระบบต้องการตัวเลข 4 หลักและราคาที่มีลูกน้ำ)');
+              if (rawUpdates.length === 0) throw new Error('ไม่พบข้อมูลรหัสและราคาในรูปแบบตารางจากไฟล์นี้ครับ');
 
               document.getElementById('syncLoadingText').innerText = "กำลังเทียบราคากับฐานข้อมูล ชีต1...";
               await compareAndRenderDifferences(rawUpdates);
@@ -293,7 +332,7 @@
       if (res.error) throw new Error(res.error);
       
       const currentData = res.data;
-      currentSyncList = []; // เคลียร์ของเก่า
+      currentSyncList = []; 
       const tbody = document.getElementById('syncTableBody');
       tbody.innerHTML = '';
       
@@ -307,7 +346,7 @@
               if (oldPrice !== upd.price) {
                   if (!currentSyncList.find(p => p.code === upd.code)) {
                       currentSyncList.push({ code: upd.code, newPrice: upd.price });
-                      let idx = currentSyncList.length - 1; // Index ของแถวนี้
+                      let idx = currentSyncList.length - 1; 
                       
                       tbody.innerHTML += `<tr id="syncRow-${idx}" class="row-highlight">
                         <td class="td-center fw-bold">${upd.code}</td>
@@ -334,7 +373,6 @@
       document.getElementById('syncSection').classList.remove('d-none');
     }
 
-    // ฟังก์ชันใหม่: อัปเดตราคาเฉพาะแถวที่กด
     async function updateSinglePrice(index) {
         const itemToUpdate = currentSyncList[index];
         const btn = document.getElementById(`btnSync-${index}`);
@@ -344,7 +382,6 @@
         btn.disabled = true;
 
         try {
-            // ส่งไปอัปเดตแค่ 1 รายการ
             const res = await callGoogleAPI('updateSheet1Prices', { 
                 updates: [itemToUpdate], 
                 rights: selectedRightsToUpdate 
@@ -352,12 +389,10 @@
             
             if (res.error) throw new Error(res.error);
             
-            // เปลี่ยนสถานะปุ่มและสีพื้นหลังให้รู้ว่าทำเสร็จแล้ว
             row.classList.remove('row-highlight');
             btn.classList.replace('btn-success', 'btn-outline-secondary');
             btn.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i> อัปเดตแล้ว';
             
-            // แจ้งเตือนมุมขวาบนเบาๆ ไม่กวนสายตา
             Swal.fire({
                 toast: true,
                 position: 'top-end',
@@ -375,7 +410,7 @@
     }
   </script>
 
-  <!-- ซ่อนหน้า HTML โครงสร้างเก่าไว้ด้านล่างสุด เพื่อป้องกัน Error -->
+  <!-- ซ่อนหน้า HTML โครงสร้างเก่าไว้ด้านล่างสุด เพื่อป้องกัน Error (กรณีไม่ได้โหลด DOM ไว้) -->
   <div class="d-none">
      <div id="page-calc"></div><div id="page-table"></div><div id="page-verify"></div><div id="page-audit"></div><div id="page-report"></div><div id="page-sync"></div>
   </div>
