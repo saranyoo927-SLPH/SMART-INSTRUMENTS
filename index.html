@@ -57,7 +57,6 @@
 
     @keyframes pulse-warning { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.6); } 70% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
     .badge-alert { animation: pulse-warning 2s infinite; border: 1px solid #fff; }
-    
     .row-highlight { background-color: #fff3cd !important; }
 
     @media (max-width: 992px) {
@@ -343,7 +342,7 @@
         </div>
       </div>
 
-      <!-- ================= PAGE 6: อัปเดตราคาตามประกาศ (รองรับทั้ง PDF และ Excel) ================= -->
+      <!-- ================= PAGE 6: อัปเดตราคาตามประกาศ (รองรับ PDF + แก้ไขปัญหาจับรหัสผิด) ================= -->
       <div id="page-sync" class="d-none">
         <div class="page-header"><h2 class="page-title text-warning"><i class="bi bi-arrow-repeat"></i> อัปเดตราคาให้ตรงกับประกาศล่าสุด</h2></div>
         
@@ -369,7 +368,7 @@
                   </button>
                 </div>
              </div>
-             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> หากเป็นไฟล์ <strong>Excel</strong> จะต้องมีคอลัมน์ชื่อ "รหัส" และ "ราคา/อัตราจ่าย" | หากเป็นไฟล์ <strong>PDF</strong> ระบบจะแกะข้อมูลจากข้อความตารางให้อัตโนมัติ</div>
+             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> หากเป็นไฟล์ <strong>Excel</strong> จะต้องมีคอลัมน์ชื่อ "รหัส" และ "ราคา/อัตราจ่าย" | หากเป็นไฟล์ <strong>PDF</strong> ระบบจะแกะข้อมูลจากโครงสร้างตารางให้อัตโนมัติ</div>
           </div>
         </div>
 
@@ -392,7 +391,7 @@
                     <th width="10%">รหัส (ADP)</th>
                     <th class="td-text" width="40%">ชื่ออุปกรณ์ (อ้างอิงจากระบบ)</th>
                     <th class="td-num" width="15%">ราคาเดิมในระบบ</th>
-                    <th class="td-num" width="15%">ราคาที่สแกนได้</th>
+                    <th class="td-num" width="15%">ราคาใหม่ที่พบ</th>
                     <th width="20%">อัปเดตรายตัว</th>
                   </tr>
                 </thead>
@@ -418,14 +417,7 @@
            <div class="table-responsive bg-white rounded shadow-sm border-0">
                <table class="table table-hover mb-0">
                   <thead class="text-white td-center align-middle" id="modalThead">
-                     <tr>
-                       <th class="td-text" width="30%">รายการอุปกรณ์ (จาก Excel)</th>
-                       <th width="8%">จำนวน</th>
-                       <th class="td-num" width="14%">ราคาต่อหน่วย</th>
-                       <th class="td-num" width="15%">ราคารวม</th>
-                       <th class="td-num" width="15%">เบิกได้ (ตามสิทธิ)</th>
-                       <th class="td-num" width="18%">เกินสิทธิ</th>
-                     </tr>
+                     <tr><th class="td-text" width="30%">รายการอุปกรณ์ (จาก Excel)</th><th width="8%">จำนวน</th><th class="td-num" width="14%">ราคาต่อหน่วย</th><th class="td-num" width="15%">ราคารวม</th><th class="td-num" width="15%">เบิกได้ (ตามสิทธิ)</th><th class="td-num" width="18%">เกินสิทธิ</th></tr>
                   </thead>
                   <tbody id="modalTbody"></tbody>
                   <tfoot id="modalTfoot" class="bg-light"></tfoot>
@@ -438,7 +430,7 @@
 
   <script>
     // =========================================================================
-    // API URL ของคุณ
+    // API URL ของคุณ (ห้ามลบ)
     // =========================================================================
     const API_URL = 'https://script.google.com/macros/s/AKfycbxLy8-GzLbliBTDsQBLa1D0vDxyNbdiGSSAtPeOuOwQvZ9qyu70SuVcwy-dHbciwPU2jQ/exec'; 
 
@@ -449,15 +441,9 @@
       } catch (error) { return { error: "ไม่สามารถเชื่อมต่อฐานข้อมูลได้ (โปรดตรวจสอบ API URL)" }; }
     }
 
-    // ฟังก์ชันเปลี่ยนหน้าจอ (Switch Page) แบบสมบูรณ์
+    // สลับหน้าจอเมนู
     function switchPage(page) {
-      document.getElementById('page-calc').classList.add('d-none');
-      document.getElementById('page-table').classList.add('d-none');
-      document.getElementById('page-verify').classList.add('d-none');
-      document.getElementById('page-audit').classList.add('d-none');
-      document.getElementById('page-report').classList.add('d-none');
-      document.getElementById('page-sync').classList.add('d-none');
-      
+      document.querySelectorAll('.main-content > div').forEach(el => el.classList.add('d-none'));
       document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
       
       document.getElementById('page-' + page).classList.remove('d-none');
@@ -502,7 +488,7 @@
     function filterReportTable() { const codeQuery = document.getElementById('filterCode').value.toLowerCase().trim(); const nameQuery = document.getElementById('filterName').value.toLowerCase().trim(); const filtered = globalReportData.filter(item => { const matchCode = item.code.toLowerCase().includes(codeQuery); const matchName = item.name.toLowerCase().includes(nameQuery) || item.rawName.toLowerCase().includes(nameQuery); return matchCode && matchName; }); renderReportTable(filtered); }
     function resetReportFilter() { document.getElementById('filterCode').value = ''; document.getElementById('filterName').value = ''; renderReportTable(globalReportData); }
 
-    // ================= 6. อัปเดตราคาตามประกาศ (Sync PDF & Excel) เปลี่ยนลอจิกอ่าน PDF ใหม่ =================
+    // ================= 6. อัปเดตราคาตามประกาศ (Sync PDF/Excel) =================
     async function processSyncFile() {
       const fileInput = document.getElementById('syncUpload');
       const errorAlert = document.getElementById('errorSync');
@@ -530,46 +516,80 @@
               let rawUpdates = [];
 
               if (fileName.endsWith('.pdf')) {
-                  document.getElementById('syncLoadingText').innerText = "กำลังอ่านข้อความจากไฟล์ PDF...";
+                  document.getElementById('syncLoadingText').innerText = "กำลังจัดโครงสร้างบรรทัดจากไฟล์ PDF...";
                   const typedarray = new Uint8Array(e.target.result);
                   const pdf = await pdfjsLib.getDocument(typedarray).promise;
                   let fullText = "";
                   
-                  // ดึงข้อความออกมาเป็นก้อนเดียวกันหมด เพื่อสะดวกในการค้นหาด้วย Regex
+                  // สร้างบรรทัดจำลองโดยเรียงตามพิกัด Y (บนลงล่าง) และ X (ซ้ายไปขวา)
                   for (let i = 1; i <= pdf.numPages; i++) {
                       const page = await pdf.getPage(i);
                       const textContent = await page.getTextContent();
-                      const pageStrings = textContent.items.map(item => item.str.trim()).filter(s => s.length > 0);
-                      fullText += pageStrings.join(" ") + " \n ";
-                  }
-                  fullText = fullText.replace(/\s+/g, ' '); // ทำข้อความให้เรียงต่อกันเป็นบรรทัดเดียว
+                      
+                      let linesMap = new Map();
+                      textContent.items.forEach(item => {
+                          if (item.str.trim() === '') return;
+                          // แปลงพิกัด Y ให้ปัดเศษทีละ 5 เพื่อจัดกลุ่มตัวอักษรให้อยู่บรรทัดเดียวกัน
+                          let y = Math.round(item.transform[5] / 5) * 5; 
+                          if (!linesMap.has(y)) linesMap.set(y, []);
+                          linesMap.get(y).push(item);
+                      });
 
-                  document.getElementById('syncLoadingText').innerText = "กำลังวิเคราะห์รหัสและราคาจาก PDF อย่างละเอียด...";
+                      // เรียงพิกัด Y จากมากไปน้อย (Top to Bottom)
+                      let sortedY = Array.from(linesMap.keys()).sort((a, b) => b - a);
+
+                      for (let y of sortedY) {
+                          // เรียงพิกัด X ซ้ายไปขวา
+                          let lineItems = linesMap.get(y).sort((a, b) => a.transform[4] - b.transform[4]);
+                          let lineStr = lineItems.map(item => item.str.trim()).join(' ');
+                          fullText += lineStr + "\n";
+                      }
+                  }
+
+                  document.getElementById('syncLoadingText').innerText = "กำลังวิเคราะห์รหัสและราคาจาก PDF...";
                   
-                  // Regex หาโค้ด 4 หลัก
+                  // ดึงรหัส 4 หลักทั้งหมดที่พบ
                   const codePattern = /\b([0-9]{4}[A-Z]?)\b/g;
                   const matches = [...fullText.matchAll(codePattern)];
-                  
+                  const ignoreCodes = ['2568', '2569', '2566', '2567', '1000', '2000', '3000', '4000', '5000', '6000', '7000', '8000', '9000'];
+
                   for (let i = 0; i < matches.length; i++) {
                       let code = matches[i][1];
-                      // ยกเว้นตัวเลขที่มักจะเป็นปี พ.ศ. หรือเลขหมวดหมู่
-                      if (['2568', '2569', '2566', '2567', '1000', '2000', '3000', '4000', '5000', '6000', '7000', '8000', '9000'].includes(code)) continue;
-                      
+                      if (ignoreCodes.includes(code)) continue;
+
                       let start = matches[i].index;
-                      // หุ้มกรอบการค้นหา (Block) ให้อยู่เฉพาะก่อนถึงรหัสตัวถัดไป
                       let nextIndex = (i + 1 < matches.length) ? matches[i+1].index : fullText.length;
-                      // บีบให้แคบลงอีก เอาแค่ 1500 ตัวอักษร เพื่อป้องกันการกระโดดข้ามหน้า
-                      let end = Math.min(start + 1500, nextIndex); 
+                      
+                      // หาเนื้อหาของรหัสนี้ ไปจนถึงก่อนรหัสถัดไป (กำหนดขอบเขตสูงสุดไม่เกิน 800 ตัวอักษร)
+                      let end = Math.min(start + 800, nextIndex);
                       let block = fullText.substring(start, end);
-                      
-                      // ค้นหาราคา โดยต้องมีคำหน่วยนำหน้าเสมอ! (นี่คือหัวใจสำคัญที่ป้องกันรหัสกลายเป็นราคา)
-                      let priceMatch = block.match(/(?:ชุดละ|แผ่นละ|อันละ|เส้นละ|ข้อละ|หลอดละ|ครั้งละ|ชิ้นละ|คู่ละ|ซีซี|ซม\.?\s*ละ|ถุงละ|ระดับละ|ขวดละ|เครื่องละ)\s*([1-9][0-9]{0,2}(?:,[0-9]{3})*(?:\.[0-9]{1,2})?)/);
-                      
-                      if (priceMatch) {
-                          let price = parseFloat(priceMatch[1].replace(/,/g, ''));
-                          if (price > 0 && !rawUpdates.find(u => u.code === code)) {
-                              rawUpdates.push({ code: code, price: price });
+
+                      let price = null;
+
+                      // วิธีที่ 1: หาตัวเลขที่มีลูกน้ำกำกับ (เช่น 12,000 หรือ 12,000.00) แน่นอนว่าต้องเป็นราคา
+                      let commaMatch = block.match(/\b([1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]{1,2})?)\b/);
+                      if (commaMatch) {
+                          price = parseFloat(commaMatch[1].replace(/,/g, ''));
+                      } else {
+                          // วิธีที่ 2: หาตัวเลขที่อยู่ติดกับหน่วยนับ (เช่น ชุดละ 800, ถุงละ 70) ป้องกันการนำรหัสไปเป็นราคา
+                          let unitMatch = block.match(/(?:ชุด|แผ่น|อัน|เส้น|ข้อ|หลอด|ครั้ง|ชิ้น|คู่|ซีซี|ซม|ถุง|ระดับ|ขวด|เครื่อง)\s*ละ\s*([1-9][0-9]*)\b/);
+                          if (unitMatch) {
+                              let parsed = parseFloat(unitMatch[1]);
+                              // ต้องไม่เท่ากับรหัส เพื่อป้องกันความผิดพลาด
+                              if (parsed !== parseFloat(code)) price = parsed;
+                          } else {
+                              // วิธีที่ 3: หากไม่พบลูกน้ำและคำว่า "ละ" ให้หาตัวเลขท้ายสุดในบล็อกที่ค่าเกิน 50
+                              let allNums = [...block.matchAll(/\b([1-9][0-9]{1,})\b/g)];
+                              let validNums = allNums.map(m => parseFloat(m[1])).filter(n => n !== parseFloat(code) && !ignoreCodes.includes(n.toString()) && n >= 50);
+                              if (validNums.length > 0) {
+                                  price = validNums[validNums.length - 1]; 
+                              }
                           }
+                      }
+
+                      // หากได้ราคาที่ไม่ซ้ำ ให้นำไปเก็บใน array
+                      if (price !== null && price > 0 && !rawUpdates.find(u => u.code === code)) {
+                          rawUpdates.push({ code: code, price: price });
                       }
                   }
               } 
@@ -607,7 +627,7 @@
                   throw new Error("นามสกุลไฟล์ไม่รองรับ กรุณาเลือกไฟล์ .pdf, .xls หรือ .xlsx เท่านั้นครับ");
               }
 
-              if (rawUpdates.length === 0) throw new Error('ไม่พบข้อมูลรหัสและราคาในรูปแบบตารางจากไฟล์นี้ครับ (ถ้ารหัสเป็น PDF จะต้องมีคำหน่วยนับเช่น "ชุดละ", "อันละ" กำกับราคาด้วย)');
+              if (rawUpdates.length === 0) throw new Error('ไม่พบข้อมูลรหัสและราคาในรูปแบบตารางจากไฟล์นี้ครับ');
 
               document.getElementById('syncLoadingText').innerText = "กำลังเทียบราคากับฐานข้อมูล ชีต1...";
               await compareAndRenderDifferences(rawUpdates);
