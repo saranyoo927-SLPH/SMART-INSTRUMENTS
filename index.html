@@ -57,7 +57,7 @@
 
     @keyframes pulse-warning { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.6); } 70% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
     .badge-alert { animation: pulse-warning 2s infinite; border: 1px solid #fff; }
-    .row-highlight { background-color: #fff3cd !important; }
+    .row-highlight { background-color: #f1f8ff !important; }
 
     @media (max-width: 992px) {
       .sidebar { width: 80px; } .brand-title, .nav-link span { display: none; }
@@ -342,7 +342,7 @@
         </div>
       </div>
 
-      <!-- ================= PAGE 6: อัปเดตราคาตามประกาศ (รองรับ PDF + แก้ไขปัญหาจับรหัสผิด) ================= -->
+      <!-- ================= PAGE 6: อัปเดตราคาตามประกาศ (แก้ Regex ป้องกันการดึงรหัส/ลำดับ) ================= -->
       <div id="page-sync" class="d-none">
         <div class="page-header"><h2 class="page-title text-warning"><i class="bi bi-arrow-repeat"></i> อัปเดตราคาให้ตรงกับประกาศล่าสุด</h2></div>
         
@@ -417,7 +417,14 @@
            <div class="table-responsive bg-white rounded shadow-sm border-0">
                <table class="table table-hover mb-0">
                   <thead class="text-white td-center align-middle" id="modalThead">
-                     <tr><th class="td-text" width="30%">รายการอุปกรณ์ (จาก Excel)</th><th width="8%">จำนวน</th><th class="td-num" width="14%">ราคาต่อหน่วย</th><th class="td-num" width="15%">ราคารวม</th><th class="td-num" width="15%">เบิกได้ (ตามสิทธิ)</th><th class="td-num" width="18%">เกินสิทธิ</th></tr>
+                     <tr>
+                       <th class="td-text" width="30%">รายการอุปกรณ์ (จาก Excel)</th>
+                       <th width="8%">จำนวน</th>
+                       <th class="td-num" width="14%">ราคาต่อหน่วย</th>
+                       <th class="td-num" width="15%">ราคารวม</th>
+                       <th class="td-num" width="15%">เบิกได้ (ตามสิทธิ)</th>
+                       <th class="td-num" width="18%">เกินสิทธิ</th>
+                     </tr>
                   </thead>
                   <tbody id="modalTbody"></tbody>
                   <tfoot id="modalTfoot" class="bg-light"></tfoot>
@@ -441,9 +448,14 @@
       } catch (error) { return { error: "ไม่สามารถเชื่อมต่อฐานข้อมูลได้ (โปรดตรวจสอบ API URL)" }; }
     }
 
-    // สลับหน้าจอเมนู
     function switchPage(page) {
-      document.querySelectorAll('.main-content > div').forEach(el => el.classList.add('d-none'));
+      document.getElementById('page-calc').classList.add('d-none');
+      document.getElementById('page-table').classList.add('d-none');
+      document.getElementById('page-verify').classList.add('d-none');
+      document.getElementById('page-audit').classList.add('d-none');
+      document.getElementById('page-report').classList.add('d-none');
+      document.getElementById('page-sync').classList.add('d-none');
+      
       document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
       
       document.getElementById('page-' + page).classList.remove('d-none');
@@ -452,7 +464,6 @@
       if(page === 'table' && document.getElementById('tableS1Body').innerHTML.includes('กำลังดึงข้อมูล')) searchSheet1();
     }
 
-    // ตัวแปรส่วนกลาง
     let currentSearchResults = [];
     let cartItems = [];
     let globalReportData = [];
@@ -488,7 +499,7 @@
     function filterReportTable() { const codeQuery = document.getElementById('filterCode').value.toLowerCase().trim(); const nameQuery = document.getElementById('filterName').value.toLowerCase().trim(); const filtered = globalReportData.filter(item => { const matchCode = item.code.toLowerCase().includes(codeQuery); const matchName = item.name.toLowerCase().includes(nameQuery) || item.rawName.toLowerCase().includes(nameQuery); return matchCode && matchName; }); renderReportTable(filtered); }
     function resetReportFilter() { document.getElementById('filterCode').value = ''; document.getElementById('filterName').value = ''; renderReportTable(globalReportData); }
 
-    // ================= 6. อัปเดตราคาตามประกาศ (Sync PDF/Excel) =================
+    // ================= 6. อัปเดตราคาตามประกาศ (Sync PDF/Excel) ลอจิกใหม่ 100% =================
     async function processSyncFile() {
       const fileInput = document.getElementById('syncUpload');
       const errorAlert = document.getElementById('errorSync');
@@ -516,78 +527,52 @@
               let rawUpdates = [];
 
               if (fileName.endsWith('.pdf')) {
-                  document.getElementById('syncLoadingText').innerText = "กำลังจัดโครงสร้างบรรทัดจากไฟล์ PDF...";
+                  document.getElementById('syncLoadingText').innerText = "กำลังอ่านข้อความจากไฟล์ PDF...";
                   const typedarray = new Uint8Array(e.target.result);
                   const pdf = await pdfjsLib.getDocument(typedarray).promise;
                   let fullText = "";
                   
-                  // สร้างบรรทัดจำลองโดยเรียงตามพิกัด Y (บนลงล่าง) และ X (ซ้ายไปขวา)
+                  // ดึงข้อความออกมาต่อกันแบบธรรมดา
                   for (let i = 1; i <= pdf.numPages; i++) {
                       const page = await pdf.getPage(i);
                       const textContent = await page.getTextContent();
-                      
-                      let linesMap = new Map();
-                      textContent.items.forEach(item => {
-                          if (item.str.trim() === '') return;
-                          // แปลงพิกัด Y ให้ปัดเศษทีละ 5 เพื่อจัดกลุ่มตัวอักษรให้อยู่บรรทัดเดียวกัน
-                          let y = Math.round(item.transform[5] / 5) * 5; 
-                          if (!linesMap.has(y)) linesMap.set(y, []);
-                          linesMap.get(y).push(item);
-                      });
-
-                      // เรียงพิกัด Y จากมากไปน้อย (Top to Bottom)
-                      let sortedY = Array.from(linesMap.keys()).sort((a, b) => b - a);
-
-                      for (let y of sortedY) {
-                          // เรียงพิกัด X ซ้ายไปขวา
-                          let lineItems = linesMap.get(y).sort((a, b) => a.transform[4] - b.transform[4]);
-                          let lineStr = lineItems.map(item => item.str.trim()).join(' ');
-                          fullText += lineStr + "\n";
-                      }
+                      const pageStrings = textContent.items.map(item => item.str.trim()).filter(s => s.length > 0);
+                      fullText += pageStrings.join(" ") + " \n ";
                   }
-
-                  document.getElementById('syncLoadingText').innerText = "กำลังวิเคราะห์รหัสและราคาจาก PDF...";
                   
-                  // ดึงรหัส 4 หลักทั้งหมดที่พบ
+                  document.getElementById('syncLoadingText').innerText = "กำลังวิเคราะห์รหัสและราคาอย่างเข้มงวด...";
+                  
+                  // 1. ค้นหารหัส 4 หลัก
                   const codePattern = /\b([0-9]{4}[A-Z]?)\b/g;
                   const matches = [...fullText.matchAll(codePattern)];
                   const ignoreCodes = ['2568', '2569', '2566', '2567', '1000', '2000', '3000', '4000', '5000', '6000', '7000', '8000', '9000'];
+                  
+                  let validMatches = matches.filter(m => !ignoreCodes.includes(m[1]));
 
-                  for (let i = 0; i < matches.length; i++) {
-                      let code = matches[i][1];
-                      if (ignoreCodes.includes(code)) continue;
-
-                      let start = matches[i].index;
-                      let nextIndex = (i + 1 < matches.length) ? matches[i+1].index : fullText.length;
+                  for (let i = 0; i < validMatches.length; i++) {
+                      let code = validMatches[i][1];
+                      let start = validMatches[i].index + code.length;
+                      let nextIndex = (i + 1 < validMatches.length) ? validMatches[i+1].index : fullText.length;
                       
-                      // หาเนื้อหาของรหัสนี้ ไปจนถึงก่อนรหัสถัดไป (กำหนดขอบเขตสูงสุดไม่เกิน 800 ตัวอักษร)
-                      let end = Math.min(start + 800, nextIndex);
-                      let block = fullText.substring(start, end);
-
+                      // ดึงข้อความมาแค่ช่วงสั้นๆ ก่อนถึงรหัสถัดไป
+                      let block = fullText.substring(start, nextIndex);
                       let price = null;
 
-                      // วิธีที่ 1: หาตัวเลขที่มีลูกน้ำกำกับ (เช่น 12,000 หรือ 12,000.00) แน่นอนว่าต้องเป็นราคา
-                      let commaMatch = block.match(/\b([1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]{1,2})?)\b/);
-                      if (commaMatch) {
-                          price = parseFloat(commaMatch[1].replace(/,/g, ''));
-                      } else {
-                          // วิธีที่ 2: หาตัวเลขที่อยู่ติดกับหน่วยนับ (เช่น ชุดละ 800, ถุงละ 70) ป้องกันการนำรหัสไปเป็นราคา
-                          let unitMatch = block.match(/(?:ชุด|แผ่น|อัน|เส้น|ข้อ|หลอด|ครั้ง|ชิ้น|คู่|ซีซี|ซม|ถุง|ระดับ|ขวด|เครื่อง)\s*ละ\s*([1-9][0-9]*)\b/);
+                      // กฎที่ 1: หาตัวเลขที่มีลูกน้ำ (,) เท่านั้น! (ปลอดภัย 100%)
+                      let commaMatches = [...block.matchAll(/\b([1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]{1,2})?)\b/g)];
+                      if (commaMatches.length > 0) {
+                          // ดึงตัวสุดท้ายที่เจอในบล็อกนี้
+                          price = parseFloat(commaMatches[commaMatches.length - 1][1].replace(/,/g, ''));
+                      } 
+                      else {
+                          // กฎที่ 2: หากไม่มีลูกน้ำ ตัวเลขต้องอยู่ติดกับ "หน่วยนับ" เท่านั้น!
+                          let unitMatch = block.match(/(?:ชุด|แผ่น|อัน|เส้น|ข้อ|หลอด|ครั้ง|ชิ้น|คู่|ซีซี|ซม\.?|ถุง|ระดับ|ขวด|เครื่อง)\s*ละ\s*([1-9][0-9]*(?:\.[0-9]{1,2})?)/);
                           if (unitMatch) {
-                              let parsed = parseFloat(unitMatch[1]);
-                              // ต้องไม่เท่ากับรหัส เพื่อป้องกันความผิดพลาด
-                              if (parsed !== parseFloat(code)) price = parsed;
-                          } else {
-                              // วิธีที่ 3: หากไม่พบลูกน้ำและคำว่า "ละ" ให้หาตัวเลขท้ายสุดในบล็อกที่ค่าเกิน 50
-                              let allNums = [...block.matchAll(/\b([1-9][0-9]{1,})\b/g)];
-                              let validNums = allNums.map(m => parseFloat(m[1])).filter(n => n !== parseFloat(code) && !ignoreCodes.includes(n.toString()) && n >= 50);
-                              if (validNums.length > 0) {
-                                  price = validNums[validNums.length - 1]; 
-                              }
+                              price = parseFloat(unitMatch[1].replace(/,/g, ''));
                           }
                       }
 
-                      // หากได้ราคาที่ไม่ซ้ำ ให้นำไปเก็บใน array
+                      // ถ้าราคาที่หาได้ถูกต้อง ให้บันทึกไว้
                       if (price !== null && price > 0 && !rawUpdates.find(u => u.code === code)) {
                           rawUpdates.push({ code: code, price: price });
                       }
