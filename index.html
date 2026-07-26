@@ -542,41 +542,52 @@
                   
                   document.getElementById('syncLoadingText').innerText = "กำลังวิเคราะห์รหัสและราคาอย่างเข้มงวด...";
                   
-                  // 1. ค้นหารหัส 4 หลัก
+                  // ================= [แก้ไข] แกะรหัส + ราคา จากข้อความ PDF =================
+                  // รองรับทั้งประกาศแก้ไข (ราคาอยู่ถัดจากรหัส) และตารางที่มีคอลัมน์อัตราจ่าย
                   const codePattern = /\b([0-9]{4}[A-Z]?)\b/g;
                   const matches = [...fullText.matchAll(codePattern)];
-                  const ignoreCodes = ['2568', '2569', '2566', '2567', '1000', '2000', '3000', '4000', '5000', '6000', '7000', '8000', '9000'];
-                  
-                  let validMatches = matches.filter(m => !ignoreCodes.includes(m[1]));
+                  // ตัดปีพุทธศักราช (25xx) และหมวดหลัก (x000) ออก
+                  const ignoreCodes = ['1000','2000','3000','4000','5000','6000','7000','8000','9000'];
+                  let validMatches = matches.filter(m =>
+                      !ignoreCodes.includes(m[1]) && !/^25[0-9]{2}$/.test(m[1])
+                  );
 
+                  let skippedCodes = [];
                   for (let i = 0; i < validMatches.length; i++) {
                       let code = validMatches[i][1];
-                      let start = validMatches[i].index + code.length;
+                      let start = validMatches[i].index + validMatches[i][0].length;
                       let nextIndex = (i + 1 < validMatches.length) ? validMatches[i+1].index : fullText.length;
-                      
-                      // ดึงข้อความมาแค่ช่วงสั้นๆ ก่อนถึงรหัสถัดไป
                       let block = fullText.substring(start, nextIndex);
-                      let price = null;
 
-                      // กฎที่ 1: หาตัวเลขที่มีลูกน้ำ (,) เท่านั้น! (ปลอดภัย 100%)
-                      let commaMatches = [...block.matchAll(/\b([1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]{1,2})?)\b/g)];
-                      if (commaMatches.length > 0) {
-                          // ดึงตัวสุดท้ายที่เจอในบล็อกนี้
-                          price = parseFloat(commaMatches[commaMatches.length - 1][1].replace(/,/g, ''));
-                      } 
-                      else {
-                          // กฎที่ 2: หากไม่มีลูกน้ำ ตัวเลขต้องอยู่ติดกับ "หน่วยนับ" เท่านั้น!
-                          let unitMatch = block.match(/(?:ชุด|แผ่น|อัน|เส้น|ข้อ|หลอด|ครั้ง|ชิ้น|คู่|ซีซี|ซม\.?|ถุง|ระดับ|ขวด|เครื่อง)\s*ละ\s*([1-9][0-9]*(?:\.[0-9]{1,2})?)/);
-                          if (unitMatch) {
-                              price = parseFloat(unitMatch[1].replace(/,/g, ''));
+                      // (1) ตัดรหัสย่อยแบบ 7.3.2 / 1.0.1 ที่ตามหลังรหัสหลักออกก่อน
+                      block = block.replace(/^\s*[0-9]+\.[0-9]+(?:\.[0-9]+)*/, '');
+                      // (2) ตัด "จำนวน+หน่วยปริมาตร/ขนาด" ที่มักมาก่อนราคา (เช่น "5 ซีซี", "1 ลูกบาศก์เซนติเมตร")
+                      block = block.replace(/\b[0-9]+\s*(?:ซีซี|ลูกบาศก์เซนติเมตร|ลบ\.?ซม\.?|มิลลิลิตร|มล\.?|ซม\.?|เซนติเมตร|มิลลิเมตร|มม\.?)\b/g, '');
+
+                      let price = null;
+                      // กฎที่ 1: ราคาที่มีลูกน้ำ (>= 1,000) — เอาตัว "แรก" ที่พบ (คือคอลัมน์อัตราจ่าย)
+                      let commaMatch = block.match(/\b([1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]{1,2})?)\b/);
+                      if (commaMatch) {
+                          price = parseFloat(commaMatch[1].replace(/,/g, ''));
+                      } else {
+                          // กฎที่ 2: ราคาที่ไม่มีลูกน้ำ (50–999) — เอาจำนวนเต็มตัวแรกหลังรหัสย่อย
+                          // (ป้องกันเลขนับเล็ก ๆ ด้วยเงื่อนไข >= 50)
+                          let plainMatch = block.match(/\b([1-9][0-9]{1,2})\b/);
+                          if (plainMatch && parseFloat(plainMatch[1]) >= 50) {
+                              price = parseFloat(plainMatch[1]);
                           }
                       }
 
-                      // ถ้าราคาที่หาได้ถูกต้อง ให้บันทึกไว้
-                      if (price !== null && price > 0 && !rawUpdates.find(u => u.code === code)) {
-                          rawUpdates.push({ code: code, price: price });
+                      if (price !== null && price > 0) {
+                          if (!rawUpdates.find(u => u.code === code)) {
+                              rawUpdates.push({ code: code, price: price });
+                          }
+                      } else {
+                          if (!skippedCodes.includes(code)) skippedCodes.push(code);
                       }
                   }
+                  // เก็บรหัสที่แกะราคาไม่ได้ไว้เตือนผู้ใช้ (ตัดรหัสที่ดึงสำเร็จแล้วออก กันเตือนซ้ำซ้อน)
+                  window._syncSkippedCodes = skippedCodes.filter(c => !rawUpdates.find(u => u.code === c));
               } 
               else if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) {
                   document.getElementById('syncLoadingText').innerText = "กำลังอ่านข้อมูลจากตาราง Excel...";
@@ -670,6 +681,15 @@
       
       document.getElementById('loadingSync').classList.add('d-none');
       document.getElementById('syncSection').classList.remove('d-none');
+
+      if (window._syncSkippedCodes && window._syncSkippedCodes.length > 0) {
+          const errorAlert = document.getElementById('errorSync');
+          errorAlert.classList.remove('alert-danger');
+          errorAlert.classList.add('alert-warning');
+          errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> <strong>ตรวจพบรหัสที่แกะราคาจาก PDF ไม่สำเร็จ ' + window._syncSkippedCodes.length + ' รหัส:</strong> ' + window._syncSkippedCodes.join(', ') + '<div class="small mt-1">กรณีตารางประกาศซับซ้อน แนะนำให้แปลงเป็นไฟล์ Excel (คอลัมน์ "รหัส" และ "อัตราจ่าย") แล้วอัปโหลดซ้ำเพื่อความแม่นยำ 100%</div>';
+          errorAlert.classList.remove('d-none');
+          window._syncSkippedCodes = [];
+      }
     }
 
     async function updateSinglePrice(index) {
