@@ -591,7 +591,7 @@
       currentPatientIndexForAI = index; 
       const p = globalAuditData[index]; 
       
-      let extraTitle = p.isPorRorBor ? ' <span class="ms-1 fw-bold text-light">(สิทธิ พรบ.)</span>' : '';
+      let extraTitle = p.isPorRorBor ? ' <span class="ms-1 fw-bold text-light">(สิทธิร่วม พรบ.)</span>' : '';
       document.getElementById('modalTitle').innerHTML = `<i class="bi bi-person-lines-fill me-2"></i>รายละเอียดผู้ป่วย: AN <span class="text-warning">${p.an}</span> | HN <span class="text-warning">${p.hn}</span>${extraTitle}`; 
       
       let rightDisplay = p.mappedRight.toUpperCase();
