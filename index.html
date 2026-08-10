@@ -251,14 +251,20 @@
                   <input type="file" class="form-control form-control-lg border-success" id="auditUpload" accept=".xls,.xlsx">
                 </div>
                 <div class="col-md-4">
-                  <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" onclick="processAuditExcel()">
+                  <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" id="btnAuditExcel" onclick="processAuditExcel()">
                     <i class="bi bi-robot me-1"></i> เริ่มการตรวจสอบอัตโนมัติ
+                  </button>
+                  <button class="btn btn-warning btn-lg w-100 fw-bold shadow-sm mt-2 d-none" id="btnBatchAi" onclick="runBatchAiAnalysis()">
+                    <i class="bi bi-stars me-1"></i> วิเคราะห์ภาพรวมด้วย AI
                   </button>
                 </div>
              </div>
-             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> ระบบจะอ่านข้อมูล AN(คอลัมน์ A), HN(คอลัมน์ B), วันที่จำหน่าย(คอลัมน์ H), สิทธิ(คอลัมน์ AL), และรายการอุปกรณ์(คอลัมน์ BB, BC)</div>
+             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> ระบบจะอ่านข้อมูล AN, HN, สิทธิ (รวมถึงเช็คสิทธิร่วมคอลัมน์ AN หากเป็น พ.ร.บ.), และรายการอุปกรณ์</div>
+             
+             <div id="batchAiAnalysisResult" class="mt-4 p-4 bg-white border border-warning rounded shadow-sm d-none" style="font-size: 1.05rem; line-height: 1.6;"></div>
           </div>
         </div>
+        
         <div id="loadingAudit" class="text-center d-none my-5">
            <div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status"></div>
            <div class="mt-3 fw-bold text-success">กำลังตรวจสอบเทียบกับตารางอ้างอิง...</div>
@@ -405,7 +411,7 @@
     </main>
   </div>
 
-  <!-- ================= Modal สำหรับแสดงรายละเอียดผู้ป่วย (เพิ่มปุ่ม AI วิเคราะห์) ================= -->
+  <!-- ================= Modal สำหรับแสดงรายละเอียดผู้ป่วย ================= -->
   <div class="modal fade" id="patientDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
@@ -414,6 +420,8 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body bg-light">
+           <div class="alert alert-info py-2 mb-3 fw-bold" id="modalRightAlert"></div>
+           
            <div class="table-responsive bg-white rounded shadow-sm border-0">
                <table class="table table-hover mb-0">
                   <thead class="text-white td-center align-middle" id="modalThead">
@@ -431,14 +439,12 @@
                </table>
            </div>
 
-           <!-- ส่วนแสดงผล AI Analysis -->
+           <!-- ส่วนแสดงผล AI Analysis รายบุคคล -->
            <div class="mt-4">
               <button id="btnAiAnalyze" class="btn btn-warning fw-bold shadow-sm" onclick="runAiAnalysis()">
                   <i class="bi bi-robot"></i> วิเคราะห์ความสมเหตุสมผลด้วย AI (Gemini)
               </button>
-              <div id="aiAnalysisResult" class="mt-3 p-3 bg-white border border-warning rounded d-none" style="font-size: 1.05rem; line-height: 1.6;">
-                 <!-- ผลลัพธ์ AI จะแสดงที่นี่ -->
-              </div>
+              <div id="aiAnalysisResult" class="mt-3 p-3 bg-white border border-warning rounded d-none" style="font-size: 1.05rem; line-height: 1.6;"></div>
           </div>
         </div>
       </div>
@@ -474,13 +480,7 @@
       if(page === 'table' && document.getElementById('tableS1Body').innerHTML.includes('กำลังดึงข้อมูล')) searchSheet1();
     }
 
-    let currentSearchResults = [];
-    let cartItems = [];
-    let globalReportData = [];
-    let globalAuditData = [];
-    let currentSyncList = [];
-    let selectedRightsToUpdate = [];
-    let currentPatientIndexForAI = -1; // ตัวแปรสำหรับ AI
+    let currentSearchResults = []; let cartItems = []; let globalReportData = []; let globalAuditData = []; let currentSyncList = []; let selectedRightsToUpdate = []; let currentPatientIndexForAI = -1;
 
     // ================= 1. ประเมินสิทธิ (Calc) =================
     async function checkHN() { const hn = document.getElementById('hnInput').value.trim(); if (!hn) return; const btn = document.getElementById('btnCheckHn'); btn.innerHTML = '...'; btn.disabled = true; document.getElementById('errorAlert').classList.add('d-none'); try { const res = await callGoogleAPI('checkPatientRight', { hn: hn }); btn.innerHTML = 'ตรวจสอบ'; btn.disabled = false; if (res.error) { document.getElementById('errorAlert').innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i>${res.error}`; document.getElementById('errorAlert').classList.remove('d-none'); } else if (res.right) { const select = document.getElementById('rightsType'); for (let i = 0; i < select.options.length; i++) if (select.options[i].value === res.right) { select.selectedIndex = i; renderCart(); break; } } } catch (e) { btn.innerHTML = 'ตรวจสอบ'; btn.disabled = false; } }
@@ -500,19 +500,107 @@
 
     // ================= 4. ตรวจสอบกลุ่ม (Audit) =================
     function formatThaiDate(dateVal) { if (!dateVal) return "-"; let dStr = dateVal.toString().trim(); if (dStr.length === 8 && /^\d+$/.test(dStr)) { return `${dStr.substring(6, 8)}/${dStr.substring(4, 6)}/${dStr.substring(0, 4)}`; } return dStr; }
-    function processAuditExcel() { const fileInput = document.getElementById('auditUpload'); const errorAlert = document.getElementById('errorAudit'); const section = document.getElementById('auditSection'); errorAlert.classList.add('d-none'); section.classList.add('d-none'); if (!fileInput.files.length) { errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ Excel ก่อนครับ'; errorAlert.classList.remove('d-none'); return; } document.getElementById('loadingAudit').classList.remove('d-none'); const reader = new FileReader(); reader.onload = async function(e) { try { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const sheetName = workbook.SheetNames[0]; const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1}); let patients = []; for (let i = 1; i < rows.length; i++) { let an = rows[i][0]; let hn = rows[i][1]; let date = formatThaiDate(rows[i][7]); let rightStr = rows[i][37] ? rows[i][37].toString() : ""; let devicesStr = rows[i][53] ? rows[i][53].toString() : ""; let totalClaim = rows[i][54] ? parseFloat(rows[i][54]) : 0; if (!devicesStr || !devicesStr.includes("| 02 |")) continue; let itemMatches = devicesStr.match(/\[(.*?)\]/g); if (!itemMatches) continue; let parsedDevices = []; for (let itemBlock of itemMatches) { let cleanText = itemBlock.replace(/\[|\]/g, '').trim(); let parts = cleanText.split('|').map(s => s.trim()); if(parts.length >= 6 && parts[1] === "02") { let rawName = parts[3]; let qty = parseFloat(parts[4]) || 0; let unitPrice = parseFloat(parts[5]) || 0; let totalPrice = parts.length >= 7 ? parseFloat(parts[6]) || (qty * unitPrice) : (qty * unitPrice); let code = "-"; let codeMatch = rawName.match(/^([A-Za-z0-9\-]+)\s+(.*)$/); if(codeMatch) code = codeMatch[1]; parsedDevices.push({ name: rawName, adpCode: code, qty: qty, unitPrice: unitPrice, totalPrice: totalPrice }); } } if (parsedDevices.length > 0) { patients.push({ an: an || "-", hn: hn || "-", date: date || "-", rightStr: rightStr, totalClaim: totalClaim, devices: parsedDevices }); } } if(patients.length === 0) throw new Error("ไม่พบข้อมูลผู้ป่วยที่มีการใช้อุปกรณ์หมวด [02] ในไฟล์นี้"); const res = await callGoogleAPI('analyzeBatchData', { patients: patients }); if (res.error) throw new Error(res.error); globalAuditData = res.data; renderAuditTable(globalAuditData); } catch (err) { document.getElementById('loadingAudit').classList.add('d-none'); errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i> ${err.message}`; errorAlert.classList.remove('d-none'); } }; reader.readAsArrayBuffer(fileInput.files[0]); }
+    
+    function processAuditExcel() { 
+        const fileInput = document.getElementById('auditUpload'); 
+        const errorAlert = document.getElementById('errorAudit'); 
+        const section = document.getElementById('auditSection'); 
+        errorAlert.classList.add('d-none'); section.classList.add('d-none'); 
+        
+        if (!fileInput.files.length) { 
+            errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ Excel ก่อนครับ'; 
+            errorAlert.classList.remove('d-none'); 
+            return; 
+        } 
+        
+        document.getElementById('loadingAudit').classList.remove('d-none'); 
+        document.getElementById('btnBatchAi').classList.add('d-none'); 
+        document.getElementById('batchAiAnalysisResult').classList.add('d-none'); 
+        
+        const reader = new FileReader(); 
+        reader.onload = async function(e) { 
+            try { 
+                const data = new Uint8Array(e.target.result); 
+                const workbook = XLSX.read(data, {type: 'array'}); 
+                const sheetName = workbook.SheetNames[0]; 
+                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1}); 
+                
+                let patients = []; 
+                for (let i = 1; i < rows.length; i++) { 
+                    let an = rows[i][0]; 
+                    let hn = rows[i][1]; 
+                    let date = formatThaiDate(rows[i][7]); 
+                    
+                    let rightStr = rows[i][37] ? rows[i][37].toString() : ""; 
+                    // ตรวจสอบคอลัมน์ AN (สิทธิร่วม) ตามที่ลูกค้ารีเควสว่าถ้ามี พรบ ให้ใช้ราคา OFC
+                    let jointRightStr = rows[i][39] ? rows[i][39].toString() : ""; 
+                    let isPorRorBor = false;
+                    
+                    if (jointRightStr.includes('พ.ร.บ') || jointRightStr.includes('พรบ')) {
+                        rightStr = "OFC (อ้างอิง พ.ร.บ.)"; 
+                        isPorRorBor = true;
+                    }
+                    
+                    let devicesStr = rows[i][53] ? rows[i][53].toString() : ""; 
+                    let totalClaim = rows[i][54] ? parseFloat(rows[i][54]) : 0; 
+                    
+                    if (!devicesStr || !devicesStr.includes("| 02 |")) continue; 
+                    let itemMatches = devicesStr.match(/\[(.*?)\]/g); 
+                    if (!itemMatches) continue; 
+                    
+                    let parsedDevices = []; 
+                    for (let itemBlock of itemMatches) { 
+                        let cleanText = itemBlock.replace(/\[|\]/g, '').trim(); 
+                        let parts = cleanText.split('|').map(s => s.trim()); 
+                        if(parts.length >= 6 && parts[1] === "02") { 
+                            let rawName = parts[3]; 
+                            let qty = parseFloat(parts[4]) || 0; 
+                            let unitPrice = parseFloat(parts[5]) || 0; 
+                            let totalPrice = parts.length >= 7 ? parseFloat(parts[6]) || (qty * unitPrice) : (qty * unitPrice); 
+                            let code = "-"; 
+                            let codeMatch = rawName.match(/^([A-Za-z0-9\-]+)\s+(.*)$/); 
+                            if(codeMatch) code = codeMatch[1]; 
+                            parsedDevices.push({ name: rawName, adpCode: code, qty: qty, unitPrice: unitPrice, totalPrice: totalPrice }); 
+                        } 
+                    } 
+                    if (parsedDevices.length > 0) { 
+                        patients.push({ an: an || "-", hn: hn || "-", date: date || "-", rightStr: rightStr, isPorRorBor: isPorRorBor, totalClaim: totalClaim, devices: parsedDevices }); 
+                    } 
+                } 
+                if(patients.length === 0) throw new Error("ไม่พบข้อมูลผู้ป่วยที่มีการใช้อุปกรณ์หมวด [02] ในไฟล์นี้"); 
+                
+                const res = await callGoogleAPI('analyzeBatchData', { patients: patients }); 
+                if (res.error) throw new Error(res.error); 
+                
+                globalAuditData = res.data; 
+                renderAuditTable(globalAuditData); 
+                document.getElementById('btnBatchAi').classList.remove('d-none'); 
+                
+            } catch (err) { 
+                document.getElementById('loadingAudit').classList.add('d-none'); 
+                errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i> ${err.message}`; 
+                errorAlert.classList.remove('d-none'); 
+            } 
+        }; 
+        reader.readAsArrayBuffer(fileInput.files[0]); 
+    }
+
     function renderAuditTable(dataList) { const tbody = document.getElementById('auditTableBody'); tbody.innerHTML = ''; dataList.forEach((p, index) => { let statusBadge = p.status === 'ปกติ' ? `<span class="badge bg-success fs-6 px-3 py-2 shadow-sm"><i class="bi bi-check-circle me-1"></i> ปกติ</span>` : `<span class="badge bg-danger fs-6 px-3 py-2 shadow-sm badge-alert"><i class="bi bi-exclamation-triangle me-1"></i> ผิดปกติ (${p.mismatchCount})</span>`; tbody.innerHTML += `<tr><td class="td-center text-muted">${index + 1}</td><td class="td-center fw-bold text-dark">${p.an}</td><td class="td-center fw-bold text-secondary">${p.hn}</td><td class="td-center text-muted">${p.date}</td><td class="td-text text-dark">${p.rightStr}<br><span class="badge bg-info text-dark mt-1">สิทธิอ้างอิง: ${p.mappedRight}</span></td><td class="td-num fw-bold text-primary fs-6">${p.totalClaim.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-center">${statusBadge}</td><td class="td-center"><button class="btn btn-sm btn-outline-primary fw-bold px-3 py-1" onclick="openPatientDetail(${index})"><i class="bi bi-eye"></i> รายละเอียด</button></td></tr>`; }); document.getElementById('auditItemCount').textContent = `ตรวจสอบทั้งหมด ${dataList.length} ราย`; document.getElementById('loadingAudit').classList.add('d-none'); document.getElementById('auditSection').classList.remove('d-none'); }
     
-    // ฟังก์ชันเปิด Modal และรีเซ็ตการแสดงผลของ AI
     function openPatientDetail(index) { 
-      currentPatientIndexForAI = index; // เซ็ตตัวแปรให้ AI รู้ว่ากำลังดูคนไหน
+      currentPatientIndexForAI = index; 
       const p = globalAuditData[index]; 
       
-      document.getElementById('modalTitle').innerHTML = `<i class="bi bi-person-lines-fill me-2"></i>รายละเอียดผู้ป่วย: AN <span class="text-warning">${p.an}</span> | HN <span class="text-warning">${p.hn}</span>`; 
+      let extraTitle = p.isPorRorBor ? ' <span class="ms-1 fw-bold text-light">(สิทธิ พรบ.)</span>' : '';
+      document.getElementById('modalTitle').innerHTML = `<i class="bi bi-person-lines-fill me-2"></i>รายละเอียดผู้ป่วย: AN <span class="text-warning">${p.an}</span> | HN <span class="text-warning">${p.hn}</span>${extraTitle}`; 
+      
+      let rightDisplay = p.mappedRight.toUpperCase();
+      if (p.isPorRorBor) rightDisplay += " <span class='text-danger'>(อ้างอิงราคา OFC ตามสิทธิ พ.ร.บ.)</span>";
+      document.getElementById('modalRightAlert').innerHTML = `<i class="bi bi-info-circle-fill me-2"></i> ระบบตรวจสอบและเปรียบเทียบราคากับคอลัมน์สิทธิ: <strong>${rightDisplay}</strong>`;
+
       const thead = document.getElementById('modalThead'); 
       if(p.status === 'ผิดปกติ') { thead.className = "table-danger text-dark td-center align-middle"; } else { thead.className = "table-success text-dark td-center align-middle"; } 
       const tbody = document.getElementById('modalTbody'); tbody.innerHTML = ''; 
-      
       p.devices.forEach(d => { 
           let trClass = "", unitPriceCell = ""; 
           if (d.isMismatch) { trClass = "table-warning border-warning"; unitPriceCell = `<td class="td-num"><div class="text-danger fw-bold fs-5">${d.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div><div class="badge bg-danger badge-alert mt-2 px-2 py-1 shadow-sm text-wrap lh-base" style="font-size:0.8rem;"><i class="bi bi-exclamation-triangle-fill"></i> อ้างอิง: ${d.coveredUnitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div></td>`; } else if (d.coveredUnitPrice === 0 && d.adpCode !== "-") { unitPriceCell = `<td class="td-num"><div class="text-dark">${d.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div><div class="badge bg-secondary mt-1 px-2 py-1" style="font-size:0.7rem;">ไม่มีราคาในตาราง</div></td>`; } else { unitPriceCell = `<td class="td-num text-dark fw-bold">${d.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>`; } 
@@ -520,7 +608,6 @@
       }); 
       document.getElementById('modalTfoot').innerHTML = `<tr><td colspan="3" class="td-num fs-5 text-dark fw-bold">สรุปยอดรวม (Total):</td><td class="td-num fs-5 fw-bold text-dark">${p.totalCost.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num fs-5 fw-bold text-success">${p.totalCovered.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num fs-5 fw-bold text-danger">${p.totalExcess.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>`; 
       
-      // รีเซ็ตปุ่ม AI
       document.getElementById('aiAnalysisResult').classList.add('d-none');
       document.getElementById('aiAnalysisResult').innerHTML = '';
       document.getElementById('btnAiAnalyze').disabled = false;
@@ -530,11 +617,10 @@
       modal.show(); 
     }
 
-    // ================= 🧠 ฟังก์ชัน AI สำหรับประเมินความสมเหตุสมผล =================
+    // ================= 🧠 ฟังก์ชัน AI สำหรับวิเคราะห์รายบุคคล =================
     async function runAiAnalysis() {
         if(currentPatientIndexForAI === -1) return;
         const p = globalAuditData[currentPatientIndexForAI];
-        
         const btn = document.getElementById('btnAiAnalyze');
         const resultBox = document.getElementById('aiAnalysisResult');
         
@@ -543,22 +629,70 @@
         resultBox.classList.add('d-none');
         
         try {
-            // ดึงเฉพาะข้อมูลอุปกรณ์เพื่อส่งไปให้ AI
             const devicesForAi = p.devices.map(d => ({ adpCode: d.adpCode, name: d.name, qty: d.qty }));
             const res = await callGoogleAPI('analyzeAnomalyWithAI', { devices: devicesForAi });
+            if (res.error) throw new Error(res.error);
+            const formattedText = res.result.replace(/\n/g, '<br>');
+            resultBox.innerHTML = `<strong><i class="bi bi-stars text-warning"></i> ความเห็นจาก AI Medical Auditor:</strong><br><br>${formattedText}`;
+            resultBox.classList.remove('d-none');
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเชื่อมต่อ AI', text: e.message });
+        } finally {
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> วิเคราะห์อีกครั้ง';
+            btn.disabled = false;
+        }
+    }
+
+    // ================= 🧠 ฟังก์ชัน AI สำหรับวิเคราะห์ภาพรวม (Batch) =================
+    async function runBatchAiAnalysis() {
+        const btn = document.getElementById('btnBatchAi');
+        const resultBox = document.getElementById('batchAiAnalysisResult');
+        
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> AI กำลังประมวลผลข้อมูลทั้งชุด...';
+        btn.disabled = true;
+        resultBox.classList.add('d-none');
+        
+        try {
+            let promptText = "ในฐานะ Medical Auditor และ Data Analyst โปรดสรุปและวิเคราะห์ภาพรวมการเบิกจ่ายอุปกรณ์การแพทย์จากชุดข้อมูลต่อไปนี้:\n\n";
+            let totalPatients = globalAuditData.length;
+            let mismatchPatients = globalAuditData.filter(p => p.status === 'ผิดปกติ');
+            promptText += `ข้อมูลสรุป: ตรวจสอบทั้งหมด ${totalPatients} ราย พบผู้ป่วยที่มีข้อมูลราคาเบิกผิดปกติ ${mismatchPatients.length} ราย\n\n`;
             
+            if (mismatchPatients.length > 0) {
+                promptText += "รายการตัวอย่างที่พบราคาไม่ตรงกับตารางประกาศ (ไฮไลท์):\n";
+                mismatchPatients.slice(0, 30).forEach(p => { 
+                    promptText += `- ผู้ป่วย AN: ${p.an} (สิทธิ ${p.mappedRight})\n`;
+                    p.devices.filter(d => d.isMismatch).forEach(d => {
+                        promptText += `  * รหัส ${d.adpCode} | จำนวน ${d.qty} | เบิก ${d.unitPrice} ฿ (อ้างอิง ${d.coveredUnitPrice} ฿)\n`;
+                    });
+                });
+                if(mismatchPatients.length > 30) promptText += `- ...และอื่นๆ อีก ${mismatchPatients.length - 30} ราย\n`;
+            }
+
+            let overUtilized = [];
+            globalAuditData.forEach(p => {
+                p.devices.forEach(d => {
+                    if(d.qty > 2) overUtilized.push(`- AN: ${p.an} | รหัส ${d.adpCode} | จำนวน: ${d.qty} ชิ้น`);
+                });
+            });
+            if(overUtilized.length > 0) {
+                promptText += "\nรายการที่พบการเบิกจำนวนมากกว่า 2 ชิ้นต่อครั้ง (อาจมีการใช้เกินความจำเป็น หรือเป็นกลุ่มวัสดุสิ้นเปลือง):\n";
+                overUtilized.slice(0, 30).forEach(item => promptText += item + "\n");
+            }
+
+            promptText += "\nคำสั่ง: โปรดวิเคราะห์ความเสี่ยงที่พบ (เช่น สาเหตุที่ราคาเบิกสูงกว่ากำหนด, ความผิดปกติของจำนวนชิ้น) และให้ข้อเสนอแนะในการปฏิบัติงานเพื่อป้องกันการสูญเสียรายได้ของโรงพยาบาล (ตอบเป็นภาษาไทยเชิงวิชาชีพ จัดรูปแบบให้อ่านง่าย)";
+
+            const res = await callGoogleAPI('generateAIResponse', { prompt: promptText });
             if (res.error) throw new Error(res.error);
             
-            // นำผลลัพธ์จาก AI มาแสดง โดยแปลงการขึ้นบรรทัดใหม่ให้เป็น <br>
             const formattedText = res.result.replace(/\n/g, '<br>');
-            
-            resultBox.innerHTML = `<strong><i class="bi bi-stars text-warning"></i> ความเห็นจาก AI Medical Auditor:</strong><br><br>${formattedText}`;
+            resultBox.innerHTML = `<h5 class="text-primary fw-bold"><i class="bi bi-robot me-2"></i> สรุปภาพรวมและข้อเสนอแนะจาก AI (Batch Analysis)</h5><hr>${formattedText}`;
             resultBox.classList.remove('d-none');
             
         } catch (e) {
             Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเชื่อมต่อ AI', text: e.message });
         } finally {
-            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> วิเคราะห์อีกครั้ง';
+            btn.innerHTML = '<i class="bi bi-stars me-1"></i> วิเคราะห์ภาพรวมด้วย AI (อีกครั้ง)';
             btn.disabled = false;
         }
     }
@@ -597,52 +731,78 @@
               let rawUpdates = [];
 
               if (fileName.endsWith('.pdf')) {
-                  document.getElementById('syncLoadingText').innerText = "กำลังอ่านข้อความจากไฟล์ PDF...";
+                  document.getElementById('syncLoadingText').innerText = "กำลังจัดโครงสร้างบรรทัดจากไฟล์ PDF...";
                   const typedarray = new Uint8Array(e.target.result);
                   const pdf = await pdfjsLib.getDocument(typedarray).promise;
                   let fullText = "";
                   
-                  // ดึงข้อความมาต่อกันแบบธรรมดา ป้องกันบรรทัดสลับตำแหน่ง
+                  // สร้างบรรทัดจำลองโดยเรียงตามพิกัด Y (บนลงล่าง) และ X (ซ้ายไปขวา)
                   for (let i = 1; i <= pdf.numPages; i++) {
                       const page = await pdf.getPage(i);
                       const textContent = await page.getTextContent();
-                      const pageStrings = textContent.items.map(item => item.str.trim()).filter(s => s.length > 0);
-                      fullText += pageStrings.join(" ") + " \n ";
-                  }
-                  fullText = fullText.replace(/\s+/g, ' ');
+                      
+                      let linesMap = new Map();
+                      textContent.items.forEach(item => {
+                          if (item.str.trim() === '') return;
+                          // แปลงพิกัด Y ให้ปัดเศษทีละ 5 เพื่อจัดกลุ่มตัวอักษรให้อยู่บรรทัดเดียวกัน
+                          let y = Math.round(item.transform[5] / 5) * 5; 
+                          if (!linesMap.has(y)) linesMap.set(y, []);
+                          linesMap.get(y).push(item);
+                      });
 
-                  document.getElementById('syncLoadingText').innerText = "กำลังสกัดรหัสและราคาด้วยความแม่นยำสูง...";
+                      // เรียงพิกัด Y จากมากไปน้อย (Top to Bottom)
+                      let sortedY = Array.from(linesMap.keys()).sort((a, b) => b - a);
+
+                      for (let y of sortedY) {
+                          // เรียงพิกัด X ซ้ายไปขวา
+                          let lineItems = linesMap.get(y).sort((a, b) => a.transform[4] - b.transform[4]);
+                          let lineStr = lineItems.map(item => item.str.trim()).join(' ');
+                          fullText += lineStr + "\n";
+                      }
+                  }
+
+                  document.getElementById('syncLoadingText').innerText = "กำลังวิเคราะห์รหัสและราคาจาก PDF...";
                   
                   // ดึงรหัส 4 หลักทั้งหมดที่พบ
                   const codePattern = /\b([0-9]{4}[A-Z]?)\b/g;
                   const matches = [...fullText.matchAll(codePattern)];
                   const ignoreCodes = ['2568', '2569', '2566', '2567', '1000', '2000', '3000', '4000', '5000', '6000', '7000', '8000', '9000'];
-                  
-                  let validMatches = matches.filter(m => !ignoreCodes.includes(m[1]));
 
-                  for (let i = 0; i < validMatches.length; i++) {
-                      let code = validMatches[i][1];
-                      let start = validMatches[i].index + code.length;
-                      let nextIndex = (i + 1 < validMatches.length) ? validMatches[i+1].index : fullText.length;
+                  for (let i = 0; i < matches.length; i++) {
+                      let code = matches[i][1];
+                      if (ignoreCodes.includes(code)) continue;
+
+                      let start = matches[i].index;
+                      let nextIndex = (i + 1 < matches.length) ? matches[i+1].index : fullText.length;
                       
-                      // ดึงข้อความเฉพาะในช่วงของรหัสนี้ (ถึงก่อนรหัสถัดไป)
-                      let block = fullText.substring(start, nextIndex);
+                      // หาเนื้อหาของรหัสนี้ ไปจนถึงก่อนรหัสถัดไป (กำหนดขอบเขตสูงสุดไม่เกิน 800 ตัวอักษร)
+                      let end = Math.min(start + 800, nextIndex);
+                      let block = fullText.substring(start, end);
+
                       let price = null;
 
-                      // === ลอจิกใหม่: บังคับหาราคาที่มีลูกน้ำ (,) หรือต้องอยู่ติดกับคำหน่วยนับเท่านั้น ===
-                      // 1. ดึงตัวเลขที่มีลูกน้ำมาก่อนเลย เป็นราคาแน่นอน
-                      let commaMatches = [...block.matchAll(/\b([1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]{1,2})?)\b/g)];
-                      if (commaMatches.length > 0) {
-                          price = parseFloat(commaMatches[commaMatches.length - 1][1].replace(/,/g, ''));
-                      } 
-                      else {
-                          // 2. ถ้าไม่มีลูกน้ำ ต้องหาตัวเลขที่อยู่ติดกับคำว่า "ละ" เท่านั้น! ป้องกันการดึงเลขลำดับ
-                          let unitMatch = block.match(/(?:ชุด|แผ่น|อัน|เส้น|ข้อ|หลอด|ครั้ง|ชิ้น|คู่|ซีซี|ซม\.?|ถุง|ระดับ|ขวด|เครื่อง)\s*ละ\s*([1-9][0-9]*(?:\.[0-9]{1,2})?)/);
+                      // วิธีที่ 1: หาตัวเลขที่มีลูกน้ำกำกับ (เช่น 12,000 หรือ 12,000.00) แน่นอนว่าต้องเป็นราคา
+                      let commaMatch = block.match(/\b([1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]{1,2})?)\b/);
+                      if (commaMatch) {
+                          price = parseFloat(commaMatch[1].replace(/,/g, ''));
+                      } else {
+                          // วิธีที่ 2: หาตัวเลขที่อยู่ติดกับหน่วยนับ (เช่น ชุดละ 800, ถุงละ 70) ป้องกันการนำรหัสไปเป็นราคา
+                          let unitMatch = block.match(/(?:ชุด|แผ่น|อัน|เส้น|ข้อ|หลอด|ครั้ง|ชิ้น|คู่|ซีซี|ซม\.?\s*ละ|ถุง|ระดับ|ขวด|เครื่อง)\s*ละ\s*([1-9][0-9]*)\b/);
                           if (unitMatch) {
-                              price = parseFloat(unitMatch[1].replace(/,/g, ''));
+                              let parsed = parseFloat(unitMatch[1]);
+                              // ต้องไม่เท่ากับรหัส เพื่อป้องกันความผิดพลาด
+                              if (parsed !== parseFloat(code)) price = parsed;
+                          } else {
+                              // วิธีที่ 3: หากไม่พบลูกน้ำและคำว่า "ละ" ให้หาตัวเลขท้ายสุดในบล็อกที่ค่าเกิน 50
+                              let allNums = [...block.matchAll(/\b([1-9][0-9]{1,})\b/g)];
+                              let validNums = allNums.map(m => parseFloat(m[1])).filter(n => n !== parseFloat(code) && !ignoreCodes.includes(n.toString()) && n >= 50);
+                              if (validNums.length > 0) {
+                                  price = validNums[validNums.length - 1]; 
+                              }
                           }
                       }
 
+                      // หากได้ราคาที่ไม่ซ้ำ ให้นำไปเก็บใน array
                       if (price !== null && price > 0 && !rawUpdates.find(u => u.code === code)) {
                           rawUpdates.push({ code: code, price: price });
                       }
