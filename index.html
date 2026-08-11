@@ -9,13 +9,10 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   
-  <!-- ไลบรารีที่จำเป็น -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <!-- เพิ่มไลบรารีอ่าน PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-  <!-- เพิ่มไลบรารีสร้างกราฟ Dashboard -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   
   <script>
@@ -86,7 +83,6 @@
         <a class="nav-link" id="menu-audit" onclick="switchPage('audit')"><i class="bi bi-shield-fill-check"></i><span>ตรวจสอบความสอดคล้อง (กลุ่ม)</span></a>
         <a class="nav-link" id="menu-report" onclick="switchPage('report')"><i class="bi bi-bar-chart-line"></i><span>รายงานการใช้อุปกรณ์ 2569</span></a>
         <a class="nav-link" id="menu-sync" onclick="switchPage('sync')"><i class="bi bi-arrow-repeat"></i><span>อัปเดตราคาตามประกาศ</span></a>
-        <!-- เมนูใหม่ Dashboard -->
         <a class="nav-link" id="menu-dashboard" onclick="switchPage('dashboard')"><i class="bi bi-speedometer2"></i><span>แดชบอร์ดสรุปข้อมูล</span></a>
       </div>
     </aside>
@@ -415,30 +411,18 @@
         </div>
       </div>
 
-      <!-- ================= PAGE 7: แดชบอร์ดสรุปข้อมูล (เมนูใหม่) ================= -->
+      <!-- ================= PAGE 7: แดชบอร์ดสรุปข้อมูล (ดึงจาก Google Sheet อัตโนมัติ) ================= -->
       <div id="page-dashboard" class="d-none">
-        <div class="page-header"><h2 class="page-title text-info"><i class="bi bi-speedometer2"></i> แดชบอร์ดสรุปข้อมูลการชดเชย</h2></div>
-        
-        <div class="custom-card border-info border-top border-4">
-          <div class="card-body-custom">
-             <div class="row g-3 align-items-end">
-                <div class="col-md-8">
-                  <label class="form-label fw-bold">อัปโหลดไฟล์ข้อมูลสรุป (เลือกไฟล์ Monthly และ Total พร้อมกันได้เลย)</label>
-                  <input type="file" class="form-control form-control-lg border-info" id="dashboardUpload" accept=".xls,.xlsx" multiple>
-                </div>
-                <div class="col-md-4">
-                  <button class="btn btn-info text-white btn-lg w-100 fw-bold shadow-sm" onclick="processDashboardExcel()">
-                    <i class="bi bi-bar-chart-fill me-1"></i> สร้างแดชบอร์ด
-                  </button>
-                </div>
-             </div>
-             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> กดปุ่ม Ctrl (หรือ Cmd บน Mac) ค้างไว้ เพื่อเลือกทั้ง 2 ไฟล์พร้อมกัน</div>
-          </div>
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <h2 class="page-title text-info mb-0"><i class="bi bi-speedometer2"></i> แดชบอร์ดสรุปข้อมูลการชดเชย</h2>
+            <button class="btn btn-outline-info fw-bold shadow-sm" onclick="fetchDashboardData()">
+                <i class="bi bi-arrow-clockwise me-1"></i> รีเฟรชข้อมูล
+            </button>
         </div>
-
-        <div id="loadingDashboard" class="text-center d-none my-5">
+        
+        <div id="loadingDashboard" class="text-center my-5">
            <div class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status"></div>
-           <div class="mt-3 fw-bold text-info">กำลังประมวลผลข้อมูลเพื่อสร้างกราฟ...</div>
+           <div class="mt-3 fw-bold text-info">กำลังดึงข้อมูลจาก Google Sheet...</div>
         </div>
         
         <div id="errorDashboard" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
@@ -480,7 +464,7 @@
             </div>
           </div>
           
-          <!-- กราฟ -->
+          <!-- กราฟ แนวโน้มรายเดือน -->
           <div class="row g-4 mb-4">
             <div class="col-lg-12">
               <div class="card shadow-sm border-0 h-100 rounded-4">
@@ -492,17 +476,32 @@
                 </div>
               </div>
             </div>
-            <div class="col-lg-12">
+          </div>
+          
+          <!-- กราฟ Top 10 แยก OP และ IP -->
+          <div class="row g-4 mb-4">
+            <div class="col-lg-6">
               <div class="card shadow-sm border-0 h-100 rounded-4">
                 <div class="card-header bg-white fw-bold text-success border-bottom-0 pt-4 pb-0 fs-5">
-                  <i class="bi bi-bar-chart-steps me-2"></i> 10 อันดับอุปกรณ์ที่มีมูลค่าชดเชยสูงสุด (Top 10 Items by Value)
+                  <i class="bi bi-bar-chart-steps me-2"></i> 10 อันดับอุปกรณ์มียอดชดเชยสูงสุด <span class="badge bg-success">ผู้ป่วยนอก (OP)</span>
                 </div>
                 <div class="card-body px-4 pb-4">
-                  <canvas id="topItemsChart" height="100"></canvas>
+                  <canvas id="topItemsOpChart" height="250"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="card shadow-sm border-0 h-100 rounded-4">
+                <div class="card-header bg-white fw-bold text-danger border-bottom-0 pt-4 pb-0 fs-5">
+                  <i class="bi bi-bar-chart-steps me-2"></i> 10 อันดับอุปกรณ์มียอดชดเชยสูงสุด <span class="badge bg-danger">ผู้ป่วยใน (IP)</span>
+                </div>
+                <div class="card-body px-4 pb-4">
+                  <canvas id="topItemsIpChart" height="250"></canvas>
                 </div>
               </div>
             </div>
           </div>
+
         </div>
       </div>
 
@@ -519,7 +518,6 @@
         </div>
         <div class="modal-body bg-light">
            <div class="alert alert-info py-2 mb-3 fw-bold" id="modalRightAlert"></div>
-           
            <div class="table-responsive bg-white rounded shadow-sm border-0">
                <table class="table table-hover mb-0">
                   <thead class="text-white td-center align-middle" id="modalThead">
@@ -576,10 +574,12 @@
       document.getElementById('menu-' + page).classList.add('active');
       
       if(page === 'table' && document.getElementById('tableS1Body').innerHTML.includes('กำลังดึงข้อมูล')) searchSheet1();
+      // โหลด Dashboard อัตโนมัติเมื่อกดเมนู
+      if(page === 'dashboard') fetchDashboardData();
     }
 
     let currentSearchResults = []; let cartItems = []; let globalReportData = []; let globalAuditData = []; let currentSyncList = []; let selectedRightsToUpdate = []; let currentPatientIndexForAI = -1;
-    let monthlyChartInstance = null; let topItemsChartInstance = null;
+    let monthlyChartInstance = null; let topItemsOpChartInstance = null; let topItemsIpChartInstance = null;
 
     // ================= 1. ประเมินสิทธิ (Calc) =================
     async function checkHN() { const hn = document.getElementById('hnInput').value.trim(); if (!hn) return; const btn = document.getElementById('btnCheckHn'); btn.innerHTML = '...'; btn.disabled = true; document.getElementById('errorAlert').classList.add('d-none'); try { const res = await callGoogleAPI('checkPatientRight', { hn: hn }); btn.innerHTML = 'ตรวจสอบ'; btn.disabled = false; if (res.error) { document.getElementById('errorAlert').innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i>${res.error}`; document.getElementById('errorAlert').classList.remove('d-none'); } else if (res.right) { const select = document.getElementById('rightsType'); for (let i = 0; i < select.options.length; i++) if (select.options[i].value === res.right) { select.selectedIndex = i; renderCart(); break; } } } catch (e) { btn.innerHTML = 'ตรวจสอบ'; btn.disabled = false; } }
@@ -799,7 +799,7 @@
     function filterReportTable() { const codeQuery = document.getElementById('filterCode').value.toLowerCase().trim(); const nameQuery = document.getElementById('filterName').value.toLowerCase().trim(); const filtered = globalReportData.filter(item => { const matchCode = item.code.toLowerCase().includes(codeQuery); const matchName = item.name.toLowerCase().includes(nameQuery) || item.rawName.toLowerCase().includes(nameQuery); return matchCode && matchName; }); renderReportTable(filtered); }
     function resetReportFilter() { document.getElementById('filterCode').value = ''; document.getElementById('filterName').value = ''; renderReportTable(globalReportData); }
 
-    // ================= 6. อัปเดตราคาตามประกาศ (Sync PDF/Excel) =================
+    // ================= 6. อัปเดตราคาตามประกาศ =================
     async function processSyncFile() {
       const fileInput = document.getElementById('syncUpload');
       const errorAlert = document.getElementById('errorSync');
@@ -840,7 +840,7 @@
                   }
                   fullText = fullText.replace(/\s+/g, ' ');
 
-                  document.getElementById('syncLoadingText').innerText = "กำลังวิเคราะห์รหัสและราคาจาก PDF อย่างละเอียด...";
+                  document.getElementById('syncLoadingText').innerText = "กำลังสกัดรหัสและราคาด้วยความแม่นยำสูง...";
                   
                   const codePattern = /\b([0-9]{4}[A-Z]?)\b/g;
                   const matches = [...fullText.matchAll(codePattern)];
@@ -1002,66 +1002,35 @@
         }
     }
 
-    // ================= 7. แดชบอร์ดสรุปข้อมูล (Dashboard) =================
-    function processDashboardExcel() {
-        const fileInput = document.getElementById('dashboardUpload');
+    // ================= 7. แดชบอร์ด (ดึงข้อมูลอัตโนมัติ) =================
+    async function fetchDashboardData() {
         const errorAlert = document.getElementById('errorDashboard');
         const section = document.getElementById('dashboardSection');
+        const loading = document.getElementById('loadingDashboard');
         
         errorAlert.classList.add('d-none');
         section.classList.add('d-none');
+        loading.classList.remove('d-none');
         
-        if (!fileInput.files.length) {
-            errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ Excel ข้อมูลสรุปก่อนครับ';
+        try {
+            const res = await callGoogleAPI('getDashboardData', {});
+            
+            if (res.error) {
+                loading.classList.add('d-none');
+                errorAlert.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i>${res.error}`;
+                errorAlert.classList.remove('d-none');
+                return;
+            }
+            
+            renderDashboard(res.monthly || [], res.total || []);
+            loading.classList.add('d-none');
+            section.classList.remove('d-none');
+            
+        } catch (e) {
+            loading.classList.add('d-none');
+            errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i>เกิดข้อผิดพลาดในการดึงข้อมูล: ${e.message}`;
             errorAlert.classList.remove('d-none');
-            return;
         }
-        
-        document.getElementById('loadingDashboard').classList.remove('d-none');
-        
-        let monthlyData = [];
-        let totalData = [];
-        let filesProcessed = 0;
-        
-        Array.from(fileInput.files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-               try {
-                   const data = new Uint8Array(e.target.result);
-                   const workbook = XLSX.read(data, {type: 'array'});
-                   
-                   workbook.SheetNames.forEach(sheetName => {
-                        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {defval: ""});
-                        if (rows.length === 0) return;
-                        
-                        const sheetNameLower = sheetName.toLowerCase();
-                        const firstRowKeys = Object.keys(rows[0]).join(" ");
-                        
-                        if (sheetNameLower.includes("monthly") || firstRowKeys.includes("เดือนที่ส่ง") || firstRowKeys.includes("OP(ครั้ง)")) {
-                            monthlyData = rows;
-                        } else if (sheetNameLower.includes("total") || firstRowKeys.includes("รายการ") || firstRowKeys.includes("ชดเชยรวม")) {
-                            totalData = rows;
-                        }
-                   });
-               } catch(err) { 
-                   console.error(err); 
-               }
-               
-               filesProcessed++;
-               if (filesProcessed === fileInput.files.length) {
-                   if (monthlyData.length === 0 && totalData.length === 0) {
-                      document.getElementById('loadingDashboard').classList.add('d-none');
-                      errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i>ไม่พบคอลัมน์ข้อมูลที่ตรงกับรูปแบบ 'เดือนที่ส่ง' หรือ 'รายการ' โปรดตรวจสอบไฟล์ให้ถูกต้องครับ`;
-                      errorAlert.classList.remove('d-none');
-                      return;
-                   }
-                   renderDashboard(monthlyData, totalData);
-                   document.getElementById('loadingDashboard').classList.add('d-none');
-                   section.classList.remove('d-none');
-               }
-            };
-            reader.readAsArrayBuffer(file);
-        });
     }
 
     function renderDashboard(monthlyData, totalData) {
@@ -1070,6 +1039,7 @@
         let opCompTrend = [];
         let ipCompTrend = [];
         
+        // ประมวลผลข้อมูลรายเดือน (Monthly)
         if (monthlyData.length > 0) {
             const keys = Object.keys(monthlyData[0]);
             const kMonth = keys.find(k => k.includes("เดือน"));
@@ -1094,6 +1064,7 @@
             });
         }
         
+        // ถ้าไม่มีรายเดือน ให้ใช้ข้อมูลสรุปรวมมาโชว์ตัวเลขแทน
         if (monthlyData.length === 0 && totalData.length > 0) {
             const keys = Object.keys(totalData[0]);
             const kOpCount = keys.find(k => k.includes("OP-จำนวน"));
@@ -1114,32 +1085,45 @@
         document.getElementById('dashIpCount').textContent = sumIpCount.toLocaleString();
         document.getElementById('dashIpComp').textContent = sumIpComp.toLocaleString(undefined, {minimumFractionDigits: 2});
         
-        let labelsItems = [];
-        let dataItemsValue = [];
+        let labelsOpItems = [], dataOpValue = [];
+        let labelsIpItems = [], dataIpValue = [];
         
+        // ประมวลผลข้อมูลสรุป (Total) สำหรับแยก OP และ IP
         if (totalData.length > 0) {
             const keys = Object.keys(totalData[0]);
             const kItem = keys.find(k => k.includes("รายการ"));
-            const kTotalComp = keys.find(k => k.includes("ชดเชยรวม") || k.includes("รวมชดเชย"));
+            const kOpComp = keys.find(k => k.includes("OP-ชดเชย"));
+            const kIpComp = keys.find(k => k.includes("IP-ชดเชย"));
             
-            let parsedItems = totalData.map(row => ({
+            // ชุดข้อมูล OP
+            let parsedOpItems = totalData.map(row => ({
                 name: row[kItem] ? row[kItem].toString() : "Unknown",
-                value: parseFloat(row[kTotalComp]) || 0
+                value: parseFloat(row[kOpComp]) || 0
             })).filter(item => item.value > 0);
             
-            parsedItems.sort((a, b) => b.value - a.value);
+            parsedOpItems.sort((a, b) => b.value - a.value);
+            let top10Op = parsedOpItems.slice(0, 10);
+            labelsOpItems = top10Op.map(item => item.name.length > 25 ? item.name.substring(0, 25) + '...' : item.name);
+            dataOpValue = top10Op.map(item => item.value);
+
+            // ชุดข้อมูล IP
+            let parsedIpItems = totalData.map(row => ({
+                name: row[kItem] ? row[kItem].toString() : "Unknown",
+                value: parseFloat(row[kIpComp]) || 0
+            })).filter(item => item.value > 0);
             
-            let top10 = parsedItems.slice(0, 10);
-            labelsItems = top10.map(item => item.name.length > 35 ? item.name.substring(0, 35) + '...' : item.name);
-            dataItemsValue = top10.map(item => item.value);
+            parsedIpItems.sort((a, b) => b.value - a.value);
+            let top10Ip = parsedIpItems.slice(0, 10);
+            labelsIpItems = top10Ip.map(item => item.name.length > 25 ? item.name.substring(0, 25) + '...' : item.name);
+            dataIpValue = top10Ip.map(item => item.value);
         }
         
-        renderCharts(labelsMonth, opCompTrend, ipCompTrend, labelsItems, dataItemsValue);
+        renderCharts(labelsMonth, opCompTrend, ipCompTrend, labelsOpItems, dataOpValue, labelsIpItems, dataIpValue);
     }
 
-    function renderCharts(labelsMonth, opCompTrend, ipCompTrend, labelsItems, dataItemsValue) {
+    function renderCharts(labelsMonth, opCompTrend, ipCompTrend, labelsOpItems, dataOpValue, labelsIpItems, dataIpValue) {
+        // กราฟ Monthly
         if (monthlyChartInstance) monthlyChartInstance.destroy();
-        
         const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
         monthlyChartInstance = new Chart(ctxMonthly, {
             type: 'bar',
@@ -1164,25 +1148,21 @@
             },
             options: {
                 responsive: true,
-                scales: {
-                    y: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString(); } } }
-                },
-                plugins: {
-                    tooltip: { callbacks: { label: function(context) { return context.dataset.label + ': ' + context.raw.toLocaleString() + ' บาท'; } } }
-                }
+                scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString(); } } } },
+                plugins: { tooltip: { callbacks: { label: function(context) { return context.dataset.label + ': ' + context.raw.toLocaleString() + ' บาท'; } } } }
             }
         });
         
-        if (topItemsChartInstance) topItemsChartInstance.destroy();
-        
-        const ctxTopItems = document.getElementById('topItemsChart').getContext('2d');
-        topItemsChartInstance = new Chart(ctxTopItems, {
+        // กราฟ Top 10 OP
+        if (topItemsOpChartInstance) topItemsOpChartInstance.destroy();
+        const ctxTopOp = document.getElementById('topItemsOpChart').getContext('2d');
+        topItemsOpChartInstance = new Chart(ctxTopOp, {
             type: 'bar',
             data: {
-                labels: labelsItems.length > 0 ? labelsItems : ['ไม่มีข้อมูลรายการ'],
+                labels: labelsOpItems.length > 0 ? labelsOpItems : ['ไม่มีข้อมูล'],
                 datasets: [{
-                    label: 'ยอดเงินชดเชยรวม (บาท)',
-                    data: dataItemsValue.length > 0 ? dataItemsValue : [0],
+                    label: 'ยอดเงินชดเชย OP (บาท)',
+                    data: dataOpValue.length > 0 ? dataOpValue : [0],
                     backgroundColor: 'rgba(25, 135, 84, 0.7)',
                     borderColor: 'rgba(25, 135, 84, 1)',
                     borderWidth: 1
@@ -1191,12 +1171,31 @@
             options: {
                 indexAxis: 'y',
                 responsive: true,
-                scales: {
-                    x: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString(); } } }
-                },
-                plugins: {
-                    tooltip: { callbacks: { label: function(context) { return context.raw.toLocaleString() + ' บาท'; } } }
-                }
+                scales: { x: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString(); } } } },
+                plugins: { tooltip: { callbacks: { label: function(context) { return context.raw.toLocaleString() + ' บาท'; } } } }
+            }
+        });
+
+        // กราฟ Top 10 IP
+        if (topItemsIpChartInstance) topItemsIpChartInstance.destroy();
+        const ctxTopIp = document.getElementById('topItemsIpChart').getContext('2d');
+        topItemsIpChartInstance = new Chart(ctxTopIp, {
+            type: 'bar',
+            data: {
+                labels: labelsIpItems.length > 0 ? labelsIpItems : ['ไม่มีข้อมูล'],
+                datasets: [{
+                    label: 'ยอดเงินชดเชย IP (บาท)',
+                    data: dataIpValue.length > 0 ? dataIpValue : [0],
+                    backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                    borderColor: 'rgba(220, 53, 69, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                scales: { x: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString(); } } } },
+                plugins: { tooltip: { callbacks: { label: function(context) { return context.raw.toLocaleString() + ' บาท'; } } } }
             }
         });
     }
