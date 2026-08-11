@@ -9,10 +9,15 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   
+  <!-- ไลบรารีที่จำเป็น -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- เพิ่มไลบรารีอ่าน PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <!-- เพิ่มไลบรารีสร้างกราฟ Dashboard -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <script>
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
   </script>
@@ -81,6 +86,8 @@
         <a class="nav-link" id="menu-audit" onclick="switchPage('audit')"><i class="bi bi-shield-fill-check"></i><span>ตรวจสอบความสอดคล้อง (กลุ่ม)</span></a>
         <a class="nav-link" id="menu-report" onclick="switchPage('report')"><i class="bi bi-bar-chart-line"></i><span>รายงานการใช้อุปกรณ์ 2569</span></a>
         <a class="nav-link" id="menu-sync" onclick="switchPage('sync')"><i class="bi bi-arrow-repeat"></i><span>อัปเดตราคาตามประกาศ</span></a>
+        <!-- เมนูใหม่ Dashboard -->
+        <a class="nav-link" id="menu-dashboard" onclick="switchPage('dashboard')"><i class="bi bi-speedometer2"></i><span>แดชบอร์ดสรุปข้อมูล</span></a>
       </div>
     </aside>
 
@@ -408,6 +415,97 @@
         </div>
       </div>
 
+      <!-- ================= PAGE 7: แดชบอร์ดสรุปข้อมูล (เมนูใหม่) ================= -->
+      <div id="page-dashboard" class="d-none">
+        <div class="page-header"><h2 class="page-title text-info"><i class="bi bi-speedometer2"></i> แดชบอร์ดสรุปข้อมูลการชดเชย</h2></div>
+        
+        <div class="custom-card border-info border-top border-4">
+          <div class="card-body-custom">
+             <div class="row g-3 align-items-end">
+                <div class="col-md-8">
+                  <label class="form-label fw-bold">อัปโหลดไฟล์ข้อมูลสรุป (เลือกไฟล์ Monthly และ Total พร้อมกันได้เลย)</label>
+                  <input type="file" class="form-control form-control-lg border-info" id="dashboardUpload" accept=".xls,.xlsx" multiple>
+                </div>
+                <div class="col-md-4">
+                  <button class="btn btn-info text-white btn-lg w-100 fw-bold shadow-sm" onclick="processDashboardExcel()">
+                    <i class="bi bi-bar-chart-fill me-1"></i> สร้างแดชบอร์ด
+                  </button>
+                </div>
+             </div>
+             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> กดปุ่ม Ctrl (หรือ Cmd บน Mac) ค้างไว้ เพื่อเลือกทั้ง 2 ไฟล์พร้อมกัน</div>
+          </div>
+        </div>
+
+        <div id="loadingDashboard" class="text-center d-none my-5">
+           <div class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status"></div>
+           <div class="mt-3 fw-bold text-info">กำลังประมวลผลข้อมูลเพื่อสร้างกราฟ...</div>
+        </div>
+        
+        <div id="errorDashboard" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
+
+        <div id="dashboardSection" class="d-none">
+          <!-- การ์ดสรุปยอด -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-3">
+              <div class="card bg-primary text-white shadow-sm h-100 border-0 rounded-4">
+                <div class="card-body text-center py-4">
+                  <h6 class="card-title fw-normal"><i class="bi bi-people-fill me-1"></i> รวมจำนวนครั้ง OP</h6>
+                  <h2 class="fw-bold mb-0 mt-2" id="dashOpCount">0</h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-success text-white shadow-sm h-100 border-0 rounded-4">
+                <div class="card-body text-center py-4">
+                  <h6 class="card-title fw-normal"><i class="bi bi-cash-stack me-1"></i> ยอดชดเชย OP (บาท)</h6>
+                  <h2 class="fw-bold mb-0 mt-2" id="dashOpComp">0</h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-danger text-white shadow-sm h-100 border-0 rounded-4">
+                <div class="card-body text-center py-4">
+                  <h6 class="card-title fw-normal"><i class="bi bi-hospital-fill me-1"></i> รวมจำนวนครั้ง IP</h6>
+                  <h2 class="fw-bold mb-0 mt-2" id="dashIpCount">0</h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-warning text-dark shadow-sm h-100 border-0 rounded-4">
+                <div class="card-body text-center py-4">
+                  <h6 class="card-title fw-normal"><i class="bi bi-coin me-1"></i> ยอดชดเชย IP (บาท)</h6>
+                  <h2 class="fw-bold mb-0 mt-2" id="dashIpComp">0</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- กราฟ -->
+          <div class="row g-4 mb-4">
+            <div class="col-lg-12">
+              <div class="card shadow-sm border-0 h-100 rounded-4">
+                <div class="card-header bg-white fw-bold text-primary border-bottom-0 pt-4 pb-0 fs-5">
+                  <i class="bi bi-graph-up me-2"></i> แนวโน้มยอดชดเชยรายเดือน (Monthly Trend)
+                </div>
+                <div class="card-body px-4 pb-4">
+                  <canvas id="monthlyChart" height="80"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-12">
+              <div class="card shadow-sm border-0 h-100 rounded-4">
+                <div class="card-header bg-white fw-bold text-success border-bottom-0 pt-4 pb-0 fs-5">
+                  <i class="bi bi-bar-chart-steps me-2"></i> 10 อันดับอุปกรณ์ที่มีมูลค่าชดเชยสูงสุด (Top 10 Items by Value)
+                </div>
+                <div class="card-body px-4 pb-4">
+                  <canvas id="topItemsChart" height="100"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -439,7 +537,6 @@
                </table>
            </div>
 
-           <!-- ส่วนแสดงผล AI Analysis รายบุคคล -->
            <div class="mt-4">
               <button id="btnAiAnalyze" class="btn btn-warning fw-bold shadow-sm" onclick="runAiAnalysis()">
                   <i class="bi bi-robot"></i> วิเคราะห์ความสมเหตุสมผลด้วย AI (Gemini)
@@ -471,6 +568,7 @@
       document.getElementById('page-audit').classList.add('d-none');
       document.getElementById('page-report').classList.add('d-none');
       document.getElementById('page-sync').classList.add('d-none');
+      document.getElementById('page-dashboard').classList.add('d-none');
       
       document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
       
@@ -481,6 +579,7 @@
     }
 
     let currentSearchResults = []; let cartItems = []; let globalReportData = []; let globalAuditData = []; let currentSyncList = []; let selectedRightsToUpdate = []; let currentPatientIndexForAI = -1;
+    let monthlyChartInstance = null; let topItemsChartInstance = null;
 
     // ================= 1. ประเมินสิทธิ (Calc) =================
     async function checkHN() { const hn = document.getElementById('hnInput').value.trim(); if (!hn) return; const btn = document.getElementById('btnCheckHn'); btn.innerHTML = '...'; btn.disabled = true; document.getElementById('errorAlert').classList.add('d-none'); try { const res = await callGoogleAPI('checkPatientRight', { hn: hn }); btn.innerHTML = 'ตรวจสอบ'; btn.disabled = false; if (res.error) { document.getElementById('errorAlert').innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i>${res.error}`; document.getElementById('errorAlert').classList.remove('d-none'); } else if (res.right) { const select = document.getElementById('rightsType'); for (let i = 0; i < select.options.length; i++) if (select.options[i].value === res.right) { select.selectedIndex = i; renderCart(); break; } } } catch (e) { btn.innerHTML = 'ตรวจสอบ'; btn.disabled = false; } }
@@ -532,7 +631,6 @@
                     let date = formatThaiDate(rows[i][7]); 
                     
                     let rightStr = rows[i][37] ? rows[i][37].toString() : ""; 
-                    // ตรวจสอบคอลัมน์ AN (สิทธิร่วม) ตามที่ลูกค้ารีเควสว่าถ้ามี พรบ ให้ใช้ราคา OFC
                     let jointRightStr = rows[i][39] ? rows[i][39].toString() : ""; 
                     let isPorRorBor = false;
                     
@@ -591,7 +689,7 @@
       currentPatientIndexForAI = index; 
       const p = globalAuditData[index]; 
       
-      let extraTitle = p.isPorRorBor ? ' <span class="ms-1 fw-bold text-light">(สิทธิร่วม พรบ.)</span>' : '';
+      let extraTitle = p.isPorRorBor ? ' <span class="ms-1 fw-bold text-light">(สิทธิ พรบ.)</span>' : '';
       document.getElementById('modalTitle').innerHTML = `<i class="bi bi-person-lines-fill me-2"></i>รายละเอียดผู้ป่วย: AN <span class="text-warning">${p.an}</span> | HN <span class="text-warning">${p.hn}</span>${extraTitle}`; 
       
       let rightDisplay = p.mappedRight.toUpperCase();
@@ -617,7 +715,6 @@
       modal.show(); 
     }
 
-    // ================= 🧠 ฟังก์ชัน AI สำหรับวิเคราะห์รายบุคคล =================
     async function runAiAnalysis() {
         if(currentPatientIndexForAI === -1) return;
         const p = globalAuditData[currentPatientIndexForAI];
@@ -643,7 +740,6 @@
         }
     }
 
-    // ================= 🧠 ฟังก์ชัน AI สำหรับวิเคราะห์ภาพรวม (Batch) =================
     async function runBatchAiAnalysis() {
         const btn = document.getElementById('btnBatchAi');
         const resultBox = document.getElementById('batchAiAnalysisResult');
@@ -731,78 +827,46 @@
               let rawUpdates = [];
 
               if (fileName.endsWith('.pdf')) {
-                  document.getElementById('syncLoadingText').innerText = "กำลังจัดโครงสร้างบรรทัดจากไฟล์ PDF...";
+                  document.getElementById('syncLoadingText').innerText = "กำลังอ่านข้อความจากไฟล์ PDF...";
                   const typedarray = new Uint8Array(e.target.result);
                   const pdf = await pdfjsLib.getDocument(typedarray).promise;
                   let fullText = "";
                   
-                  // สร้างบรรทัดจำลองโดยเรียงตามพิกัด Y (บนลงล่าง) และ X (ซ้ายไปขวา)
                   for (let i = 1; i <= pdf.numPages; i++) {
                       const page = await pdf.getPage(i);
                       const textContent = await page.getTextContent();
-                      
-                      let linesMap = new Map();
-                      textContent.items.forEach(item => {
-                          if (item.str.trim() === '') return;
-                          // แปลงพิกัด Y ให้ปัดเศษทีละ 5 เพื่อจัดกลุ่มตัวอักษรให้อยู่บรรทัดเดียวกัน
-                          let y = Math.round(item.transform[5] / 5) * 5; 
-                          if (!linesMap.has(y)) linesMap.set(y, []);
-                          linesMap.get(y).push(item);
-                      });
-
-                      // เรียงพิกัด Y จากมากไปน้อย (Top to Bottom)
-                      let sortedY = Array.from(linesMap.keys()).sort((a, b) => b - a);
-
-                      for (let y of sortedY) {
-                          // เรียงพิกัด X ซ้ายไปขวา
-                          let lineItems = linesMap.get(y).sort((a, b) => a.transform[4] - b.transform[4]);
-                          let lineStr = lineItems.map(item => item.str.trim()).join(' ');
-                          fullText += lineStr + "\n";
-                      }
+                      const pageStrings = textContent.items.map(item => item.str.trim()).filter(s => s.length > 0);
+                      fullText += pageStrings.join(" ") + " \n ";
                   }
+                  fullText = fullText.replace(/\s+/g, ' ');
 
-                  document.getElementById('syncLoadingText').innerText = "กำลังวิเคราะห์รหัสและราคาจาก PDF...";
+                  document.getElementById('syncLoadingText').innerText = "กำลังวิเคราะห์รหัสและราคาจาก PDF อย่างละเอียด...";
                   
-                  // ดึงรหัส 4 หลักทั้งหมดที่พบ
                   const codePattern = /\b([0-9]{4}[A-Z]?)\b/g;
                   const matches = [...fullText.matchAll(codePattern)];
                   const ignoreCodes = ['2568', '2569', '2566', '2567', '1000', '2000', '3000', '4000', '5000', '6000', '7000', '8000', '9000'];
+                  
+                  let validMatches = matches.filter(m => !ignoreCodes.includes(m[1]));
 
-                  for (let i = 0; i < matches.length; i++) {
-                      let code = matches[i][1];
-                      if (ignoreCodes.includes(code)) continue;
-
-                      let start = matches[i].index;
-                      let nextIndex = (i + 1 < matches.length) ? matches[i+1].index : fullText.length;
+                  for (let i = 0; i < validMatches.length; i++) {
+                      let code = validMatches[i][1];
+                      let start = validMatches[i].index + code.length;
+                      let nextIndex = (i + 1 < validMatches.length) ? validMatches[i+1].index : fullText.length;
                       
-                      // หาเนื้อหาของรหัสนี้ ไปจนถึงก่อนรหัสถัดไป (กำหนดขอบเขตสูงสุดไม่เกิน 800 ตัวอักษร)
-                      let end = Math.min(start + 800, nextIndex);
-                      let block = fullText.substring(start, end);
-
+                      let block = fullText.substring(start, nextIndex);
                       let price = null;
 
-                      // วิธีที่ 1: หาตัวเลขที่มีลูกน้ำกำกับ (เช่น 12,000 หรือ 12,000.00) แน่นอนว่าต้องเป็นราคา
-                      let commaMatch = block.match(/\b([1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]{1,2})?)\b/);
-                      if (commaMatch) {
-                          price = parseFloat(commaMatch[1].replace(/,/g, ''));
-                      } else {
-                          // วิธีที่ 2: หาตัวเลขที่อยู่ติดกับหน่วยนับ (เช่น ชุดละ 800, ถุงละ 70) ป้องกันการนำรหัสไปเป็นราคา
-                          let unitMatch = block.match(/(?:ชุด|แผ่น|อัน|เส้น|ข้อ|หลอด|ครั้ง|ชิ้น|คู่|ซีซี|ซม\.?\s*ละ|ถุง|ระดับ|ขวด|เครื่อง)\s*ละ\s*([1-9][0-9]*)\b/);
+                      let commaMatches = [...block.matchAll(/\b([1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]{1,2})?)\b/g)];
+                      if (commaMatches.length > 0) {
+                          price = parseFloat(commaMatches[commaMatches.length - 1][1].replace(/,/g, ''));
+                      } 
+                      else {
+                          let unitMatch = block.match(/(?:ชุด|แผ่น|อัน|เส้น|ข้อ|หลอด|ครั้ง|ชิ้น|คู่|ซีซี|ซม\.?|ถุง|ระดับ|ขวด|เครื่อง)\s*ละ\s*([1-9][0-9]*(?:\.[0-9]{1,2})?)/);
                           if (unitMatch) {
-                              let parsed = parseFloat(unitMatch[1]);
-                              // ต้องไม่เท่ากับรหัส เพื่อป้องกันความผิดพลาด
-                              if (parsed !== parseFloat(code)) price = parsed;
-                          } else {
-                              // วิธีที่ 3: หากไม่พบลูกน้ำและคำว่า "ละ" ให้หาตัวเลขท้ายสุดในบล็อกที่ค่าเกิน 50
-                              let allNums = [...block.matchAll(/\b([1-9][0-9]{1,})\b/g)];
-                              let validNums = allNums.map(m => parseFloat(m[1])).filter(n => n !== parseFloat(code) && !ignoreCodes.includes(n.toString()) && n >= 50);
-                              if (validNums.length > 0) {
-                                  price = validNums[validNums.length - 1]; 
-                              }
+                              price = parseFloat(unitMatch[1].replace(/,/g, ''));
                           }
                       }
 
-                      // หากได้ราคาที่ไม่ซ้ำ ให้นำไปเก็บใน array
                       if (price !== null && price > 0 && !rawUpdates.find(u => u.code === code)) {
                           rawUpdates.push({ code: code, price: price });
                       }
@@ -936,6 +1000,205 @@
             btn.innerHTML = '<i class="bi bi-cloud-arrow-up-fill"></i> ลองใหม่';
             btn.disabled = false;
         }
+    }
+
+    // ================= 7. แดชบอร์ดสรุปข้อมูล (Dashboard) =================
+    function processDashboardExcel() {
+        const fileInput = document.getElementById('dashboardUpload');
+        const errorAlert = document.getElementById('errorDashboard');
+        const section = document.getElementById('dashboardSection');
+        
+        errorAlert.classList.add('d-none');
+        section.classList.add('d-none');
+        
+        if (!fileInput.files.length) {
+            errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ Excel ข้อมูลสรุปก่อนครับ';
+            errorAlert.classList.remove('d-none');
+            return;
+        }
+        
+        document.getElementById('loadingDashboard').classList.remove('d-none');
+        
+        let monthlyData = [];
+        let totalData = [];
+        let filesProcessed = 0;
+        
+        Array.from(fileInput.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+               try {
+                   const data = new Uint8Array(e.target.result);
+                   const workbook = XLSX.read(data, {type: 'array'});
+                   
+                   workbook.SheetNames.forEach(sheetName => {
+                        const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {defval: ""});
+                        if (rows.length === 0) return;
+                        
+                        const sheetNameLower = sheetName.toLowerCase();
+                        const firstRowKeys = Object.keys(rows[0]).join(" ");
+                        
+                        if (sheetNameLower.includes("monthly") || firstRowKeys.includes("เดือนที่ส่ง") || firstRowKeys.includes("OP(ครั้ง)")) {
+                            monthlyData = rows;
+                        } else if (sheetNameLower.includes("total") || firstRowKeys.includes("รายการ") || firstRowKeys.includes("ชดเชยรวม")) {
+                            totalData = rows;
+                        }
+                   });
+               } catch(err) { 
+                   console.error(err); 
+               }
+               
+               filesProcessed++;
+               if (filesProcessed === fileInput.files.length) {
+                   if (monthlyData.length === 0 && totalData.length === 0) {
+                      document.getElementById('loadingDashboard').classList.add('d-none');
+                      errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i>ไม่พบคอลัมน์ข้อมูลที่ตรงกับรูปแบบ 'เดือนที่ส่ง' หรือ 'รายการ' โปรดตรวจสอบไฟล์ให้ถูกต้องครับ`;
+                      errorAlert.classList.remove('d-none');
+                      return;
+                   }
+                   renderDashboard(monthlyData, totalData);
+                   document.getElementById('loadingDashboard').classList.add('d-none');
+                   section.classList.remove('d-none');
+               }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    function renderDashboard(monthlyData, totalData) {
+        let sumOpCount = 0, sumOpComp = 0, sumIpCount = 0, sumIpComp = 0;
+        let labelsMonth = [];
+        let opCompTrend = [];
+        let ipCompTrend = [];
+        
+        if (monthlyData.length > 0) {
+            const keys = Object.keys(monthlyData[0]);
+            const kMonth = keys.find(k => k.includes("เดือน"));
+            const kOpCount = keys.find(k => k.includes("OP(ครั้ง)") || k.includes("OP-จำนวน"));
+            const kOpComp = keys.find(k => k.includes("OP(ชดเชย)") || k.includes("OP-ชดเชย"));
+            const kIpCount = keys.find(k => k.includes("IP(ครั้ง)") || k.includes("IP-จำนวน"));
+            const kIpComp = keys.find(k => k.includes("IP(ชดเชย)") || k.includes("IP-ชดเชย"));
+            
+            monthlyData.forEach(row => {
+                if (!row[kMonth]) return;
+                labelsMonth.push(row[kMonth]);
+                let opComp = parseFloat(row[kOpComp]) || 0;
+                let ipComp = parseFloat(row[kIpComp]) || 0;
+                
+                opCompTrend.push(opComp);
+                ipCompTrend.push(ipComp);
+                
+                sumOpCount += parseFloat(row[kOpCount]) || 0;
+                sumOpComp += opComp;
+                sumIpCount += parseFloat(row[kIpCount]) || 0;
+                sumIpComp += ipComp;
+            });
+        }
+        
+        if (monthlyData.length === 0 && totalData.length > 0) {
+            const keys = Object.keys(totalData[0]);
+            const kOpCount = keys.find(k => k.includes("OP-จำนวน"));
+            const kOpComp = keys.find(k => k.includes("OP-ชดเชย"));
+            const kIpCount = keys.find(k => k.includes("IP-จำนวน"));
+            const kIpComp = keys.find(k => k.includes("IP-ชดเชย"));
+            
+            totalData.forEach(row => {
+                sumOpCount += parseFloat(row[kOpCount]) || 0;
+                sumOpComp += parseFloat(row[kOpComp]) || 0;
+                sumIpCount += parseFloat(row[kIpCount]) || 0;
+                sumIpComp += parseFloat(row[kIpComp]) || 0;
+            });
+        }
+
+        document.getElementById('dashOpCount').textContent = sumOpCount.toLocaleString();
+        document.getElementById('dashOpComp').textContent = sumOpComp.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('dashIpCount').textContent = sumIpCount.toLocaleString();
+        document.getElementById('dashIpComp').textContent = sumIpComp.toLocaleString(undefined, {minimumFractionDigits: 2});
+        
+        let labelsItems = [];
+        let dataItemsValue = [];
+        
+        if (totalData.length > 0) {
+            const keys = Object.keys(totalData[0]);
+            const kItem = keys.find(k => k.includes("รายการ"));
+            const kTotalComp = keys.find(k => k.includes("ชดเชยรวม") || k.includes("รวมชดเชย"));
+            
+            let parsedItems = totalData.map(row => ({
+                name: row[kItem] ? row[kItem].toString() : "Unknown",
+                value: parseFloat(row[kTotalComp]) || 0
+            })).filter(item => item.value > 0);
+            
+            parsedItems.sort((a, b) => b.value - a.value);
+            
+            let top10 = parsedItems.slice(0, 10);
+            labelsItems = top10.map(item => item.name.length > 35 ? item.name.substring(0, 35) + '...' : item.name);
+            dataItemsValue = top10.map(item => item.value);
+        }
+        
+        renderCharts(labelsMonth, opCompTrend, ipCompTrend, labelsItems, dataItemsValue);
+    }
+
+    function renderCharts(labelsMonth, opCompTrend, ipCompTrend, labelsItems, dataItemsValue) {
+        if (monthlyChartInstance) monthlyChartInstance.destroy();
+        
+        const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+        monthlyChartInstance = new Chart(ctxMonthly, {
+            type: 'bar',
+            data: {
+                labels: labelsMonth.length > 0 ? labelsMonth : ['ไม่มีข้อมูลรายเดือน'],
+                datasets: [
+                    {
+                        label: 'ยอดชดเชย OP',
+                        data: opCompTrend.length > 0 ? opCompTrend : [0],
+                        backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'ยอดชดเชย IP',
+                        data: ipCompTrend.length > 0 ? ipCompTrend : [0],
+                        backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString(); } } }
+                },
+                plugins: {
+                    tooltip: { callbacks: { label: function(context) { return context.dataset.label + ': ' + context.raw.toLocaleString() + ' บาท'; } } }
+                }
+            }
+        });
+        
+        if (topItemsChartInstance) topItemsChartInstance.destroy();
+        
+        const ctxTopItems = document.getElementById('topItemsChart').getContext('2d');
+        topItemsChartInstance = new Chart(ctxTopItems, {
+            type: 'bar',
+            data: {
+                labels: labelsItems.length > 0 ? labelsItems : ['ไม่มีข้อมูลรายการ'],
+                datasets: [{
+                    label: 'ยอดเงินชดเชยรวม (บาท)',
+                    data: dataItemsValue.length > 0 ? dataItemsValue : [0],
+                    backgroundColor: 'rgba(25, 135, 84, 0.7)',
+                    borderColor: 'rgba(25, 135, 84, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                scales: {
+                    x: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString(); } } }
+                },
+                plugins: {
+                    tooltip: { callbacks: { label: function(context) { return context.raw.toLocaleString() + ' บาท'; } } }
+                }
+            }
+        });
     }
   </script>
 </body>
