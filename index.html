@@ -88,7 +88,8 @@
     </aside>
 
     <main class="main-content">
-      <!-- PAGE 1: Calc -->
+      
+      <!-- ================= PAGE 1: ประเมินสิทธิ ================= -->
       <div id="page-calc">
         <div class="page-header"><h2 class="page-title"><i class="bi bi-clipboard2-pulse text-primary"></i> ระบบประเมินราคาอุปกรณ์</h2></div>
         <div class="custom-card">
@@ -221,52 +222,13 @@
           </div>
           <div class="row g-4 mb-4"><div class="col-lg-12"><div class="card shadow-sm border-0 h-100 rounded-4"><div class="card-header bg-white fw-bold text-primary border-bottom-0 pt-4 pb-0 fs-5"><i class="bi bi-graph-up me-2"></i> แนวโน้มยอดชดเชยรายเดือน</div><div class="card-body px-4 pb-4"><canvas id="monthlyChart" height="80"></canvas></div></div></div></div>
           
-          <!-- กราฟ OP เปรียบเทียบชดเชย vs การใช้ -->
           <div class="row g-4 mb-4">
-            <div class="col-lg-6">
-              <div class="card shadow-sm border-0 h-100 rounded-4">
-                <div class="card-header bg-white fw-bold text-success border-bottom-0 pt-4 pb-0 fs-5">
-                  <i class="bi bi-cash-coin me-2"></i> 10 อันดับอุปกรณ์มียอดชดเชยสูงสุด <span class="badge bg-success">ผู้ป่วยนอก (OP)</span>
-                </div>
-                <div class="card-body px-4 pb-4">
-                  <canvas id="topItemsOpChart" height="250"></canvas>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="card shadow-sm border-0 h-100 rounded-4">
-                <div class="card-header bg-white fw-bold text-info border-bottom-0 pt-4 pb-0 fs-5">
-                  <i class="bi bi-box-seam me-2"></i> 10 อันดับปริมาณการใช้อุปกรณ์ <span class="badge bg-info text-dark">ผู้ป่วยนอก (OP Usage)</span>
-                </div>
-                <div class="card-body px-4 pb-4">
-                  <canvas id="topItemsOpUsageChart" height="250"></canvas>
-                </div>
-              </div>
-            </div>
+            <div class="col-lg-6"><div class="card shadow-sm border-0 h-100 rounded-4"><div class="card-header bg-white fw-bold text-success border-bottom-0 pt-4 pb-0 fs-5"><i class="bi bi-cash-coin me-2"></i> 10 อันดับอุปกรณ์มียอดชดเชยสูงสุด <span class="badge bg-success">ผู้ป่วยนอก (OP)</span></div><div class="card-body px-4 pb-4"><canvas id="topItemsOpChart" height="250"></canvas></div></div></div>
+            <div class="col-lg-6"><div class="card shadow-sm border-0 h-100 rounded-4"><div class="card-header bg-white fw-bold text-info border-bottom-0 pt-4 pb-0 fs-5"><i class="bi bi-box-seam me-2"></i> 10 อันดับปริมาณการใช้อุปกรณ์ <span class="badge bg-info text-white">ผู้ป่วยนอก (OP Usage)</span></div><div class="card-body px-4 pb-4"><canvas id="topItemsOpUsageChart" height="250"></canvas></div></div></div>
           </div>
-
-          <!-- กราฟ IP เปรียบเทียบชดเชย vs การใช้ -->
           <div class="row g-4 mb-4">
-            <div class="col-lg-6">
-              <div class="card shadow-sm border-0 h-100 rounded-4">
-                <div class="card-header bg-white fw-bold text-danger border-bottom-0 pt-4 pb-0 fs-5">
-                  <i class="bi bi-cash-coin me-2"></i> 10 อันดับอุปกรณ์มียอดชดเชยสูงสุด <span class="badge bg-danger">ผู้ป่วยใน (IP)</span>
-                </div>
-                <div class="card-body px-4 pb-4">
-                  <canvas id="topItemsIpChart" height="250"></canvas>
-                </div>
-              </div>
-            </div>
-            <div class="col-lg-6">
-              <div class="card shadow-sm border-0 h-100 rounded-4">
-                <div class="card-header bg-white fw-bold text-warning border-bottom-0 pt-4 pb-0 fs-5">
-                  <i class="bi bi-box-seam me-2"></i> 10 อันดับปริมาณการใช้อุปกรณ์ <span class="badge bg-warning text-dark">ผู้ป่วยใน (IP Usage)</span>
-                </div>
-                <div class="card-body px-4 pb-4">
-                  <canvas id="topItemsIpUsageChart" height="250"></canvas>
-                </div>
-              </div>
-            </div>
+            <div class="col-lg-6"><div class="card shadow-sm border-0 h-100 rounded-4"><div class="card-header bg-white fw-bold text-danger border-bottom-0 pt-4 pb-0 fs-5"><i class="bi bi-cash-coin me-2"></i> 10 อันดับอุปกรณ์มียอดชดเชยสูงสุด <span class="badge bg-danger">ผู้ป่วยใน (IP)</span></div><div class="card-body px-4 pb-4"><canvas id="topItemsIpChart" height="250"></canvas></div></div></div>
+            <div class="col-lg-6"><div class="card shadow-sm border-0 h-100 rounded-4"><div class="card-header bg-white fw-bold text-warning border-bottom-0 pt-4 pb-0 fs-5"><i class="bi bi-box-seam me-2"></i> 10 อันดับปริมาณการใช้อุปกรณ์ <span class="badge bg-warning text-dark">ผู้ป่วยใน (IP Usage)</span></div><div class="card-body px-4 pb-4"><canvas id="topItemsIpUsageChart" height="250"></canvas></div></div></div>
           </div>
         </div>
       </div>
@@ -334,48 +296,53 @@
     async function updateSinglePrice(i){let u=currentSyncList[i],b=document.getElementById(`btnSync-${i}`);b.disabled=true;let r=await callGoogleAPI('updateSheet1Prices',{updates:[u],rights:selectedRightsToUpdate});if(!r.error){b.classList.replace('btn-success','btn-secondary');b.innerHTML='สำเร็จ';}}
 
     // ================= 7. ฟังก์ชัน Dashboard (ดึงข้อมูลอัตโนมัติ) =================
-    async function fetchDashboardData() {
-        const ea = document.getElementById('errorDashboard'), sc = document.getElementById('dashboardSection'), ld = document.getElementById('loadingDashboard');
-        ea.classList.add('d-none'); sc.classList.add('d-none'); ld.classList.remove('d-none');
-        try {
-            const res = await callGoogleAPI('getDashboardData', {});
-            if (res.error) throw new Error(res.error);
-            renderDashboard(res.monthly || [], res.total || [], res.ipUsage || [], res.opUsage || []);
-            ld.classList.add('d-none'); sc.classList.remove('d-none');
-        } catch (e) {
-            ld.classList.add('d-none'); ea.innerHTML = e.message; ea.classList.remove('d-none');
+    async function fetchDashboardData(){
+        let ea=document.getElementById('errorDashboard'),sc=document.getElementById('dashboardSection'),ld=document.getElementById('loadingDashboard');
+        ea.classList.add('d-none');sc.classList.add('d-none');ld.classList.remove('d-none');
+        try{
+            let res=await callGoogleAPI('getDashboardData',{});
+            if(res.error)throw new Error(res.error);
+            renderDashboard(res.monthly||[], res.total||[], res.ipUsage||[], res.opUsage||[]);
+            ld.classList.add('d-none');sc.classList.remove('d-none');
+        }catch(e){
+            ld.classList.add('d-none');ea.innerHTML=e.message;ea.classList.remove('d-none');
         }
     }
-
-    // ฟังก์ชันเสริมสำหรับแกะข้อมูลจำนวนการใช้อุปกรณ์ที่ยืดหยุ่นขึ้น (หาคอลัมน์ชื่อ/จำนวน อัตโนมัติ)
-    function extractUsageData(usageData) {
-        if (!usageData || usageData.length === 0) return { labels: [], data: [] };
-        const keys = Object.keys(usageData[0]);
-        let kItem = keys.find(k => k.toLowerCase().match(/(รายการ|ชื่อ|อุปกรณ์|name|item|desc)/)) || keys[0];
-        let kQty = keys.find(k => k.toLowerCase().match(/(จำนวน|ปริมาณ|รวม|qty|count|op|ip|ครั้ง)/)) || keys[1] || keys[keys.length-1];
-        
+    
+    // ฟังก์ชันพิเศษสำหรับแกะข้อความดิบจากคอลัมน์ OP (BB) และ IP (P)
+    function parseRawUsageData(usageData, targetColIndex) {
         let agg = {};
         usageData.forEach(row => {
-            let name = row[kItem] ? row[kItem].toString().trim() : "Unknown";
-            let val = parseFloat(row[kQty]);
-            if (isNaN(val)) { // ถ้าคอลัมน์ที่เดามาไม่ใช่ตัวเลข ให้ลองวนหาคอลัมน์ที่เป็นตัวเลขแทน
-                for(let k of keys) {
-                    if (k !== kItem && !isNaN(parseFloat(row[k]))) {
-                        val = parseFloat(row[k]);
-                        break;
+            // ดึงค่าตาม Index คอลัมน์ที่ระบุ: OP=53 (BB), IP=15 (P)
+            let cellVals = Object.values(row);
+            if (cellVals.length <= targetColIndex) return;
+            
+            let cellVal = cellVals[targetColIndex] ? cellVals[targetColIndex].toString() : "";
+            if (!cellVal || (!cellVal.includes("| 02 |") && !cellVal.includes("[ 02 |"))) return;
+
+            let matches = cellVal.match(/\[(.*?)\]/g);
+            if (matches) {
+                matches.forEach(m => {
+                    let parts = m.replace(/\[|\]/g, '').split('|').map(s => s.trim());
+                    if (parts.length >= 6 && parts[1] === "02") {
+                        let rawName = parts[3];
+                        let qty = parseFloat(parts[4]) || 0;
+                        let name = rawName;
+                        let cm = rawName.match(/^([A-Za-z0-9\-]+)\s+(.*)$/);
+                        if (cm) name = cm[2]; // เอาเฉพาะชื่อ ตัดรหัสออกให้อ่านง่าย
+                        
+                        if (qty > 0) {
+                            if (!agg[name]) agg[name] = 0;
+                            agg[name] += qty;
+                        }
                     }
-                }
-            }
-            if (!isNaN(val) && val > 0) {
-                if(!agg[name]) agg[name] = 0;
-                agg[name] += val;
+                });
             }
         });
-        
+
         let finalUsage = Object.keys(agg).map(k => ({name: k, value: agg[k]}));
         finalUsage.sort((a, b) => b.value - a.value);
         let top10 = finalUsage.slice(0, 10);
-        
         return {
             labels: top10.map(item => item.name.length > 30 ? item.name.substring(0, 30) + '...' : item.name),
             data: top10.map(item => item.value)
@@ -393,7 +360,6 @@
             const kOpComp = Object.keys(mData[0]).find(k => k.includes("OP(ชดเชย)") || k.includes("OP-ชดเชย"));
             const kIpCount = Object.keys(mData[0]).find(k => k.includes("IP(ครั้ง)") || k.includes("IP-จำนวน"));
             const kIpComp = Object.keys(mData[0]).find(k => k.includes("IP(ชดเชย)") || k.includes("IP-ชดเชย"));
-            
             mData.forEach(row => {
                 if (kMonth && row[kMonth]) labelsMonth.push(row[kMonth]);
                 let opc = parseFloat(row[kOpComp]) || 0, ipc = parseFloat(row[kIpComp]) || 0;
@@ -402,7 +368,6 @@
                 sumIpCount += parseFloat(row[kIpCount]) || 0; sumIpComp += ipc;
             });
         }
-
         document.getElementById('dashOpCount').textContent = sumOpCount.toLocaleString();
         document.getElementById('dashOpComp').textContent = sumOpComp.toLocaleString(undefined, {minimumFractionDigits: 2});
         document.getElementById('dashIpCount').textContent = sumIpCount.toLocaleString();
@@ -418,15 +383,16 @@
             lIp = pIp.map(i => i.name.substring(0, 30) + '...'); dIp = pIp.map(i => i.v);
         }
 
-        let opUsage = extractUsageData(opUsageData);
-        let ipUsage = extractUsageData(ipUsageData);
+        // ประมวลผลกราฟการใช้ (OP = คอลัมน์ BB index 53, IP = คอลัมน์ P index 15)
+        let opUsage = parseRawUsageData(opUsageData, 53);
+        let ipUsage = parseRawUsageData(ipUsageData, 15);
         
         renderCharts(labelsMonth, opCompTrend, ipCompTrend, lOp, dOp, lIp, dIp, opUsage.labels, opUsage.data, ipUsage.labels, ipUsage.data);
     }
 
     function renderCharts(labelsMonth, opCompTrend, ipCompTrend, labelsOpItems, dataOpValue, labelsIpItems, dataIpValue, labelsOpUsage, dataOpUsage, labelsIpUsage, dataIpUsage) {
         if (monthlyChartInstance) monthlyChartInstance.destroy();
-        monthlyChartInstance = new Chart(document.getElementById('monthlyChart').getContext('2d'), { type: 'bar', data: { labels: labelsMonth.length?labelsMonth:['N/A'], datasets: [{ label: 'OP (บาท)', data: opCompTrend.length?opCompTrend:[0], backgroundColor: '#0d6efd' }, { label: 'IP (บาท)', data: ipCompTrend.length?ipCompTrend:[0], backgroundColor: '#dc3545' }] } });
+        monthlyChartInstance = new Chart(document.getElementById('monthlyChart').getContext('2d'), { type: 'bar', data: { labels: labelsMonth.length?labelsMonth:['ไม่มีข้อมูลรายเดือน'], datasets: [{ label: 'OP', data: opCompTrend.length?opCompTrend:[0], backgroundColor: '#0d6efd' }, { label: 'IP', data: ipCompTrend.length?ipCompTrend:[0], backgroundColor: '#dc3545' }] } });
         
         if (topItemsOpChartInstance) topItemsOpChartInstance.destroy();
         topItemsOpChartInstance = new Chart(document.getElementById('topItemsOpChart').getContext('2d'), { type: 'bar', data: { labels: labelsOpItems.length?labelsOpItems:['ไม่มีข้อมูล'], datasets: [{ label: 'OP ชดเชย (บาท)', data: dataOpValue.length?dataOpValue:[0], backgroundColor: '#198754' }] }, options: { indexAxis: 'y' } });
