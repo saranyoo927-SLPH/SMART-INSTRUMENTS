@@ -23,6 +23,7 @@
     :root { --primary-color: #0d6efd; --bg-light: #f4f6f9; --text-main: #333333; --border-color: #e0e0e0; --sidebar-width: 280px; }
     body { font-family: 'Sarabun', sans-serif; background-color: var(--bg-light); color: var(--text-main); overflow-x: hidden; }
     .app-container { display: flex; min-height: 100vh; }
+    
     .sidebar { width: var(--sidebar-width); background-color: #ffffff; border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; left: 0; z-index: 1000; box-shadow: 2px 0 10px rgba(0,0,0,0.02); }
     .sidebar-header { padding: 30px 20px; text-align: center; border-bottom: 1px solid var(--border-color); background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%); }
     .brand-title { color: var(--primary-color); font-weight: 700; font-size: 1.15rem; line-height: 1.4; margin-top: 15px; margin-bottom: 0; letter-spacing: 0.5px; }
@@ -32,15 +33,18 @@
     .nav-link:hover { background-color: #f1f5f9; color: var(--primary-color); }
     .nav-link.active { background-color: var(--primary-color); color: #ffffff; box-shadow: 0 4px 6px rgba(13,110,253,0.2); }
     .nav-link.active i { color: #ffffff; }
+
     .main-content { flex-grow: 1; margin-left: var(--sidebar-width); padding: 40px; }
     .page-header { margin-bottom: 30px; padding-bottom: 15px; border-bottom: 2px solid var(--border-color); }
     .page-title { font-weight: 700; color: #2c3e50; margin: 0; font-size: 1.75rem; }
+    .page-title i { margin-right: 10px; }
     .custom-card { background: #ffffff; border-radius: 12px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 25px; overflow: hidden; }
     .card-header-custom { background-color: #ffffff; border-bottom: 1px solid var(--border-color); padding: 20px 25px; }
     .card-header-title { font-weight: 600; color: #495057; margin: 0; font-size: 1.1rem; }
     .card-body-custom { padding: 25px; }
     .form-label { font-weight: 600; color: #555; font-size: 0.9rem; }
     .form-control, .form-select { border: 1px solid #ced4da; border-radius: 6px; padding: 10px 15px; }
+    
     .table-responsive { border-radius: 8px; overflow: hidden; border: 1px solid var(--border-color); }
     .table thead th { background-color: #f8f9fa; color: #495057; font-weight: 600; border-bottom: 2px solid #dee2e6; padding: 15px 12px; white-space: nowrap; }
     .table-corporate thead th { background-color: #1e3a8a; color: #ffffff; border-bottom: none; }
@@ -52,10 +56,16 @@
     .qty-input { width: 80px; text-align: center; margin: 0 auto; font-weight: 600; }
     tfoot { background-color: #f8f9fa; border-top: 2px solid #dee2e6; }
     tfoot td { padding: 15px 12px; }
+
     @keyframes pulse-warning { 0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.6); } 70% { box-shadow: 0 0 0 6px rgba(220, 53, 69, 0); } 100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); } }
     .badge-alert { animation: pulse-warning 2s infinite; border: 1px solid #fff; }
     .row-highlight { background-color: #f1f8ff !important; }
-    @media (max-width: 992px) { .sidebar { width: 80px; } .brand-title, .nav-link span { display: none; } .nav-link { justify-content: center; padding: 15px 0; } .nav-link i { margin-right: 0; font-size: 1.5rem; } .main-content { margin-left: 80px; padding: 20px; } }
+
+    @media (max-width: 992px) {
+      .sidebar { width: 80px; } .brand-title, .nav-link span { display: none; }
+      .nav-link { justify-content: center; padding: 15px 0; } .nav-link i { margin-right: 0; font-size: 1.5rem; }
+      .main-content { margin-left: 80px; padding: 20px; }
+    }
   </style>
 </head>
 <body>
@@ -70,15 +80,16 @@
         <a class="nav-link active" id="menu-calc" onclick="switchPage('calc')"><i class="bi bi-calculator"></i><span>ประเมินสิทธิผู้ป่วย</span></a>
         <a class="nav-link" id="menu-table" onclick="switchPage('table')"><i class="bi bi-table"></i><span>ตารางค่าอวัยวะเทียม</span></a>
         <a class="nav-link" id="menu-verify" onclick="switchPage('verify')"><i class="bi bi-person-check-fill"></i><span>วิเคราะห์รายบุคคล</span></a>
-        <a class="nav-link" id="menu-audit" onclick="switchPage('audit')"><i class="bi bi-shield-fill-check"></i><span>ตรวจสอบความสอดคล้อง</span></a>
-        <a class="nav-link" id="menu-report" onclick="switchPage('report')"><i class="bi bi-bar-chart-line"></i><span>รายงานการใช้อุปกรณ์</span></a>
+        <a class="nav-link" id="menu-audit" onclick="switchPage('audit')"><i class="bi bi-shield-fill-check"></i><span>ตรวจสอบความสอดคล้อง (กลุ่ม)</span></a>
+        <a class="nav-link" id="menu-report" onclick="switchPage('report')"><i class="bi bi-bar-chart-line"></i><span>รายงานการใช้อุปกรณ์ 2569</span></a>
         <a class="nav-link" id="menu-sync" onclick="switchPage('sync')"><i class="bi bi-arrow-repeat"></i><span>อัปเดตราคาตามประกาศ</span></a>
         <a class="nav-link" id="menu-dashboard" onclick="switchPage('dashboard')"><i class="bi bi-speedometer2"></i><span>แดชบอร์ดสรุปข้อมูล</span></a>
       </div>
     </aside>
 
     <main class="main-content">
-      <!-- PAGE 1: Calc -->
+      
+      <!-- ================= PAGE 1: ประเมินสิทธิ ================= -->
       <div id="page-calc">
         <div class="page-header"><h2 class="page-title"><i class="bi bi-clipboard2-pulse text-primary"></i> ระบบประเมินราคาอุปกรณ์</h2></div>
         <div class="custom-card">
@@ -87,7 +98,7 @@
               <div class="col-xl-5 col-lg-6">
                 <label class="form-label">ตรวจสอบสิทธิด้วย HN</label>
                 <div class="input-group">
-                  <input type="text" id="hnInput" class="form-control" placeholder="ระบุ HN" onkeypress="if(event.key==='Enter') checkHN()">
+                  <input type="text" id="hnInput" class="form-control" placeholder="ระบุ HN เช่น 001" onkeypress="if(event.key==='Enter') checkHN()">
                   <button class="btn btn-info text-white fw-bold px-4" onclick="checkHN()" id="btnCheckHn">ตรวจสอบ</button>
                 </div>
               </div>
@@ -100,218 +111,972 @@
                 </select>
               </div>
             </div>
-            <hr class="my-4 text-muted"><div class="row g-3"><div class="col-12"><label class="form-label">ค้นหาอุปกรณ์</label>
-            <div class="input-group input-group-lg"><input type="text" id="keyword" class="form-control" placeholder="ระบุรหัสหรือชื่อ" onkeypress="if(event.key==='Enter') performSearch()"><button class="btn btn-primary px-4 fw-bold" onclick="performSearch()">ค้นหา</button></div></div></div>
+            <hr class="my-4 text-muted">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">ค้นหาอุปกรณ์ (ระบุรหัส ADP หรือ ชื่ออุปกรณ์)</label>
+                <div class="input-group input-group-lg">
+                  <input type="text" id="keyword" class="form-control" placeholder="เช่น 72999 หรือ เลนส์ตา" onkeypress="if(event.key==='Enter') performSearch()">
+                  <button class="btn btn-primary px-4 fw-bold" onclick="performSearch()">ค้นหา</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div id="loading" class="text-center d-none my-4"><div class="spinner-border text-primary" role="status"></div></div>
         <div id="errorAlert" class="alert alert-danger d-none shadow-sm rounded-3"></div>
         <div id="searchResultsSection" class="custom-card d-none">
-          <div class="card-header-custom bg-light"><h5 class="card-header-title text-primary"><i class="bi bi-list-check me-2"></i>ผลการค้นหา</h5></div>
-          <div class="card-body-custom p-0"><div class="table-responsive"><table class="table table-hover mb-0"><thead><tr><th class="td-center">รหัส (ADP)</th><th class="td-text">ชื่อรายการ</th><th class="td-num">ราคาต้นทุน</th><th class="td-center">เลือก</th></tr></thead><tbody id="searchResultsBody"></tbody></table></div></div>
+          <div class="card-header-custom bg-light"><h5 class="card-header-title text-primary"><i class="bi bi-list-check me-2"></i>ผลการค้นหา (เลือกเพื่อเพิ่ม)</h5></div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead><tr><th class="td-center">รหัส (ADP)</th><th class="td-text">ชื่อรายการ</th><th class="td-num">ราคาต้นทุน</th><th class="td-center">เลือก</th></tr></thead>
+                <tbody id="searchResultsBody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
         <div class="custom-card">
-          <div class="card-header-custom d-flex justify-content-between align-items-center"><h5 class="card-header-title text-success mb-0"><i class="bi bi-file-earmark-spreadsheet me-2"></i>สรุปยอดประเมินสิทธิ</h5><button class="btn btn-sm btn-outline-danger fw-bold px-3" onclick="clearCalcData()"><i class="bi bi-trash3-fill me-1"></i> ล้างข้อมูล</button></div>
-          <div class="card-body-custom p-0"><div class="table-responsive"><table class="table table-hover table-summary mb-0 align-middle"><thead><tr><th class="td-center">รหัส</th><th class="td-text">ชื่อรายการ</th><th class="td-center">จำนวน</th><th class="td-num">ราคาต้นทุน</th><th class="td-num">เบิกได้</th><th class="td-num">เกินสิทธิ</th><th class="td-center">ลบ</th></tr></thead><tbody id="cartBody"></tbody><tfoot id="cartFoot"></tfoot></table></div></div>
+          <div class="card-header-custom d-flex justify-content-between align-items-center">
+             <h5 class="card-header-title text-success mb-0"><i class="bi bi-file-earmark-spreadsheet me-2"></i>สรุปยอดประเมินสิทธิ (Manual)</h5>
+             <button class="btn btn-sm btn-outline-danger fw-bold px-3" onclick="clearCalcData()"><i class="bi bi-trash3-fill me-1"></i> ล้างข้อมูลทั้งหมด</button>
+          </div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive">
+              <table class="table table-hover table-summary mb-0 align-middle">
+                <thead><tr><th class="td-center">รหัส</th><th class="td-text">ชื่อรายการ</th><th class="td-center">จำนวน</th><th class="td-num">ราคาต้นทุน</th><th class="td-num">เบิกได้</th><th class="td-num">เกินสิทธิ</th><th class="td-center">ลบ</th></tr></thead>
+                <tbody id="cartBody"><tr><td colspan="7" class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-2 text-light"></i>ยังไม่มีรายการ</td></tr></tbody>
+                <tfoot id="cartFoot"></tfoot>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
       
-      <!-- PAGE 2: Table -->
+      <!-- ================= PAGE 2: ตารางอ้างอิง ================= -->
       <div id="page-table" class="d-none">
         <div class="page-header"><h2 class="page-title"><i class="bi bi-table text-primary"></i> ตารางอ้างอิงค่าอวัยวะเทียม</h2></div>
         <div class="custom-card">
-          <div class="card-body-custom"><div class="row g-3 align-items-end"><div class="col-md-3"><label class="form-label">รหัส ADP</label><input type="text" id="searchS1Code" class="form-control" onkeypress="if(event.key==='Enter') searchSheet1()"></div><div class="col-md-7"><label class="form-label">ชื่อรายการอุปกรณ์</label><input type="text" id="searchS1Name" class="form-control" onkeypress="if(event.key==='Enter') searchSheet1()"></div><div class="col-md-2"><button class="btn btn-primary fw-bold w-100" onclick="searchSheet1()"><i class="bi bi-search me-1"></i> ค้นหา</button></div></div></div>
+          <div class="card-body-custom">
+             <div class="row g-3 align-items-end">
+                <div class="col-md-3"><label class="form-label">รหัส ADP</label><input type="text" id="searchS1Code" class="form-control" onkeypress="if(event.key==='Enter') searchSheet1()"></div>
+                <div class="col-md-7"><label class="form-label">ชื่อรายการอุปกรณ์</label><input type="text" id="searchS1Name" class="form-control" onkeypress="if(event.key==='Enter') searchSheet1()"></div>
+                <div class="col-md-2"><button class="btn btn-primary fw-bold w-100" onclick="searchSheet1()"><i class="bi bi-search me-1"></i> ค้นหา</button></div>
+             </div>
+          </div>
         </div>
         <div id="loadingS1" class="text-center d-none my-4"><div class="spinner-border text-primary" role="status"></div></div>
         <div id="errorS1" class="alert alert-danger d-none"></div>
         <div class="custom-card">
-          <div class="card-body-custom p-0"><div class="table-responsive"><table class="table table-hover table-striped table-corporate table-sm mb-0 text-nowrap"><thead class="td-center"><tr><th>รหัส</th><th class="td-text">ชื่อรายการ</th><th>หมวด</th><th>หน่วย</th><th class="td-num">OFC</th><th class="td-num">UCS</th><th class="td-num">LGO</th><th class="td-num">BKK</th><th class="td-num">BMT</th><th class="td-num">NHS</th><th class="td-num">SSS</th></tr></thead><tbody id="tableS1Body"><tr><td colspan="11" class="text-center text-muted py-5">กำลังดึงข้อมูล...</td></tr></tbody></table></div></div>
-        </div>
-      </div>
-
-      <!-- PAGE 3: Verify -->
-      <div id="page-verify" class="d-none">
-        <div class="page-header"><h2 class="page-title text-success"><i class="bi bi-person-check-fill"></i> วิเคราะห์รายบุคคล</h2></div>
-        <div class="custom-card border-success border-top border-4">
-          <div class="card-body-custom"><div class="row g-3 align-items-end"><div class="col-md-8"><label class="form-label fw-bold">อัปโหลดไฟล์ Excel</label><input type="file" class="form-control form-control-lg" id="excelUpload" accept=".xls,.xlsx"></div><div class="col-md-4"><button class="btn btn-success btn-lg w-100 fw-bold" onclick="processExcel()"><i class="bi bi-cpu-fill me-1"></i> วิเคราะห์ข้อมูล</button></div></div></div>
-        </div>
-        <div id="loadingVerify" class="text-center d-none my-4"><div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status"></div><div class="mt-3 fw-bold text-success">กำลังวิเคราะห์ไฟล์...</div></div>
-        <div id="errorVerify" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
-        <div id="verifyResultsSection" class="custom-card d-none">
-          <div class="card-header-custom bg-light"><h5 class="card-header-title text-danger"><i class="bi bi-search me-2"></i>รายละเอียดรายการรายชิ้น</h5></div>
-          <div class="card-body-custom p-0"><div class="table-responsive border-0"><table class="table table-hover mb-0"><thead class="table-danger td-center align-middle"><tr><th class="td-text" width="28%">รายการอุปกรณ์</th><th width="8%">จำนวน</th><th width="10%">หน่วย</th><th class="td-num" width="14%">ราคาต่อหน่วย</th><th class="td-num" width="13%">ราคารวม</th><th class="td-num" width="13%">เบิกได้</th><th class="td-num" width="14%">เกินสิทธิ</th></tr></thead><tbody id="verifyTableBody"></tbody></table></div></div>
-        </div>
-        <div id="groupedSummarySection" class="custom-card d-none mt-4 border border-secondary border-opacity-25">
-          <div class="card-header-custom bg-white border-bottom"><div class="d-flex justify-content-between align-items-center"><h5 class="card-header-title text-dark fs-4"><i class="bi bi-collection me-2 text-primary"></i>รายงานสรุป</h5><span class="text-muted fw-bold" id="summaryItemCount">จำนวน 0 รายการ</span></div></div>
-          <div class="card-body-custom p-0"><div class="table-responsive border-0 rounded-0"><table class="table table-hover table-bordered mb-0"><thead class="bg-light text-center align-middle" style="color: #495057;"><tr><th class="td-text py-3" width="30%">รหัสและรายการอุปกรณ์</th><th class="py-3" width="8%">หน่วย</th><th class="td-num py-3" width="12%">ราคาอ้างอิง</th><th class="py-3" width="8%">จำนวน</th><th class="td-num py-3" width="14%">ราคารวม</th><th class="td-num py-3" width="14%">เบิกได้</th><th class="td-num py-3" width="14%">ส่วนเกิน</th></tr></thead><tbody id="summaryTableBody"></tbody></table></div>
-            <div class="p-4 bg-white border-top"><div class="d-flex justify-content-end align-items-center gap-4 flex-wrap"><span class="fw-bold text-muted me-3 fs-5">สรุปยอดรวม :</span><div><label class="form-label text-muted mb-1 fs-6">ราคารวม :</label><input type="text" class="form-control form-control-lg text-end fw-bold text-dark border-0" id="sumReqTotal" readonly style="width: 170px; background-color: #f8f9fa;"></div><div><label class="form-label text-muted mb-1 fs-6">เบิกได้ :</label><input type="text" class="form-control form-control-lg text-end fw-bold text-success border-0" id="sumCovTotal" readonly style="width: 170px; background-color: #f8f9fa;"></div><div><label class="form-label text-muted mb-1 fs-6">ส่วนเกิน :</label><input type="text" class="form-control form-control-lg text-end fw-bold text-danger border-0" id="sumExcess" readonly style="width: 170px; background-color: #f8f9fa;"></div></div></div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive">
+              <table class="table table-hover table-striped table-corporate table-sm mb-0 text-nowrap">
+                <thead class="td-center"><tr><th>รหัส</th><th class="td-text">ชื่อรายการ</th><th>หมวด</th><th>หน่วย</th><th class="td-num">OFC</th><th class="td-num">UCS</th><th class="td-num">LGO</th><th class="td-num">BKK</th><th class="td-num">BMT</th><th class="td-num">NHS</th><th class="td-num">SSS</th></tr></thead>
+                <tbody id="tableS1Body"><tr><td colspan="11" class="text-center text-muted py-5">กำลังดึงข้อมูล...</td></tr></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- PAGE 4: Audit -->
-      <div id="page-audit" class="d-none">
-        <div class="page-header"><h2 class="page-title text-success"><i class="bi bi-shield-fill-check"></i> ตรวจสอบความสอดคล้อง (กลุ่ม)</h2></div>
+      <!-- ================= PAGE 3: วิเคราะห์รายบุคคล ================= -->
+      <div id="page-verify" class="d-none">
+        <div class="page-header"><h2 class="page-title text-success"><i class="bi bi-person-check-fill"></i> วิเคราะห์รายบุคคล (ตรวจสอบหมวด 02)</h2></div>
         <div class="custom-card border-success border-top border-4">
           <div class="card-body-custom">
              <div class="row g-3 align-items-end">
-                <div class="col-md-8"><label class="form-label fw-bold">อัปโหลดไฟล์รายงานคนไข้รายเดือน</label><input type="file" class="form-control form-control-lg border-success" id="auditUpload" accept=".xls,.xlsx"></div>
-                <div class="col-md-4"><button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" id="btnAuditExcel" onclick="processAuditExcel()"><i class="bi bi-robot me-1"></i> เริ่มการตรวจสอบ</button><button class="btn btn-warning btn-lg w-100 fw-bold shadow-sm mt-2 d-none" id="btnBatchAi" onclick="runBatchAiAnalysis()"><i class="bi bi-stars me-1"></i> วิเคราะห์ภาพรวมด้วย AI</button></div>
+                <div class="col-md-8">
+                  <label class="form-label fw-bold">อัปโหลดไฟล์ Excel (เพื่อตรวจสอบสิทธิการเบิกจ่าย)</label>
+                  <input type="file" class="form-control form-control-lg" id="excelUpload" accept=".xls,.xlsx">
+                </div>
+                <div class="col-md-4">
+                  <button class="btn btn-success btn-lg w-100 fw-bold" onclick="processExcel()">
+                    <i class="bi bi-cpu-fill me-1"></i> วิเคราะห์ข้อมูลอัตโนมัติ
+                  </button>
+                </div>
              </div>
+          </div>
+        </div>
+        <div id="loadingVerify" class="text-center d-none my-4">
+           <div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status"></div>
+           <div class="mt-3 fw-bold text-success">กำลังอ่านและวิเคราะห์ไฟล์...</div>
+        </div>
+        <div id="errorVerify" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
+        <div id="verifyResultsSection" class="custom-card d-none">
+          <div class="card-header-custom bg-light"><h5 class="card-header-title text-danger"><i class="bi bi-search me-2"></i>รายละเอียดรายการรายชิ้น (ตรวจสอบข้อผิดพลาด)</h5></div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive border-0">
+              <table class="table table-hover mb-0">
+                <thead class="table-danger td-center align-middle">
+                  <tr><th class="td-text" width="28%">รายการอุปกรณ์ (จาก Excel)</th><th width="8%">จำนวน</th><th width="10%">หน่วยนับ</th><th class="td-num" width="14%">ราคาต่อหน่วย</th><th class="td-num" width="13%">ราคารวม</th><th class="td-num" width="13%">เบิกได้ (ตามสิทธิ)</th><th class="td-num" width="14%">เกินสิทธิ</th></tr>
+                </thead>
+                <tbody id="verifyTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div id="groupedSummarySection" class="custom-card d-none mt-4 border border-secondary border-opacity-25">
+          <div class="card-header-custom bg-white border-bottom">
+             <div class="d-flex justify-content-between align-items-center">
+                 <h5 class="card-header-title text-dark fs-4"><i class="bi bi-collection me-2 text-primary"></i>รายงานสรุปอวัยวะเทียม/อุปกรณ์บำบัดรักษา</h5>
+                 <span class="text-muted fw-bold" id="summaryItemCount">จำนวน 0 รายการ</span>
+             </div>
+          </div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive border-0 rounded-0">
+              <table class="table table-hover table-bordered mb-0">
+                <thead class="bg-light text-center align-middle" style="color: #495057;">
+                  <tr><th class="td-text py-3" width="30%">รหัสและรายการอุปกรณ์</th><th class="py-3" width="8%">หน่วย</th><th class="td-num py-3" width="12%">ราคาอ้างอิง</th><th class="py-3" width="8%">จำนวน</th><th class="td-num py-3" width="14%">ราคารวม</th><th class="td-num py-3" width="14%">เบิกได้(ตามสิทธิ)</th><th class="td-num py-3" width="14%">ส่วนเกิน</th></tr>
+                </thead>
+                <tbody id="summaryTableBody"></tbody>
+              </table>
+            </div>
+            <div class="p-4 bg-white border-top">
+               <div class="d-flex justify-content-end align-items-center gap-4 flex-wrap">
+                  <span class="fw-bold text-muted me-3 fs-5">สรุปยอดรวม :</span>
+                  <div><label class="form-label text-muted mb-1 fs-6">รวมราคารวม :</label><input type="text" class="form-control form-control-lg text-end fw-bold text-dark border-0" id="sumReqTotal" readonly style="width: 170px; background-color: #f8f9fa;"></div>
+                  <div><label class="form-label text-muted mb-1 fs-6">รวมเบิกได้ :</label><input type="text" class="form-control form-control-lg text-end fw-bold text-success border-0" id="sumCovTotal" readonly style="width: 170px; background-color: #f8f9fa;"></div>
+                  <div><label class="form-label text-muted mb-1 fs-6">รวมส่วนเกิน :</label><input type="text" class="form-control form-control-lg text-end fw-bold text-danger border-0" id="sumExcess" readonly style="width: 170px; background-color: #f8f9fa;"></div>
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PAGE 4: ตรวจสอบความสอดคล้อง (กลุ่ม) ================= -->
+      <div id="page-audit" class="d-none">
+        <div class="page-header"><h2 class="page-title text-success"><i class="bi bi-shield-fill-check"></i> ตรวจสอบความสอดคล้องการเบิกค่าอุปกรณ์ (กลุ่ม)</h2></div>
+        <div class="custom-card border-success border-top border-4">
+          <div class="card-body-custom">
+             <div class="row g-3 align-items-end">
+                <div class="col-md-8">
+                  <label class="form-label fw-bold">อัปโหลดไฟล์รายงานคนไข้รายวัน/รายเดือน (เช่น IP 1-7 july 2026.xls)</label>
+                  <input type="file" class="form-control form-control-lg border-success" id="auditUpload" accept=".xls,.xlsx">
+                </div>
+                <div class="col-md-4">
+                  <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" id="btnAuditExcel" onclick="processAuditExcel()">
+                    <i class="bi bi-robot me-1"></i> เริ่มการตรวจสอบอัตโนมัติ
+                  </button>
+                  <button class="btn btn-warning btn-lg w-100 fw-bold shadow-sm mt-2 d-none" id="btnBatchAi" onclick="runBatchAiAnalysis()">
+                    <i class="bi bi-stars me-1"></i> วิเคราะห์ภาพรวมด้วย AI
+                  </button>
+                </div>
+             </div>
+             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> ระบบจะอ่านข้อมูล AN, HN, สิทธิ (รวมถึงเช็คสิทธิร่วมคอลัมน์ AN หากเป็น พ.ร.บ.), และรายการอุปกรณ์</div>
+             
              <div id="batchAiAnalysisResult" class="mt-4 p-4 bg-white border border-warning rounded shadow-sm d-none" style="font-size: 1.05rem; line-height: 1.6;"></div>
           </div>
         </div>
-        <div id="loadingAudit" class="text-center d-none my-5"><div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status"></div><div class="mt-3 fw-bold text-success">กำลังตรวจสอบเทียบกับตารางอ้างอิง...</div></div>
+        
+        <div id="loadingAudit" class="text-center d-none my-5">
+           <div class="spinner-border text-success" style="width: 3rem; height: 3rem;" role="status"></div>
+           <div class="mt-3 fw-bold text-success">กำลังตรวจสอบเทียบกับตารางอ้างอิง...</div>
+        </div>
         <div id="errorAudit" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
         <div id="auditSection" class="custom-card d-none shadow">
-          <div class="card-header-custom bg-white border-bottom d-flex justify-content-between align-items-center"><h5 class="card-header-title text-dark fs-4"><i class="bi bi-list-columns-reverse me-2 text-success"></i>สรุปผลตรวจสอบ</h5><span class="badge bg-success fs-6" id="auditItemCount">ตรวจสอบทั้งหมด 0 ราย</span></div>
-          <div class="card-body-custom p-0"><div class="table-responsive border-0 rounded-0"><table class="table table-hover table-striped mb-0"><thead class="table-success td-center align-middle"><tr><th width="5%">ลำดับ</th><th width="12%">AN</th><th width="12%">HN</th><th width="12%">วันที่จำหน่าย</th><th class="td-text" width="20%">สิทธิการรักษา</th><th class="td-num" width="14%">ยอดรวมเบิก</th><th width="13%">ผลการตรวจสอบ</th><th width="12%">รายละเอียด</th></tr></thead><tbody id="auditTableBody"></tbody></table></div></div>
+          <div class="card-header-custom bg-white border-bottom d-flex justify-content-between align-items-center">
+             <h5 class="card-header-title text-dark fs-4"><i class="bi bi-list-columns-reverse me-2 text-success"></i>สรุปผลการตรวจสอบความสอดคล้อง</h5>
+             <span class="badge bg-success fs-6" id="auditItemCount">ตรวจสอบทั้งหมด 0 ราย</span>
+          </div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive border-0 rounded-0">
+              <table class="table table-hover table-striped mb-0">
+                <thead class="table-success td-center align-middle">
+                  <tr><th width="5%">ลำดับ</th><th width="12%">AN</th><th width="12%">HN</th><th width="12%">วันที่จำหน่าย</th><th class="td-text" width="20%">สิทธิการรักษา</th><th class="td-num" width="14%">ยอดรวมเบิกค่าอุปกรณ์</th><th width="13%">ผลการตรวจสอบ</th><th width="12%">รายละเอียด</th></tr>
+                </thead>
+                <tbody id="auditTableBody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- PAGE 5: Report -->
+      <!-- ================= PAGE 5: รายงานการใช้อุปกรณ์ ปี 2569 ================= -->
       <div id="page-report" class="d-none">
-        <div class="page-header"><h2 class="page-title text-primary"><i class="bi bi-graph-up-arrow"></i> รายงานข้อมูลการใช้อุปกรณ์</h2></div>
+        <div class="page-header"><h2 class="page-title text-primary"><i class="bi bi-graph-up-arrow"></i> รายงานข้อมูลการใช้อุปกรณ์รวม (ปี 2569)</h2></div>
         <div class="custom-card border-primary border-top border-4">
-          <div class="card-body-custom"><div class="row g-3 align-items-end"><div class="col-md-8"><label class="form-label fw-bold">อัปโหลดไฟล์ Excel ทะเบียนคนไข้</label><input type="file" class="form-control form-control-lg border-primary" id="reportUpload" accept=".xls,.xlsx"></div><div class="col-md-4"><button class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" onclick="processReportExcel()"><i class="bi bi-magic me-1"></i> ประมวลผลและสรุปยอด</button></div></div></div>
+          <div class="card-body-custom">
+             <div class="row g-3 align-items-end">
+                <div class="col-md-8">
+                  <label class="form-label fw-bold">อัปโหลดไฟล์ Excel ทะเบียนคนไข้ (ระบบจะแกะข้อมูลจากคอลัมน์ P)</label>
+                  <input type="file" class="form-control form-control-lg border-primary" id="reportUpload" accept=".xls,.xlsx">
+                </div>
+                <div class="col-md-4">
+                  <button class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" onclick="processReportExcel()">
+                    <i class="bi bi-magic me-1"></i> ประมวลผลและสรุปยอด
+                  </button>
+                </div>
+             </div>
+             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> ระบบจะสแกนหาข้อความที่มีแพทเทิร์น <code>[ วันที่ | 02 | รหัสภายใน | รหัสและชื่ออุปกรณ์ | จำนวน | ราคา | ราคา ]</code> ให้อัตโนมัติ</div>
+          </div>
         </div>
-        <div id="loadingReport" class="text-center d-none my-5"><div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div></div>
+        <div id="loadingReport" class="text-center d-none my-5">
+           <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+           <div class="mt-3 fw-bold text-primary">กำลังแกะโครงสร้างข้อความและสรุปข้อมูล...</div>
+        </div>
         <div id="errorReport" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
         <div id="reportSection" class="custom-card d-none shadow">
-          <div class="card-header-custom bg-white border-bottom"><div class="d-flex justify-content-between align-items-center mb-3"><h5 class="card-header-title text-dark fs-4">สรุปปริมาณและมูลค่า</h5><span class="badge bg-primary fs-6" id="reportItemCount">0 รายการ</span></div><div class="row g-3 pt-2 border-top"><div class="col-md-4"><label class="form-label text-muted">รหัส ADP</label><input type="text" id="filterCode" class="form-control" oninput="filterReportTable()"></div><div class="col-md-6"><label class="form-label text-muted">ชื่ออุปกรณ์</label><input type="text" id="filterName" class="form-control" oninput="filterReportTable()"></div><div class="col-md-2 d-flex align-items-end"><button class="btn btn-outline-secondary w-100" onclick="resetReportFilter()">ล้าง</button></div></div></div>
-          <div class="card-body-custom p-0"><div class="table-responsive border-0 rounded-0"><table class="table table-hover table-striped mb-0"><thead class="table-primary td-center align-middle"><tr><th width="5%">ลำดับ</th><th width="10%">รหัส</th><th class="td-text" width="40%">ชื่ออุปกรณ์</th><th width="15%">จำนวนรวม</th><th class="td-num" width="15%">ราคาหน่วย</th><th class="td-num" width="15%">รวมสุทธิ</th></tr></thead><tbody id="reportTableBody"></tbody><tfoot class="bg-light"><tr><td colspan="3" class="td-num fs-5 fw-bold">Grand Total:</td><td class="td-center fs-4 fw-bold text-primary" id="grandTotalQty">0</td><td></td><td class="td-num fs-4 fw-bold text-danger" id="grandTotalPrice">0.00 ฿</td></tr></tfoot></table></div></div>
+          <div class="card-header-custom bg-white border-bottom">
+             <div class="d-flex justify-content-between align-items-center mb-3">
+                 <h5 class="card-header-title text-dark fs-4"><i class="bi bi-bar-chart-steps me-2 text-primary"></i>สรุปปริมาณและมูลค่าการใช้อุปกรณ์ (เรียงตามชื่ออุปกรณ์)</h5>
+                 <span class="badge bg-primary fs-6" id="reportItemCount">พบ 0 รายการ</span>
+             </div>
+             <div class="row g-3 pt-2 border-top">
+                 <div class="col-md-4">
+                     <label class="form-label text-muted">🔍 ค้นหาด้วยรหัส ADP</label>
+                     <input type="text" id="filterCode" class="form-control" placeholder="เช่น 3002, 7313..." oninput="filterReportTable()">
+                 </div>
+                 <div class="col-md-6">
+                     <label class="form-label text-muted">🔍 ค้นหาด้วยชื่ออุปกรณ์</label>
+                     <input type="text" id="filterName" class="form-control" placeholder="พิมพ์ชื่ออุปกรณ์ที่ต้องการ..." oninput="filterReportTable()">
+                 </div>
+                 <div class="col-md-2 d-flex align-items-end">
+                     <button class="btn btn-outline-secondary w-100" onclick="resetReportFilter()">ล้างตัวกรอง</button>
+                 </div>
+             </div>
+          </div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive border-0 rounded-0">
+              <table class="table table-hover table-striped mb-0">
+                <thead class="table-primary td-center align-middle">
+                  <tr><th width="5%">ลำดับ</th><th width="10%">รหัส (ADP)</th><th class="td-text" width="40%">ชื่ออุปกรณ์</th><th width="15%">จำนวนรวม (ชิ้น)</th><th class="td-num" width="15%">ราคาต่อหน่วย</th><th class="td-num" width="15%">ราคารวมสุทธิ</th></tr>
+                </thead>
+                <tbody id="reportTableBody"></tbody>
+                <tfoot class="bg-light">
+                  <tr><td colspan="3" class="td-num fs-5 text-dark fw-bold">รวมทั้งสิ้น (Grand Total):</td><td class="td-center fs-4 fw-bold text-primary" id="grandTotalQty">0</td><td></td><td class="td-num fs-4 fw-bold text-danger" id="grandTotalPrice">0.00 ฿</td></tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- PAGE 6: Sync -->
+      <!-- ================= PAGE 6: อัปเดตราคาตามประกาศ ================= -->
       <div id="page-sync" class="d-none">
-        <div class="page-header"><h2 class="page-title text-warning"><i class="bi bi-arrow-repeat"></i> อัปเดตราคาให้ตรงประกาศ</h2></div>
+        <div class="page-header"><h2 class="page-title text-warning"><i class="bi bi-arrow-repeat"></i> อัปเดตราคาให้ตรงกับประกาศล่าสุด</h2></div>
+        
         <div class="custom-card border-warning border-top border-4">
-          <div class="card-body-custom"><div class="row g-3 align-items-end"><div class="col-md-5"><label class="form-label fw-bold">1. เลือกไฟล์ PDF/Excel</label><input type="file" class="form-control form-control-lg border-warning" id="syncUpload" accept=".pdf,.xls,.xlsx"></div><div class="col-md-4"><label class="form-label fw-bold">2. เลือกสิทธิ</label><select id="syncRightsTarget" class="form-select form-select-lg border-warning"><option value="ucs">สปสช. (UCS)</option><option value="ofc,lgo,bkk,bmt">กรมบัญชีกลาง (OFC, LGO, BKK, BMT)</option><option value="sss">ประกันสังคม (SSS)</option><option value="nhs">รัฐวิสาหกิจ (NHS)</option></select></div><div class="col-md-3"><button class="btn btn-warning btn-lg w-100 fw-bold shadow-sm" onclick="processSyncFile()"><i class="bi bi-search me-1"></i> ตรวจสอบ</button></div></div></div>
+          <div class="card-body-custom">
+             <div class="row g-3 align-items-end">
+                <div class="col-md-5">
+                  <label class="form-label fw-bold">1. เลือกไฟล์ประกาศ (รองรับ PDF หรือ Excel)</label>
+                  <input type="file" class="form-control form-control-lg border-warning" id="syncUpload" accept=".pdf,.xls,.xlsx">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label fw-bold">2. เลือกสิทธิที่ต้องการตรวจสอบและอัปเดต</label>
+                  <select id="syncRightsTarget" class="form-select form-select-lg border-warning">
+                    <option value="ucs">สปสช. (อัปเดตสิทธิ UCS)</option>
+                    <option value="ofc,lgo,bkk,bmt">กรมบัญชีกลาง (อัปเดตสิทธิ OFC, LGO, BKK, BMT)</option>
+                    <option value="sss">ประกันสังคม (อัปเดตสิทธิ SSS)</option>
+                    <option value="nhs">กระทรวง สธ. (อัปเดตสิทธิ NHS)</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-warning btn-lg w-100 fw-bold shadow-sm" onclick="processSyncFile()">
+                    <i class="bi bi-search me-1"></i> ตรวจสอบการเปลี่ยนแปลง
+                  </button>
+                </div>
+             </div>
+             <div class="mt-2 text-muted small"><i class="bi bi-info-circle"></i> หากเป็นไฟล์ <strong>Excel</strong> จะต้องมีคอลัมน์ชื่อ "รหัส" และ "ราคา/อัตราจ่าย" | หากเป็นไฟล์ <strong>PDF</strong> ระบบจะแกะข้อมูลจากโครงสร้างตารางให้อัตโนมัติ</div>
+          </div>
         </div>
-        <div id="loadingSync" class="text-center d-none my-5"><div class="spinner-border text-warning" style="width: 3rem; height: 3rem;" role="status"></div><div class="mt-3 fw-bold text-warning" id="syncLoadingText">กำลังอ่านไฟล์...</div></div>
+
+        <div id="loadingSync" class="text-center d-none my-5">
+           <div class="spinner-border text-warning" style="width: 3rem; height: 3rem;" role="status"></div>
+           <div class="mt-3 fw-bold text-warning" id="syncLoadingText">กำลังอ่านและประมวลผลไฟล์...</div>
+        </div>
+        
         <div id="errorSync" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
+
         <div id="syncSection" class="custom-card d-none shadow">
-          <div class="card-header-custom bg-white border-bottom"><h5 class="card-header-title text-dark fs-4">รายการความแตกต่าง</h5></div>
-          <div class="card-body-custom p-0"><div class="table-responsive border-0 rounded-0"><table class="table table-hover mb-0"><thead class="bg-light text-center align-middle" style="color: #495057;"><tr><th width="10%">รหัส</th><th class="td-text" width="40%">ชื่ออุปกรณ์</th><th class="td-num" width="15%">ราคาเดิม</th><th class="td-num" width="15%">ราคาใหม่</th><th width="20%">อัปเดต</th></tr></thead><tbody id="syncTableBody"></tbody></table></div></div>
+          <div class="card-header-custom bg-white border-bottom d-flex justify-content-between align-items-center">
+             <h5 class="card-header-title text-dark fs-4"><i class="bi bi-list-task me-2 text-warning"></i>รายงานรายการที่พบความแตกต่างจากประกาศ</h5>
+          </div>
+          <div class="card-body-custom p-0">
+            <div class="table-responsive border-0 rounded-0">
+              <table class="table table-hover mb-0">
+                <thead class="bg-light text-center align-middle" style="color: #495057;">
+                  <tr>
+                    <th width="10%">รหัส (ADP)</th>
+                    <th class="td-text" width="40%">ชื่ออุปกรณ์ (อ้างอิงจากระบบ)</th>
+                    <th class="td-num" width="15%">ราคาเดิมในระบบ</th>
+                    <th class="td-num" width="15%">ราคาใหม่ที่พบ</th>
+                    <th width="20%">อัปเดตรายตัว</th>
+                  </tr>
+                </thead>
+                <tbody id="syncTableBody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- PAGE 7: Dashboard -->
+      <!-- ================= PAGE 7: แดชบอร์ดสรุปข้อมูล (ดึงจาก Google Sheet อัตโนมัติ) ================= -->
       <div id="page-dashboard" class="d-none">
-        <div class="page-header d-flex justify-content-between align-items-center"><h2 class="page-title text-info mb-0"><i class="bi bi-speedometer2"></i> แดชบอร์ดสรุปข้อมูล</h2><button class="btn btn-outline-info fw-bold shadow-sm" onclick="fetchDashboardData()"><i class="bi bi-arrow-clockwise me-1"></i> รีเฟรช</button></div>
-        <div id="loadingDashboard" class="text-center my-5"><div class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status"></div><div class="mt-3 fw-bold text-info">กำลังดึงข้อมูลจาก Google Sheet...</div></div>
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <h2 class="page-title text-info mb-0"><i class="bi bi-speedometer2"></i> แดชบอร์ดสรุปข้อมูลการชดเชย</h2>
+            <button class="btn btn-outline-info fw-bold shadow-sm" onclick="fetchDashboardData()">
+                <i class="bi bi-arrow-clockwise me-1"></i> รีเฟรชข้อมูล
+            </button>
+        </div>
+        
+        <div id="loadingDashboard" class="text-center my-5">
+           <div class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status"></div>
+           <div class="mt-3 fw-bold text-info">กำลังดึงข้อมูลจาก Google Sheet...</div>
+        </div>
+        
         <div id="errorDashboard" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
+
         <div id="dashboardSection" class="d-none">
+          <!-- การ์ดสรุปยอด -->
           <div class="row g-3 mb-4">
-            <div class="col-md-3"><div class="card bg-primary text-white shadow-sm h-100 border-0 rounded-4"><div class="card-body text-center py-4"><h6 class="card-title fw-normal">รวมจำนวนครั้ง OP</h6><h2 class="fw-bold mb-0 mt-2" id="dashOpCount">0</h2></div></div></div>
-            <div class="col-md-3"><div class="card bg-success text-white shadow-sm h-100 border-0 rounded-4"><div class="card-body text-center py-4"><h6 class="card-title fw-normal">ยอดชดเชย OP (บาท)</h6><h2 class="fw-bold mb-0 mt-2" id="dashOpComp">0</h2></div></div></div>
-            <div class="col-md-3"><div class="card bg-danger text-white shadow-sm h-100 border-0 rounded-4"><div class="card-body text-center py-4"><h6 class="card-title fw-normal">รวมจำนวนครั้ง IP</h6><h2 class="fw-bold mb-0 mt-2" id="dashIpCount">0</h2></div></div></div>
-            <div class="col-md-3"><div class="card bg-warning text-dark shadow-sm h-100 border-0 rounded-4"><div class="card-body text-center py-4"><h6 class="card-title fw-normal">ยอดชดเชย IP (บาท)</h6><h2 class="fw-bold mb-0 mt-2" id="dashIpComp">0</h2></div></div></div>
+            <div class="col-md-3">
+              <div class="card bg-primary text-white shadow-sm h-100 border-0 rounded-4">
+                <div class="card-body text-center py-4">
+                  <h6 class="card-title fw-normal"><i class="bi bi-people-fill me-1"></i> รวมจำนวนครั้ง OP</h6>
+                  <h2 class="fw-bold mb-0 mt-2" id="dashOpCount">0</h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-success text-white shadow-sm h-100 border-0 rounded-4">
+                <div class="card-body text-center py-4">
+                  <h6 class="card-title fw-normal"><i class="bi bi-cash-stack me-1"></i> ยอดชดเชย OP (บาท)</h6>
+                  <h2 class="fw-bold mb-0 mt-2" id="dashOpComp">0</h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-danger text-white shadow-sm h-100 border-0 rounded-4">
+                <div class="card-body text-center py-4">
+                  <h6 class="card-title fw-normal"><i class="bi bi-hospital-fill me-1"></i> รวมจำนวนครั้ง IP</h6>
+                  <h2 class="fw-bold mb-0 mt-2" id="dashIpCount">0</h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-warning text-dark shadow-sm h-100 border-0 rounded-4">
+                <div class="card-body text-center py-4">
+                  <h6 class="card-title fw-normal"><i class="bi bi-coin me-1"></i> ยอดชดเชย IP (บาท)</h6>
+                  <h2 class="fw-bold mb-0 mt-2" id="dashIpComp">0</h2>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="row g-4 mb-4"><div class="col-lg-12"><div class="card shadow-sm border-0 h-100 rounded-4"><div class="card-header bg-white fw-bold text-primary border-bottom-0 pt-4 pb-0 fs-5"><i class="bi bi-graph-up me-2"></i> แนวโน้มยอดชดเชยรายเดือน</div><div class="card-body px-4 pb-4"><canvas id="monthlyChart" height="80"></canvas></div></div></div></div>
-          <div class="row g-4 mb-4"><div class="col-lg-12"><div class="card shadow-sm border-0 h-100 rounded-4"><div class="card-header bg-white fw-bold text-success border-bottom-0 pt-4 pb-0 fs-5"><i class="bi bi-bar-chart-steps me-2"></i> 10 อันดับยอดชดเชยสูงสุด (OP)</div><div class="card-body px-4 pb-4"><canvas id="topItemsOpChart" height="80"></canvas></div></div></div></div>
+          
+          <!-- กราฟ แนวโน้มรายเดือน -->
           <div class="row g-4 mb-4">
-            <div class="col-lg-6"><div class="card shadow-sm border-0 h-100 rounded-4"><div class="card-header bg-white fw-bold text-danger border-bottom-0 pt-4 pb-0 fs-5"><i class="bi bi-cash-coin me-2"></i> 10 อันดับยอดชดเชยสูงสุด (IP)</div><div class="card-body px-4 pb-4"><canvas id="topItemsIpChart" height="250"></canvas></div></div></div>
-            <div class="col-lg-6"><div class="card shadow-sm border-0 h-100 rounded-4"><div class="card-header bg-white fw-bold text-warning border-bottom-0 pt-4 pb-0 fs-5"><i class="bi bi-box-seam me-2"></i> 10 อันดับปริมาณการใช้ (IP)</div><div class="card-body px-4 pb-4"><canvas id="topItemsIpUsageChart" height="250"></canvas></div></div></div>
+            <div class="col-lg-12">
+              <div class="card shadow-sm border-0 h-100 rounded-4">
+                <div class="card-header bg-white fw-bold text-primary border-bottom-0 pt-4 pb-0 fs-5">
+                  <i class="bi bi-graph-up me-2"></i> แนวโน้มยอดชดเชยรายเดือน (Monthly Trend)
+                </div>
+                <div class="card-body px-4 pb-4">
+                  <canvas id="monthlyChart" height="80"></canvas>
+                </div>
+              </div>
+            </div>
           </div>
+          
+          <!-- กราฟ Top 10 แยก OP และ IP -->
+          <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+              <div class="card shadow-sm border-0 h-100 rounded-4">
+                <div class="card-header bg-white fw-bold text-success border-bottom-0 pt-4 pb-0 fs-5">
+                  <i class="bi bi-bar-chart-steps me-2"></i> 10 อันดับอุปกรณ์มียอดชดเชยสูงสุด <span class="badge bg-success">ผู้ป่วยนอก (OP)</span>
+                </div>
+                <div class="card-body px-4 pb-4">
+                  <canvas id="topItemsOpChart" height="250"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="card shadow-sm border-0 h-100 rounded-4">
+                <div class="card-header bg-white fw-bold text-danger border-bottom-0 pt-4 pb-0 fs-5">
+                  <i class="bi bi-bar-chart-steps me-2"></i> 10 อันดับอุปกรณ์มียอดชดเชยสูงสุด <span class="badge bg-danger">ผู้ป่วยใน (IP)</span>
+                </div>
+                <div class="card-body px-4 pb-4">
+                  <canvas id="topItemsIpChart" height="250"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
 
     </main>
   </div>
 
-  <!-- Modal -->
+  <!-- ================= Modal สำหรับแสดงรายละเอียดผู้ป่วย ================= -->
   <div class="modal fade" id="patientDetailModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
-        <div class="modal-header bg-primary text-white"><h5 class="modal-title fw-bold" id="modalTitle">รายละเอียด</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title fw-bold" id="modalTitle">รายละเอียดการเบิกอุปกรณ์</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
         <div class="modal-body bg-light">
            <div class="alert alert-info py-2 mb-3 fw-bold" id="modalRightAlert"></div>
-           <div class="table-responsive bg-white rounded shadow-sm border-0"><table class="table table-hover mb-0"><thead class="text-white td-center align-middle" id="modalThead"><tr><th class="td-text" width="30%">รายการอุปกรณ์</th><th width="8%">จำนวน</th><th class="td-num" width="14%">ราคาต่อหน่วย</th><th class="td-num" width="15%">ราคารวม</th><th class="td-num" width="15%">เบิกได้</th><th class="td-num" width="18%">เกินสิทธิ</th></tr></thead><tbody id="modalTbody"></tbody><tfoot id="modalTfoot" class="bg-light"></tfoot></table></div>
-           <div class="mt-4"><button id="btnAiAnalyze" class="btn btn-warning fw-bold shadow-sm" onclick="runAiAnalysis()"><i class="bi bi-robot"></i> วิเคราะห์ด้วย AI</button><div id="aiAnalysisResult" class="mt-3 p-3 bg-white border border-warning rounded d-none" style="font-size: 1.05rem; line-height: 1.6;"></div></div>
+           <div class="table-responsive bg-white rounded shadow-sm border-0">
+               <table class="table table-hover mb-0">
+                  <thead class="text-white td-center align-middle" id="modalThead">
+                     <tr>
+                       <th class="td-text" width="30%">รายการอุปกรณ์ (จาก Excel)</th>
+                       <th width="8%">จำนวน</th>
+                       <th class="td-num" width="14%">ราคาต่อหน่วย</th>
+                       <th class="td-num" width="15%">ราคารวม</th>
+                       <th class="td-num" width="15%">เบิกได้ (ตามสิทธิ)</th>
+                       <th class="td-num" width="18%">เกินสิทธิ</th>
+                     </tr>
+                  </thead>
+                  <tbody id="modalTbody"></tbody>
+                  <tfoot id="modalTfoot" class="bg-light"></tfoot>
+               </table>
+           </div>
+
+           <div class="mt-4">
+              <button id="btnAiAnalyze" class="btn btn-warning fw-bold shadow-sm" onclick="runAiAnalysis()">
+                  <i class="bi bi-robot"></i> วิเคราะห์ความสมเหตุสมผลด้วย AI (Gemini)
+              </button>
+              <div id="aiAnalysisResult" class="mt-3 p-3 bg-white border border-warning rounded d-none" style="font-size: 1.05rem; line-height: 1.6;"></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <script>
+    // =========================================================================
+    // API URL ของคุณ (ห้ามลบ)
+    // =========================================================================
     const API_URL = 'https://script.google.com/macros/s/AKfycbxLy8-GzLbliBTDsQBLa1D0vDxyNbdiGSSAtPeOuOwQvZ9qyu70SuVcwy-dHbciwPU2jQ/exec'; 
 
-    async function callGoogleAPI(a, p){try{let r=await fetch(API_URL,{method:'POST',body:JSON.stringify({action:a,...p})});return await r.json();}catch(e){return{error:"การเชื่อมต่อล้มเหลว"};}}
-
-    let currentSearchResults=[], cartItems=[], globalReportData=[], globalAuditData=[], currentSyncList=[], selectedRightsToUpdate=[], currentPatientIndexForAI=-1;
-    let monthlyChartInstance=null, topItemsOpChartInstance=null, topItemsIpChartInstance=null, topItemsIpUsageChartInstance=null;
+    async function callGoogleAPI(action, payload) {
+      try {
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: action, ...payload }) });
+        return await response.json();
+      } catch (error) { return { error: "ไม่สามารถเชื่อมต่อฐานข้อมูลได้ (โปรดตรวจสอบ API URL)" }; }
+    }
 
     function switchPage(page) {
-      document.querySelectorAll('.main-content > div').forEach(e => e.classList.add('d-none'));
-      document.querySelectorAll('.nav-link').forEach(e => e.classList.remove('active'));
+      document.getElementById('page-calc').classList.add('d-none');
+      document.getElementById('page-table').classList.add('d-none');
+      document.getElementById('page-verify').classList.add('d-none');
+      document.getElementById('page-audit').classList.add('d-none');
+      document.getElementById('page-report').classList.add('d-none');
+      document.getElementById('page-sync').classList.add('d-none');
+      document.getElementById('page-dashboard').classList.add('d-none');
+      
+      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+      
       document.getElementById('page-' + page).classList.remove('d-none');
       document.getElementById('menu-' + page).classList.add('active');
+      
       if(page === 'table' && document.getElementById('tableS1Body').innerHTML.includes('กำลังดึงข้อมูล')) searchSheet1();
+      // โหลด Dashboard อัตโนมัติเมื่อกดเมนู
       if(page === 'dashboard') fetchDashboardData();
     }
 
-    async function checkHN(){let hn=document.getElementById('hnInput').value.trim();if(!hn)return;let btn=document.getElementById('btnCheckHn');btn.innerHTML='...';btn.disabled=true;document.getElementById('errorAlert').classList.add('d-none');let r=await callGoogleAPI('checkPatientRight',{hn});btn.innerHTML='ตรวจสอบ';btn.disabled=false;if(r.error){document.getElementById('errorAlert').innerHTML=r.error;document.getElementById('errorAlert').classList.remove('d-none');}else if(r.right){let s=document.getElementById('rightsType');for(let i=0;i<s.options.length;i++)if(s.options[i].value===r.right){s.selectedIndex=i;renderCart();break;}}}
-    async function performSearch(){let kw=document.getElementById('keyword').value.trim();if(!kw)return;document.getElementById('searchResultsSection').classList.add('d-none');document.getElementById('loading').classList.remove('d-none');let r=await callGoogleAPI('searchEquipmentData',{keyword:kw});document.getElementById('loading').classList.add('d-none');currentSearchResults=r.data||[];let tb=document.getElementById('searchResultsBody');tb.innerHTML='';if(currentSearchResults.length===0)tb.innerHTML='<tr><td colspan="4" class="text-center text-danger py-4">ไม่พบข้อมูล</td></tr>';else currentSearchResults.forEach((item,i)=>tb.innerHTML+=`<tr><td class="td-center fw-bold">${item.code}</td><td class="td-text">${item.name}</td><td class="td-num">${item.unitcost.toLocaleString()} ฿</td><td class="td-center"><button class="btn btn-sm btn-outline-primary" onclick="addToCart(${i})">เพิ่ม</button></td></tr>`);document.getElementById('searchResultsSection').classList.remove('d-none');}
-    function addToCart(i){cartItems.push({...currentSearchResults[i],qty:1});document.getElementById('keyword').value='';document.getElementById('searchResultsSection').classList.add('d-none');renderCart();}
-    function updateQty(i,v){if(parseInt(v)>=1){cartItems[i].qty=parseInt(v);renderCart();}}
-    function removeFromCart(i){cartItems.splice(i,1);renderCart();}
-    function clearCalcData(){document.getElementById('hnInput').value='';document.getElementById('keyword').value='';document.getElementById('rightsType').selectedIndex=0;document.getElementById('searchResultsSection').classList.add('d-none');cartItems=[];renderCart();}
-    function renderCart(){let tb=document.getElementById('cartBody'),tf=document.getElementById('cartFoot'),rt=document.getElementById('rightsType').value;tb.innerHTML='';tf.innerHTML='';if(cartItems.length===0)return tb.innerHTML='<tr><td colspan="7" class="text-center text-muted py-5">ยังไม่มีรายการ</td></tr>';let tot={q:0,u:0,c:0,e:0};cartItems.forEach((it,i)=>{let c=it[rt]||0,ex=Math.max(it.unitcost-c,0);tot.q+=it.qty;tot.u+=it.unitcost*it.qty;tot.c+=c*it.qty;tot.e+=ex*it.qty;tb.innerHTML+=`<tr><td class="td-center fw-bold">${it.code}</td><td class="td-text">${it.name}</td><td class="td-center"><input type="number" class="form-control form-control-sm qty-input" min="1" value="${it.qty}" onchange="updateQty(${i},this.value)"></td><td class="td-num">${(it.unitcost*it.qty).toLocaleString()}</td><td class="td-num text-success fw-bold">${(c*it.qty).toLocaleString()}</td><td class="td-num text-danger fw-bold">${(ex*it.qty).toLocaleString()}</td><td class="td-center"><button class="btn btn-sm btn-outline-danger border-0" onclick="removeFromCart(${i})"><i class="bi bi-trash3-fill"></i></button></td></tr>`;});tf.innerHTML=`<tr><td colspan="2" class="td-num fs-6 text-success"><strong>รวม :</strong></td><td class="td-center fs-6"><strong>${tot.q} ชิ้น</strong></td><td class="td-num fs-6 text-muted"><strong>${tot.u.toLocaleString()}</strong></td><td class="td-num text-success fs-5"><strong>${tot.c.toLocaleString()}</strong></td><td class="td-num text-danger fs-5"><strong>${tot.e.toLocaleString()}</strong></td><td></td></tr>`;}
-    
-    async function searchSheet1(){let code=document.getElementById('searchS1Code').value.trim(),name=document.getElementById('searchS1Name').value.trim();document.getElementById('loadingS1').classList.remove('d-none');document.getElementById('tableS1Body').innerHTML='';let r=await callGoogleAPI('searchSheet1Data',{code,name});document.getElementById('loadingS1').classList.add('d-none');if(r.error)return;let tb=document.getElementById('tableS1Body');r.data.forEach(it=>tb.innerHTML+=`<tr><td class="td-center fw-bold">${it.code}</td><td class="td-text">${it.name}</td><td class="td-center">${it.cat}</td><td class="td-center">${it.unit}</td><td class="td-num">${it.ofc.toLocaleString()}</td><td class="td-num">${it.ucs.toLocaleString()}</td><td class="td-num">${it.lgo.toLocaleString()}</td><td class="td-num">${it.bkk.toLocaleString()}</td><td class="td-num">${it.bmt.toLocaleString()}</td><td class="td-num">${it.nhs.toLocaleString()}</td><td class="td-num">${it.sss.toLocaleString()}</td></tr>`);}
-    
-    function processExcel(){let fi=document.getElementById('excelUpload'),ea=document.getElementById('errorVerify');ea.classList.add('d-none');if(!fi.files.length){ea.innerHTML='เลือกไฟล์ก่อน';ea.classList.remove('d-none');return;}document.getElementById('loadingVerify').classList.remove('d-none');let rd=new FileReader();rd.onload=async e=>{try{let d=new Uint8Array(e.target.result),wb=XLSX.read(d,{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1}),rs=fi.files[0].name.toUpperCase(),rk="UCS";if(rs.includes('OFC'))rk='OFC';else if(rs.includes('LGO'))rk='LGO';else if(rs.includes('BKK'))rk='BKK';else if(rs.includes('BMT'))rk='BMT';else if(rs.includes('NHS'))rk='NHS';else if(rs.includes('SSS'))rk='SSS';let is02=false,ex=[];for(let i=0;i<rows.length;i++){let ca=rows[i][0]?rows[i][0].toString().trim():"";if(ca.includes("[02] อวัยวะเทียม")){is02=true;continue;}if(is02&&ca.includes("หมวดค่ารักษา:"))break;if(is02&&rows[i][1]){let ac="",m=rows[i][1].toString().match(/\[([^\]]+)\][^\[\]]*$/);if(m)ac=m[1];ex.push({name:rows[i][1].toString(),unit:rows[i][2]||"-",rightStr:rk,qty:Number(rows[i][6])||0,unitPrice:Number(rows[i][7])||0,adpCode:ac});}}if(ex.length===0)throw new Error('ไม่พบข้อมูล หมวด 02');let res=await callGoogleAPI('analyzeUploadedData',{items:ex});displayVerifyResults(res);}catch(er){document.getElementById('loadingVerify').classList.add('d-none');ea.innerHTML=er.message;ea.classList.remove('d-none');}};rd.readAsArrayBuffer(fi.files[0]);}
-    function displayVerifyResults(res){document.getElementById('loadingVerify').classList.add('d-none');if(res.error)return;let tb=document.getElementById('verifyTableBody');tb.innerHTML='';res.data.forEach(it=>{let isM=it.unitPrice!==it.coveredUnitPrice&&it.coveredUnitPrice>0,tc="",uc=`<td class="td-num">${it.unitPrice.toLocaleString()}</td>`;if(isM){tc="table-warning";uc=`<td class="td-num text-danger fw-bold">${it.unitPrice.toLocaleString()}<br><span class="badge bg-danger">อ้างอิง: ${it.coveredUnitPrice}</span></td>`;}tb.innerHTML+=`<tr class="${tc}"><td class="td-text">${it.name}<br><small class="text-muted">รหัส: ${it.adpCode} | สิทธิ: ${it.rightUsed}</small></td><td class="td-center">${it.qty}</td><td class="td-center">${it.unit}</td>${uc}<td class="td-num">${it.totalPrice.toLocaleString()}</td><td class="td-num text-success">${it.totalCovered.toLocaleString()}</td><td class="td-num text-danger">${it.excess.toLocaleString()}</td></tr>`;});document.getElementById('verifyResultsSection').classList.remove('d-none');document.getElementById('sumReqTotal').value=res.summary.totalCost.toLocaleString();document.getElementById('sumCovTotal').value=res.summary.totalCovered.toLocaleString();document.getElementById('sumExcess').value=res.summary.totalExcess.toLocaleString();document.getElementById('groupedSummarySection').classList.remove('d-none');}
+    let currentSearchResults = []; let cartItems = []; let globalReportData = []; let globalAuditData = []; let currentSyncList = []; let selectedRightsToUpdate = []; let currentPatientIndexForAI = -1;
+    let monthlyChartInstance = null; let topItemsOpChartInstance = null; let topItemsIpChartInstance = null;
 
-    function processAuditExcel(){let fi=document.getElementById('auditUpload'),ea=document.getElementById('errorAudit');ea.classList.add('d-none');if(!fi.files.length){ea.innerHTML='เลือกไฟล์ก่อน';ea.classList.remove('d-none');return;}document.getElementById('loadingAudit').classList.remove('d-none');let rd=new FileReader();rd.onload=async e=>{try{let d=new Uint8Array(e.target.result),wb=XLSX.read(d,{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1}),pts=[];for(let i=1;i<rows.length;i++){let an=rows[i][0],hn=rows[i][1],dt=rows[i][7]||"-",rs=rows[i][37]||"",jr=rows[i][39]||"",ipr=false;if(jr.toString().includes('พ.ร.บ')||jr.toString().includes('พรบ')){rs="OFC (พ.ร.บ.)";ipr=true;}let ds=rows[i][53]||"",tc=parseFloat(rows[i][54])||0;if(!ds.toString().includes("| 02 |"))continue;let m=ds.toString().match(/\[(.*?)\]/g);if(!m)continue;let pd=[];for(let ib of m){let p=ib.replace(/\[|\]/g,'').split('|').map(s=>s.trim());if(p.length>=6&&p[1]==="02"){let ac="-",cm=p[3].match(/^([A-Za-z0-9\-]+)\s+(.*)$/);if(cm)ac=cm[1];pd.push({name:p[3],adpCode:ac,qty:parseFloat(p[4])||0,unitPrice:parseFloat(p[5])||0,totalPrice:parseFloat(p[6])||(parseFloat(p[4])*parseFloat(p[5]))});}}if(pd.length>0)pts.push({an,hn,date:dt,rightStr:rs,isPorRorBor:ipr,totalClaim:tc,devices:pd});}if(pts.length===0)throw new Error("ไม่พบข้อมูลหมวด 02");let res=await callGoogleAPI('analyzeBatchData',{patients:pts});if(res.error)throw new Error(res.error);globalAuditData=res.data;let tb=document.getElementById('auditTableBody');tb.innerHTML='';globalAuditData.forEach((p,i)=>{let sb=p.status==='ปกติ'?`<span class="badge bg-success">ปกติ</span>`:`<span class="badge bg-danger badge-alert">ผิดปกติ (${p.mismatchCount})</span>`;tb.innerHTML+=`<tr><td class="td-center">${i+1}</td><td class="td-center">${p.an}</td><td class="td-center">${p.hn}</td><td class="td-center">${p.date}</td><td class="td-text">${p.rightStr}<br><small class="text-info">${p.mappedRight}</small></td><td class="td-num">${p.totalClaim.toLocaleString()}</td><td class="td-center">${sb}</td><td class="td-center"><button class="btn btn-sm btn-primary" onclick="openPatientDetail(${i})">ดู</button></td></tr>`;});document.getElementById('auditItemCount').textContent=`${globalAuditData.length} ราย`;document.getElementById('loadingAudit').classList.add('d-none');document.getElementById('auditSection').classList.remove('d-none');document.getElementById('btnBatchAi').classList.remove('d-none');}catch(er){document.getElementById('loadingAudit').classList.add('d-none');ea.innerHTML=er.message;ea.classList.remove('d-none');}};rd.readAsArrayBuffer(fi.files[0]);}
+    // ================= 1. ประเมินสิทธิ (Calc) =================
+    async function checkHN() { const hn = document.getElementById('hnInput').value.trim(); if (!hn) return; const btn = document.getElementById('btnCheckHn'); btn.innerHTML = '...'; btn.disabled = true; document.getElementById('errorAlert').classList.add('d-none'); try { const res = await callGoogleAPI('checkPatientRight', { hn: hn }); btn.innerHTML = 'ตรวจสอบ'; btn.disabled = false; if (res.error) { document.getElementById('errorAlert').innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i>${res.error}`; document.getElementById('errorAlert').classList.remove('d-none'); } else if (res.right) { const select = document.getElementById('rightsType'); for (let i = 0; i < select.options.length; i++) if (select.options[i].value === res.right) { select.selectedIndex = i; renderCart(); break; } } } catch (e) { btn.innerHTML = 'ตรวจสอบ'; btn.disabled = false; } }
+    async function performSearch() { const kw = document.getElementById('keyword').value.trim(); if (!kw) return; document.getElementById('searchResultsSection').classList.add('d-none'); document.getElementById('loading').classList.remove('d-none'); try { const res = await callGoogleAPI('searchEquipmentData', { keyword: kw }); document.getElementById('loading').classList.add('d-none'); currentSearchResults = res.data || []; const tbody = document.getElementById('searchResultsBody'); tbody.innerHTML = ''; if (currentSearchResults.length === 0) tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger py-4"><i class="bi bi-search me-2"></i>ไม่พบข้อมูลที่ค้นหา</td></tr>'; else currentSearchResults.forEach((item, index) => tbody.innerHTML += `<tr><td class="td-center fw-bold text-secondary">${item.code}</td><td class="td-text fw-semibold">${item.name}</td><td class="td-num text-dark">${item.unitcost.toLocaleString()} ฿</td><td class="td-center"><button class="btn btn-sm btn-outline-primary fw-bold px-3" onclick="addToCart(${index})"><i class="bi bi-plus-lg"></i> เพิ่ม</button></td></tr>`); document.getElementById('searchResultsSection').classList.remove('d-none'); } catch (e) { document.getElementById('loading').classList.add('d-none'); } }
+    function addToCart(i) { cartItems.push({ ...currentSearchResults[i], qty: 1 }); document.getElementById('keyword').value = ''; document.getElementById('searchResultsSection').classList.add('d-none'); renderCart(); }
+    function updateQty(i, v) { if (parseInt(v) >= 1) { cartItems[i].qty = parseInt(v); renderCart(); } }
+    function removeFromCart(i) { cartItems.splice(i, 1); renderCart(); }
+    function clearCalcData() { document.getElementById('hnInput').value = ''; document.getElementById('keyword').value = ''; document.getElementById('rightsType').selectedIndex = 0; document.getElementById('searchResultsSection').classList.add('d-none'); document.getElementById('errorAlert').classList.add('d-none'); cartItems = []; renderCart(); }
+    function renderCart() { const tbody = document.getElementById('cartBody'), tfoot = document.getElementById('cartFoot'), rt = document.getElementById('rightsType').value; tbody.innerHTML = ''; tfoot.innerHTML = ''; if (cartItems.length === 0) return tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-5"><i class="bi bi-inbox fs-1 d-block mb-2 text-light"></i>ยังไม่มีรายการ</td></tr>'; let totals = { qty: 0, uc: 0, cov: 0, ex: 0 }; cartItems.forEach((item, i) => { let cov = item[rt] || 0, ex = Math.max(item.unitcost - cov, 0); totals.qty += item.qty; totals.uc += (item.unitcost * item.qty); totals.cov += (cov * item.qty); totals.ex += (ex * item.qty); tbody.innerHTML += `<tr><td class="td-center fw-bold text-secondary">${item.code}</td><td class="td-text fw-semibold">${item.name}</td><td class="td-center"><input type="number" class="form-control form-control-sm qty-input" min="1" value="${item.qty}" onchange="updateQty(${i}, this.value)"></td><td class="td-num text-muted">${(item.unitcost * item.qty).toLocaleString()}</td><td class="td-num text-success fw-bold">${(cov * item.qty).toLocaleString()}</td><td class="td-num text-danger fw-bold">${(ex * item.qty).toLocaleString()}</td><td class="td-center"><button class="btn btn-sm btn-outline-danger border-0" onclick="removeFromCart(${i})"><i class="bi bi-trash3-fill"></i></button></td></tr>`; }); tfoot.innerHTML = `<tr><td colspan="2" class="td-num fs-6 text-success"><strong>รวม :</strong></td><td class="td-center fs-6"><strong>${totals.qty} ชิ้น</strong></td><td class="td-num fs-6 text-muted"><strong>${totals.uc.toLocaleString()}</strong></td><td class="td-num text-success fs-5"><strong>${totals.cov.toLocaleString()}</strong></td><td class="td-num text-danger fs-5"><strong>${totals.ex.toLocaleString()}</strong></td><td></td></tr>`; }
+
+    // ================= 2. ตารางอ้างอิง (Table) =================
+    async function searchSheet1() { const code = document.getElementById('searchS1Code').value.trim(), name = document.getElementById('searchS1Name').value.trim(); document.getElementById('loadingS1').classList.remove('d-none'); document.getElementById('errorS1').classList.add('d-none'); document.getElementById('tableS1Body').innerHTML = ''; try { const res = await callGoogleAPI('searchSheet1Data', { code: code, name: name }); document.getElementById('loadingS1').classList.add('d-none'); if (res.error) return; const tbody = document.getElementById('tableS1Body'); res.data.forEach(item => { tbody.innerHTML += `<tr><td class="td-center fw-bold text-dark">${item.code}</td><td class="td-text text-wrap" style="min-width: 280px; font-weight: 500;">${item.name}</td><td class="td-center text-muted">${item.cat}</td><td class="td-center text-muted">${item.unit}</td><td class="td-num text-dark">${item.ofc.toLocaleString()}</td><td class="td-num text-dark">${item.ucs.toLocaleString()}</td><td class="td-num text-dark">${item.lgo.toLocaleString()}</td><td class="td-num text-dark">${item.bkk.toLocaleString()}</td><td class="td-num text-dark">${item.bmt.toLocaleString()}</td><td class="td-num text-dark">${item.nhs.toLocaleString()}</td><td class="td-num text-dark">${item.sss.toLocaleString()}</td></tr>`; }); } catch (e) { document.getElementById('loadingS1').classList.add('d-none'); } }
+
+    // ================= 3. วิเคราะห์รายบุคคล (Verify) =================
+    function processExcel() { const fileInput = document.getElementById('excelUpload'); const errorAlert = document.getElementById('errorVerify'); document.getElementById('verifyResultsSection').classList.add('d-none'); document.getElementById('groupedSummarySection').classList.add('d-none'); errorAlert.classList.add('d-none'); if (!fileInput.files.length) { errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ Excel ก่อนครับ'; errorAlert.classList.remove('d-none'); return; } document.getElementById('loadingVerify').classList.remove('d-none'); const reader = new FileReader(); reader.onload = async function(e) { try { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const sheetName = workbook.SheetNames[0]; const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1}); let allRightsStr = fileInput.files[0].name; for (let i = 0; i < rows.length; i++) { if (rows[i][4]) allRightsStr += " " + rows[i][4].toString(); } let allR = allRightsStr.toUpperCase(), mainRightKey = "UCS"; if (allR.includes('OFC') || allR.includes('ข้าราชการ')) mainRightKey = "OFC"; else if (allR.includes('LGO') || allR.includes('อปท') || allR.includes('ส่วนท้องถิ่น')) mainRightKey = "LGO"; else if (allR.includes('BKK') || allR.includes('กทม') || allR.includes('กรุงเทพ')) mainRightKey = "BKK"; else if (allR.includes('BMT') || allR.includes('พัทยา')) mainRightKey = "BMT"; else if (allR.includes('NHS') || allR.includes('รัฐวิสาหกิจ')) mainRightKey = "NHS"; else if (allR.includes('SSS') || allR.includes('ประกันสังคม')) mainRightKey = "SSS"; else if (allR.includes('UC') || allR.includes('UCS') || allR.includes('บัตรทอง')) mainRightKey = "UCS"; let isSection02 = false, extracted = []; for (let i = 0; i < rows.length; i++) { let colA = rows[i][0] ? rows[i][0].toString().trim() : ""; if (colA.includes("[02] อวัยวะเทียม")) { isSection02 = true; continue; } if (isSection02 && colA.includes("หมวดค่ารักษา:")) break; if (isSection02 && rows[i][1]) { let adpCode = ""; let match = rows[i][1].toString().match(/\[([^\]]+)\][^\[\]]*$/); if (match) adpCode = match[1]; extracted.push({ name: rows[i][1].toString(), unit: rows[i][2] || "-", rightStr: mainRightKey, qty: Number(rows[i][6]) || 0, unitPrice: Number(rows[i][7]) || 0, adpCode: adpCode }); } } if(extracted.length === 0) throw new Error('ไม่พบข้อมูล "หมวดค่ารักษา: [02]"'); const res = await callGoogleAPI('analyzeUploadedData', { items: extracted }); displayVerifyResults(res); } catch (err) { document.getElementById('loadingVerify').classList.add('d-none'); errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i> ${err.message}`; errorAlert.classList.remove('d-none'); } }; reader.readAsArrayBuffer(fileInput.files[0]); }
+    function displayVerifyResults(res) { document.getElementById('loadingVerify').classList.add('d-none'); const errorAlert = document.getElementById('errorVerify'); const tbody = document.getElementById('verifyTableBody'); errorAlert.classList.add('d-none'); errorAlert.classList.remove('alert-warning'); errorAlert.classList.add('alert-danger'); if (res.error) { errorAlert.textContent = res.error; errorAlert.classList.remove('d-none'); return; } tbody.innerHTML = ''; let mismatchCount = 0; res.data.forEach(item => { let isMismatch = (item.unitPrice !== item.coveredUnitPrice) && (item.coveredUnitPrice > 0); let trClass = "", unitPriceCell = ""; if (isMismatch) { mismatchCount++; trClass = "table-warning border-warning"; unitPriceCell = `<td class="td-num"><div class="text-danger fw-bold fs-5">${item.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div><div class="badge bg-danger badge-alert mt-2 px-2 py-1 shadow-sm text-wrap lh-base" style="font-size:0.8rem;"><i class="bi bi-exclamation-triangle-fill"></i> ไม่ตรงตาราง<br>อ้างอิง: ${item.coveredUnitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div></td>`; } else if (item.coveredUnitPrice === 0 && item.adpCode && item.adpCode !== "-") { unitPriceCell = `<td class="td-num"><div class="text-dark">${item.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div><div class="badge bg-secondary mt-1 px-2 py-1" style="font-size:0.7rem;">ไม่มีราคาในตาราง</div></td>`; } else { unitPriceCell = `<td class="td-num text-dark fw-bold">${item.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>`; } tbody.innerHTML += `<tr class="${trClass}"><td class="td-text fw-semibold">${item.name}<div class="text-muted small mt-1"><span class="badge bg-secondary">รหัส: ${item.adpCode}</span> <span class="badge bg-info text-dark">สิทธิตรวจพบ: ${item.rightUsed}</span></div></td><td class="td-center fw-bold text-primary fs-5">${item.qty}</td><td class="td-center text-muted">${item.unit}</td>${unitPriceCell}<td class="td-num text-dark fw-bold">${item.totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num text-success fw-bold">${item.totalCovered.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num text-danger fw-bold fs-6">${item.excess.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>`; }); if (mismatchCount > 0) { errorAlert.classList.replace('alert-danger', 'alert-warning'); errorAlert.innerHTML = `<div class="d-flex align-items-center"><i class="bi bi-exclamation-triangle-fill fs-2 me-3 text-danger"></i> <div><div class="fs-5 text-dark"><strong>แจ้งเตือน:</strong> ตรวจพบรายการที่ "ราคาต่อหน่วย" ไม่ตรงกับตารางอ้างอิงจำนวน <span class="text-danger fs-4">${mismatchCount}</span> รายการ</div><div class="text-muted fw-normal">กรุณาตรวจสอบว่าอาจเกิดจากการนำ "ราคารวม" มาคีย์ใส่ช่อง "ราคาต่อหน่วย" แล้วใส่จำนวนเป็น 1 หรือไม่</div></div></div>`; errorAlert.classList.remove('d-none'); } document.getElementById('verifyResultsSection').classList.remove('d-none'); let grouped = {}; res.data.forEach(item => { let code = item.adpCode && item.adpCode !== "-" ? item.adpCode : "UNKNOWN_" + Math.random(); if(!grouped[code]) { grouped[code] = { code: item.adpCode !== "-" ? item.adpCode : "", name: item.officialName || item.name.replace(/\[.*?\]/g, '').trim(), unit: item.officialUnit || item.unit, basePrice: item.coveredUnitPrice, qty: 0, reqTotal: 0, covTotal: 0 }; } grouped[code].qty += item.qty; grouped[code].reqTotal += item.totalPrice; grouped[code].covTotal += item.totalCovered; }); const summaryTbody = document.getElementById('summaryTableBody'); summaryTbody.innerHTML = ''; let groupCount = 0; Object.values(grouped).forEach(g => { groupCount++; let excess = Math.max(g.reqTotal - g.covTotal, 0); let displayName = g.code ? `${g.code} ${g.name}` : g.name; summaryTbody.innerHTML += `<tr><td class="td-text fw-semibold text-dark">${displayName}</td><td class="td-center text-muted">${g.unit}</td><td class="td-num">${g.basePrice.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td><td class="td-center fw-bold fs-5">${g.qty}</td><td class="td-num text-dark fw-bold">${g.reqTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td><td class="td-num text-success fw-bold">${g.covTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td><td class="td-num text-danger">${excess.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td></tr>`; }); document.getElementById('summaryItemCount').textContent = `จำนวน ${groupCount} รายการ`; document.getElementById('sumReqTotal').value = res.summary.totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}); document.getElementById('sumCovTotal').value = res.summary.totalCovered.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}); document.getElementById('sumExcess').value = res.summary.totalExcess.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}); document.getElementById('groupedSummarySection').classList.remove('d-none'); }
+
+    // ================= 4. ตรวจสอบกลุ่ม (Audit) =================
+    function formatThaiDate(dateVal) { if (!dateVal) return "-"; let dStr = dateVal.toString().trim(); if (dStr.length === 8 && /^\d+$/.test(dStr)) { return `${dStr.substring(6, 8)}/${dStr.substring(4, 6)}/${dStr.substring(0, 4)}`; } return dStr; }
     
-    function openPatientDetail(i){currentPatientIndexForAI=i;let p=globalAuditData[i];document.getElementById('modalTitle').innerHTML=`AN: ${p.an} | HN: ${p.hn} ${p.isPorRorBor?'(สิทธิ พรบ.)':''}`;document.getElementById('modalRightAlert').innerHTML=`เปรียบเทียบสิทธิ: <strong>${p.mappedRight.toUpperCase()} ${p.isPorRorBor?'(อ้างอิง OFC)':''}</strong>`;let tb=document.getElementById('modalTbody');tb.innerHTML='';p.devices.forEach(d=>{let tc=d.isMismatch?"table-warning":"",uc=`<td class="td-num">${d.unitPrice.toLocaleString()}</td>`;if(d.isMismatch)uc=`<td class="td-num text-danger fw-bold">${d.unitPrice.toLocaleString()}<br><span class="badge bg-danger">อ้างอิง: ${d.coveredUnitPrice}</span></td>`;tb.innerHTML+=`<tr class="${tc}"><td class="td-text">${d.name}</td><td class="td-center">${d.qty}</td>${uc}<td class="td-num">${d.totalPrice.toLocaleString()}</td><td class="td-num text-success">${(d.coveredUnitPrice*d.qty).toLocaleString()}</td><td class="td-num text-danger">${d.excess.toLocaleString()}</td></tr>`;});document.getElementById('modalTfoot').innerHTML=`<tr><td colspan="3" class="td-num fw-bold">รวม:</td><td class="td-num fw-bold">${p.totalCost.toLocaleString()}</td><td class="td-num fw-bold text-success">${p.totalCovered.toLocaleString()}</td><td class="td-num fw-bold text-danger">${p.totalExcess.toLocaleString()}</td></tr>`;document.getElementById('aiAnalysisResult').classList.add('d-none');new bootstrap.Modal(document.getElementById('patientDetailModal')).show();}
+    function processAuditExcel() { 
+        const fileInput = document.getElementById('auditUpload'); 
+        const errorAlert = document.getElementById('errorAudit'); 
+        const section = document.getElementById('auditSection'); 
+        errorAlert.classList.add('d-none'); section.classList.add('d-none'); 
+        
+        if (!fileInput.files.length) { 
+            errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ Excel ก่อนครับ'; 
+            errorAlert.classList.remove('d-none'); 
+            return; 
+        } 
+        
+        document.getElementById('loadingAudit').classList.remove('d-none'); 
+        document.getElementById('btnBatchAi').classList.add('d-none'); 
+        document.getElementById('batchAiAnalysisResult').classList.add('d-none'); 
+        
+        const reader = new FileReader(); 
+        reader.onload = async function(e) { 
+            try { 
+                const data = new Uint8Array(e.target.result); 
+                const workbook = XLSX.read(data, {type: 'array'}); 
+                const sheetName = workbook.SheetNames[0]; 
+                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1}); 
+                
+                let patients = []; 
+                for (let i = 1; i < rows.length; i++) { 
+                    let an = rows[i][0]; 
+                    let hn = rows[i][1]; 
+                    let date = formatThaiDate(rows[i][7]); 
+                    
+                    let rightStr = rows[i][37] ? rows[i][37].toString() : ""; 
+                    let jointRightStr = rows[i][39] ? rows[i][39].toString() : ""; 
+                    let isPorRorBor = false;
+                    
+                    if (jointRightStr.includes('พ.ร.บ') || jointRightStr.includes('พรบ')) {
+                        rightStr = "OFC (อ้างอิง พ.ร.บ.)"; 
+                        isPorRorBor = true;
+                    }
+                    
+                    let devicesStr = rows[i][53] ? rows[i][53].toString() : ""; 
+                    let totalClaim = rows[i][54] ? parseFloat(rows[i][54]) : 0; 
+                    
+                    if (!devicesStr || !devicesStr.includes("| 02 |")) continue; 
+                    let itemMatches = devicesStr.match(/\[(.*?)\]/g); 
+                    if (!itemMatches) continue; 
+                    
+                    let parsedDevices = []; 
+                    for (let itemBlock of itemMatches) { 
+                        let cleanText = itemBlock.replace(/\[|\]/g, '').trim(); 
+                        let parts = cleanText.split('|').map(s => s.trim()); 
+                        if(parts.length >= 6 && parts[1] === "02") { 
+                            let rawName = parts[3]; 
+                            let qty = parseFloat(parts[4]) || 0; 
+                            let unitPrice = parseFloat(parts[5]) || 0; 
+                            let totalPrice = parts.length >= 7 ? parseFloat(parts[6]) || (qty * unitPrice) : (qty * unitPrice); 
+                            let code = "-"; 
+                            let codeMatch = rawName.match(/^([A-Za-z0-9\-]+)\s+(.*)$/); 
+                            if(codeMatch) code = codeMatch[1]; 
+                            parsedDevices.push({ name: rawName, adpCode: code, qty: qty, unitPrice: unitPrice, totalPrice: totalPrice }); 
+                        } 
+                    } 
+                    if (parsedDevices.length > 0) { 
+                        patients.push({ an: an || "-", hn: hn || "-", date: date || "-", rightStr: rightStr, isPorRorBor: isPorRorBor, totalClaim: totalClaim, devices: parsedDevices }); 
+                    } 
+                } 
+                if(patients.length === 0) throw new Error("ไม่พบข้อมูลผู้ป่วยที่มีการใช้อุปกรณ์หมวด [02] ในไฟล์นี้"); 
+                
+                const res = await callGoogleAPI('analyzeBatchData', { patients: patients }); 
+                if (res.error) throw new Error(res.error); 
+                
+                globalAuditData = res.data; 
+                renderAuditTable(globalAuditData); 
+                document.getElementById('btnBatchAi').classList.remove('d-none'); 
+                
+            } catch (err) { 
+                document.getElementById('loadingAudit').classList.add('d-none'); 
+                errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i> ${err.message}`; 
+                errorAlert.classList.remove('d-none'); 
+            } 
+        }; 
+        reader.readAsArrayBuffer(fileInput.files[0]); 
+    }
+
+    function renderAuditTable(dataList) { const tbody = document.getElementById('auditTableBody'); tbody.innerHTML = ''; dataList.forEach((p, index) => { let statusBadge = p.status === 'ปกติ' ? `<span class="badge bg-success fs-6 px-3 py-2 shadow-sm"><i class="bi bi-check-circle me-1"></i> ปกติ</span>` : `<span class="badge bg-danger fs-6 px-3 py-2 shadow-sm badge-alert"><i class="bi bi-exclamation-triangle me-1"></i> ผิดปกติ (${p.mismatchCount})</span>`; tbody.innerHTML += `<tr><td class="td-center text-muted">${index + 1}</td><td class="td-center fw-bold text-dark">${p.an}</td><td class="td-center fw-bold text-secondary">${p.hn}</td><td class="td-center text-muted">${p.date}</td><td class="td-text text-dark">${p.rightStr}<br><span class="badge bg-info text-dark mt-1">สิทธิอ้างอิง: ${p.mappedRight}</span></td><td class="td-num fw-bold text-primary fs-6">${p.totalClaim.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-center">${statusBadge}</td><td class="td-center"><button class="btn btn-sm btn-outline-primary fw-bold px-3 py-1" onclick="openPatientDetail(${index})"><i class="bi bi-eye"></i> รายละเอียด</button></td></tr>`; }); document.getElementById('auditItemCount').textContent = `ตรวจสอบทั้งหมด ${dataList.length} ราย`; document.getElementById('loadingAudit').classList.add('d-none'); document.getElementById('auditSection').classList.remove('d-none'); }
     
-    async function runAiAnalysis(){let p=globalAuditData[currentPatientIndexForAI],btn=document.getElementById('btnAiAnalyze'),bx=document.getElementById('aiAnalysisResult');btn.innerHTML='วิเคราะห์...';btn.disabled=true;bx.classList.add('d-none');let d=p.devices.map(x=>({adpCode:x.adpCode,name:x.name,qty:x.qty}));let res=await callGoogleAPI('analyzeAnomalyWithAI',{devices:d});if(res.error)alert(res.error);else{bx.innerHTML=`<strong>AI:</strong><br>${res.result.replace(/\n/g,'<br>')}`;bx.classList.remove('d-none');}btn.innerHTML='วิเคราะห์ AI';btn.disabled=false;}
-    async function runBatchAiAnalysis(){let btn=document.getElementById('btnBatchAi'),bx=document.getElementById('batchAiAnalysisResult');btn.innerHTML='ประมวลผล...';btn.disabled=true;let ptxt=`วิเคราะห์ ${globalAuditData.length} ราย ผิดปกติ ${globalAuditData.filter(x=>x.status==='ผิดปกติ').length} ราย`;let res=await callGoogleAPI('generateAIResponse',{prompt:ptxt});if(!res.error){bx.innerHTML=`<strong>AI Batch:</strong><br>${res.result.replace(/\n/g,'<br>')}`;bx.classList.remove('d-none');}btn.innerHTML='วิเคราะห์ AI ภาพรวม';btn.disabled=false;}
+    function openPatientDetail(index) { 
+      currentPatientIndexForAI = index; 
+      const p = globalAuditData[index]; 
+      
+      let extraTitle = p.isPorRorBor ? ' <span class="ms-1 fw-bold text-light">(สิทธิ พรบ.)</span>' : '';
+      document.getElementById('modalTitle').innerHTML = `<i class="bi bi-person-lines-fill me-2"></i>รายละเอียดผู้ป่วย: AN <span class="text-warning">${p.an}</span> | HN <span class="text-warning">${p.hn}</span>${extraTitle}`; 
+      
+      let rightDisplay = p.mappedRight.toUpperCase();
+      if (p.isPorRorBor) rightDisplay += " <span class='text-danger'>(อ้างอิงราคา OFC ตามสิทธิ พ.ร.บ.)</span>";
+      document.getElementById('modalRightAlert').innerHTML = `<i class="bi bi-info-circle-fill me-2"></i> ระบบตรวจสอบและเปรียบเทียบราคากับคอลัมน์สิทธิ: <strong>${rightDisplay}</strong>`;
 
-    function processReportExcel(){let fi=document.getElementById('reportUpload'),ea=document.getElementById('errorReport');ea.classList.add('d-none');if(!fi.files.length)return ea.classList.remove('d-none');document.getElementById('loadingReport').classList.remove('d-none');let rd=new FileReader();rd.onload=e=>{try{let d=new Uint8Array(e.target.result),wb=XLSX.read(d,{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1}),ag={};for(let i=1;i<rows.length;i++){let tt=Object.values(rows[i]).join(" ");let m=tt.match(/\[(.*?)\]/g);if(m)for(let ib of m){let p=ib.replace(/\[|\]/g,'').split('|').map(s=>s.trim());if(p.length>=6&&p[1]==="02"){let q=parseFloat(p[4])||0,u=parseFloat(p[5])||0,t=parseFloat(p[6])||(q*u),ac="-",nm=p[3],cm=p[3].match(/^([A-Za-z0-9\-]+)\s+(.*)$/);if(cm){ac=cm[1];nm=cm[2];}let k=p[3]+"_"+u;if(!ag[k])ag[k]={code:ac,name:nm,rawName:p[3],qty:0,unitPrice:u,total:0};ag[k].qty+=q;ag[k].total+=t;}}}globalReportData=Object.values(ag).sort((a,b)=>b.total-a.total);renderReportTable(globalReportData);document.getElementById('loadingReport').classList.add('d-none');document.getElementById('reportSection').classList.remove('d-none');}catch(er){document.getElementById('loadingReport').classList.add('d-none');ea.innerHTML=er.message;ea.classList.remove('d-none');}};rd.readAsArrayBuffer(fi.files[0]);}
-    function renderReportTable(dl){let tb=document.getElementById('reportTableBody'),gq=0,gp=0;tb.innerHTML='';dl.forEach((it,i)=>{gq+=it.qty;gp+=it.total;tb.innerHTML+=`<tr><td class="td-center">${i+1}</td><td class="td-center">${it.code}</td><td class="td-text">${it.name}</td><td class="td-center">${it.qty}</td><td class="td-num">${it.unitPrice.toLocaleString()}</td><td class="td-num">${it.total.toLocaleString()}</td></tr>`;});document.getElementById('grandTotalQty').textContent=gq;document.getElementById('grandTotalPrice').textContent=gp.toLocaleString();}
-    function filterReportTable(){let c=document.getElementById('filterCode').value.toLowerCase(),n=document.getElementById('filterName').value.toLowerCase(),f=globalReportData.filter(i=>i.code.toLowerCase().includes(c)&&i.rawName.toLowerCase().includes(n));renderReportTable(f);}
-    function resetReportFilter(){document.getElementById('filterCode').value='';document.getElementById('filterName').value='';renderReportTable(globalReportData);}
+      const thead = document.getElementById('modalThead'); 
+      if(p.status === 'ผิดปกติ') { thead.className = "table-danger text-dark td-center align-middle"; } else { thead.className = "table-success text-dark td-center align-middle"; } 
+      const tbody = document.getElementById('modalTbody'); tbody.innerHTML = ''; 
+      p.devices.forEach(d => { 
+          let trClass = "", unitPriceCell = ""; 
+          if (d.isMismatch) { trClass = "table-warning border-warning"; unitPriceCell = `<td class="td-num"><div class="text-danger fw-bold fs-5">${d.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div><div class="badge bg-danger badge-alert mt-2 px-2 py-1 shadow-sm text-wrap lh-base" style="font-size:0.8rem;"><i class="bi bi-exclamation-triangle-fill"></i> อ้างอิง: ${d.coveredUnitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div></td>`; } else if (d.coveredUnitPrice === 0 && d.adpCode !== "-") { unitPriceCell = `<td class="td-num"><div class="text-dark">${d.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</div><div class="badge bg-secondary mt-1 px-2 py-1" style="font-size:0.7rem;">ไม่มีราคาในตาราง</div></td>`; } else { unitPriceCell = `<td class="td-num text-dark fw-bold">${d.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>`; } 
+          tbody.innerHTML += `<tr class="${trClass}"><td class="td-text fw-semibold">${d.name} <div class="text-muted small mt-1"><span class="badge bg-secondary">รหัส: ${d.adpCode}</span></div></td><td class="td-center fw-bold fs-5 text-primary">${d.qty}</td>${unitPriceCell}<td class="td-num text-dark fw-bold">${d.totalPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num text-success fw-bold">${(d.coveredUnitPrice * d.qty).toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num text-danger fw-bold fs-6">${d.excess.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>`; 
+      }); 
+      document.getElementById('modalTfoot').innerHTML = `<tr><td colspan="3" class="td-num fs-5 text-dark fw-bold">สรุปยอดรวม (Total):</td><td class="td-num fs-5 fw-bold text-dark">${p.totalCost.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num fs-5 fw-bold text-success">${p.totalCovered.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num fs-5 fw-bold text-danger">${p.totalExcess.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>`; 
+      
+      document.getElementById('aiAnalysisResult').classList.add('d-none');
+      document.getElementById('aiAnalysisResult').innerHTML = '';
+      document.getElementById('btnAiAnalyze').disabled = false;
+      document.getElementById('btnAiAnalyze').innerHTML = '<i class="bi bi-robot"></i> วิเคราะห์ความสมเหตุสมผลด้วย AI (Gemini)';
 
-    async function processSyncFile(){let fi=document.getElementById('syncUpload'),ea=document.getElementById('errorSync');selectedRightsToUpdate=document.getElementById('syncRightsTarget').value.split(',');ea.classList.add('d-none');if(!fi.files.length)return ea.classList.remove('d-none');document.getElementById('loadingSync').classList.remove('d-none');let rd=new FileReader();rd.onload=async e=>{try{let d=new Uint8Array(e.target.result),up=[];if(fi.files[0].name.toLowerCase().endsWith('.pdf')){let pdf=await pdfjsLib.getDocument(d).promise,ft="";for(let i=1;i<=pdf.numPages;i++){let pg=await pdf.getPage(i),tc=await pg.getTextContent();ft+=tc.items.map(x=>x.str.trim()).filter(x=>x.length>0).join(" ")+" \n ";}ft=ft.replace(/\s+/g,' ');let m=[...ft.matchAll(/\b([0-9]{4}[A-Z]?)\b/g)].filter(x=>!['2568','2569','2566','2567','1000','2000','3000','4000','5000','6000','7000','8000','9000'].includes(x[1]));for(let i=0;i<m.length;i++){let c=m[i][1],st=m[i].index+c.length,nd=i+1<m.length?m[i+1].index:ft.length,bl=ft.substring(st,nd),pr=null,cm=[...bl.matchAll(/\b([1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]{1,2})?)\b/g)];if(cm.length>0)pr=parseFloat(cm[cm.length-1][1].replace(/,/g,''));else{let um=bl.match(/(?:ชุด|แผ่น|อัน|เส้น|ข้อ|หลอด|ครั้ง|ชิ้น|คู่|ซีซี|ซม\.?|ถุง|ระดับ|ขวด|เครื่อง)\s*ละ\s*([1-9][0-9]*(?:\.[0-9]{1,2})?)/);if(um)pr=parseFloat(um[1].replace(/,/g,''));}if(pr&&pr>0&&!up.find(x=>x.code===c))up.push({code:c,price:pr});}}else{let wb=XLSX.read(d,{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1}),ci=-1,pi=-1;for(let i=0;i<Math.min(10,rows.length);i++){let r=rows[i];for(let j=0;j<r.length;j++){let v=(r[j]||'').toString().replace(/\s/g,'');if(v.includes('รหัส'))ci=j;if(v.includes('อัตรา')||v.includes('ราคา'))pi=j;}if(ci!==-1&&pi!==-1){for(let x=i+1;x<rows.length;x++)if(rows[x][ci]&&rows[x][pi]!=="")up.push({code:rows[x][ci].toString().trim(),price:parseFloat(rows[x][pi].toString().replace(/,/g,''))||0});break;}}}if(up.length===0)throw new Error("ไม่พบราคา");let res=await callGoogleAPI('searchSheet1Data',{code:'',name:''});if(res.error)throw new Error(res.error);currentSyncList=[];let tb=document.getElementById('syncTableBody');tb.innerHTML='';let pr=selectedRightsToUpdate[0].toLowerCase();up.forEach(u=>{let fc=res.data.find(c=>c.code.toLowerCase()===u.code.toLowerCase());if(fc&&fc[pr]!==u.price&&!currentSyncList.find(x=>x.code===u.code)){currentSyncList.push({code:u.code,newPrice:u.price});let idx=currentSyncList.length-1;tb.innerHTML+=`<tr><td class="td-center">${u.code}</td><td>${fc.name}</td><td class="td-num text-danger text-decoration-line-through">${fc[pr]}</td><td class="td-num text-success fw-bold">${u.price}</td><td class="td-center"><button class="btn btn-sm btn-success" id="btnSync-${idx}" onclick="updateSinglePrice(${idx})">อัปเดต</button></td></tr>`;}});document.getElementById('loadingSync').classList.add('d-none');document.getElementById('syncSection').classList.remove('d-none');}catch(er){document.getElementById('loadingSync').classList.add('d-none');ea.innerHTML=er.message;ea.classList.remove('d-none');}};rd.readAsArrayBuffer(fi.files[0]);}
-    async function updateSinglePrice(i){let u=currentSyncList[i],b=document.getElementById(`btnSync-${i}`);b.disabled=true;let r=await callGoogleAPI('updateSheet1Prices',{updates:[u],rights:selectedRightsToUpdate});if(!r.error){b.classList.replace('btn-success','btn-secondary');b.innerHTML='สำเร็จ';}}
+      const modal = new bootstrap.Modal(document.getElementById('patientDetailModal')); 
+      modal.show(); 
+    }
 
-    // ================= 7. ฟังก์ชัน Dashboard =================
-    async function fetchDashboardData() {
-        const ea = document.getElementById('errorDashboard'), sc = document.getElementById('dashboardSection'), ld = document.getElementById('loadingDashboard');
-        ea.classList.add('d-none'); sc.classList.add('d-none'); ld.classList.remove('d-none');
+    async function runAiAnalysis() {
+        if(currentPatientIndexForAI === -1) return;
+        const p = globalAuditData[currentPatientIndexForAI];
+        const btn = document.getElementById('btnAiAnalyze');
+        const resultBox = document.getElementById('aiAnalysisResult');
+        
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> AI กำลังวิเคราะห์...';
+        btn.disabled = true;
+        resultBox.classList.add('d-none');
+        
         try {
-            const res = await callGoogleAPI('getDashboardData', {});
+            const devicesForAi = p.devices.map(d => ({ adpCode: d.adpCode, name: d.name, qty: d.qty }));
+            const res = await callGoogleAPI('analyzeAnomalyWithAI', { devices: devicesForAi });
             if (res.error) throw new Error(res.error);
-            renderDashboard(res.monthly || [], res.total || [], res.ipUsage || []);
-            ld.classList.add('d-none'); sc.classList.remove('d-none');
+            const formattedText = res.result.replace(/\n/g, '<br>');
+            resultBox.innerHTML = `<strong><i class="bi bi-stars text-warning"></i> ความเห็นจาก AI Medical Auditor:</strong><br><br>${formattedText}`;
+            resultBox.classList.remove('d-none');
         } catch (e) {
-            ld.classList.add('d-none'); ea.innerHTML = e.message; ea.classList.remove('d-none');
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเชื่อมต่อ AI', text: e.message });
+        } finally {
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> วิเคราะห์อีกครั้ง';
+            btn.disabled = false;
         }
     }
 
-    function renderDashboard(monthlyData, totalData, ipUsageData) {
-        let sumOpCount = 0, sumOpComp = 0, sumIpCount = 0, sumIpComp = 0;
-        let labelsMonth = [], opCompTrend = [], ipCompTrend = [];
+    async function runBatchAiAnalysis() {
+        const btn = document.getElementById('btnBatchAi');
+        const resultBox = document.getElementById('batchAiAnalysisResult');
         
-        let mData = monthlyData.length > 0 ? monthlyData : (totalData.length > 0 ? totalData : []);
-        if (mData.length > 0) {
-            const kMonth = Object.keys(mData[0]).find(k => k.includes("เดือน"));
-            const kOpCount = Object.keys(mData[0]).find(k => k.includes("OP(ครั้ง)") || k.includes("OP-จำนวน"));
-            const kOpComp = Object.keys(mData[0]).find(k => k.includes("OP(ชดเชย)") || k.includes("OP-ชดเชย"));
-            const kIpCount = Object.keys(mData[0]).find(k => k.includes("IP(ครั้ง)") || k.includes("IP-จำนวน"));
-            const kIpComp = Object.keys(mData[0]).find(k => k.includes("IP(ชดเชย)") || k.includes("IP-ชดเชย"));
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> AI กำลังประมวลผลข้อมูลทั้งชุด...';
+        btn.disabled = true;
+        resultBox.classList.add('d-none');
+        
+        try {
+            let promptText = "ในฐานะ Medical Auditor และ Data Analyst โปรดสรุปและวิเคราะห์ภาพรวมการเบิกจ่ายอุปกรณ์การแพทย์จากชุดข้อมูลต่อไปนี้:\n\n";
+            let totalPatients = globalAuditData.length;
+            let mismatchPatients = globalAuditData.filter(p => p.status === 'ผิดปกติ');
+            promptText += `ข้อมูลสรุป: ตรวจสอบทั้งหมด ${totalPatients} ราย พบผู้ป่วยที่มีข้อมูลราคาเบิกผิดปกติ ${mismatchPatients.length} ราย\n\n`;
             
-            mData.forEach(row => {
-                if (kMonth && row[kMonth]) labelsMonth.push(row[kMonth]);
-                let opc = parseFloat(row[kOpComp]) || 0, ipc = parseFloat(row[kIpComp]) || 0;
-                if(kMonth){ opCompTrend.push(opc); ipCompTrend.push(ipc); }
-                sumOpCount += parseFloat(row[kOpCount]) || 0; sumOpComp += opc;
-                sumIpCount += parseFloat(row[kIpCount]) || 0; sumIpComp += ipc;
+            if (mismatchPatients.length > 0) {
+                promptText += "รายการตัวอย่างที่พบราคาไม่ตรงกับตารางประกาศ (ไฮไลท์):\n";
+                mismatchPatients.slice(0, 30).forEach(p => { 
+                    promptText += `- ผู้ป่วย AN: ${p.an} (สิทธิ ${p.mappedRight})\n`;
+                    p.devices.filter(d => d.isMismatch).forEach(d => {
+                        promptText += `  * รหัส ${d.adpCode} | จำนวน ${d.qty} | เบิก ${d.unitPrice} ฿ (อ้างอิง ${d.coveredUnitPrice} ฿)\n`;
+                    });
+                });
+                if(mismatchPatients.length > 30) promptText += `- ...และอื่นๆ อีก ${mismatchPatients.length - 30} ราย\n`;
+            }
+
+            let overUtilized = [];
+            globalAuditData.forEach(p => {
+                p.devices.forEach(d => {
+                    if(d.qty > 2) overUtilized.push(`- AN: ${p.an} | รหัส ${d.adpCode} | จำนวน: ${d.qty} ชิ้น`);
+                });
+            });
+            if(overUtilized.length > 0) {
+                promptText += "\nรายการที่พบการเบิกจำนวนมากกว่า 2 ชิ้นต่อครั้ง (อาจมีการใช้เกินความจำเป็น หรือเป็นกลุ่มวัสดุสิ้นเปลือง):\n";
+                overUtilized.slice(0, 30).forEach(item => promptText += item + "\n");
+            }
+
+            promptText += "\nคำสั่ง: โปรดวิเคราะห์ความเสี่ยงที่พบ (เช่น สาเหตุที่ราคาเบิกสูงกว่ากำหนด, ความผิดปกติของจำนวนชิ้น) และให้ข้อเสนอแนะในการปฏิบัติงานเพื่อป้องกันการสูญเสียรายได้ของโรงพยาบาล (ตอบเป็นภาษาไทยเชิงวิชาชีพ จัดรูปแบบให้อ่านง่าย)";
+
+            const res = await callGoogleAPI('generateAIResponse', { prompt: promptText });
+            if (res.error) throw new Error(res.error);
+            
+            const formattedText = res.result.replace(/\n/g, '<br>');
+            resultBox.innerHTML = `<h5 class="text-primary fw-bold"><i class="bi bi-robot me-2"></i> สรุปภาพรวมและข้อเสนอแนะจาก AI (Batch Analysis)</h5><hr>${formattedText}`;
+            resultBox.classList.remove('d-none');
+            
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาดในการเชื่อมต่อ AI', text: e.message });
+        } finally {
+            btn.innerHTML = '<i class="bi bi-stars me-1"></i> วิเคราะห์ภาพรวมด้วย AI (อีกครั้ง)';
+            btn.disabled = false;
+        }
+    }
+
+    // ================= 5. รายงานประจำปี 2569 (Report) =================
+    function processReportExcel() { const fileInput = document.getElementById('reportUpload'); const errorAlert = document.getElementById('errorReport'); const section = document.getElementById('reportSection'); errorAlert.classList.add('d-none'); section.classList.add('d-none'); if (!fileInput.files.length) { errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ข้อมูลการใช้อุปกรณ์ก่อนครับ'; errorAlert.classList.remove('d-none'); return; } document.getElementById('loadingReport').classList.remove('d-none'); const reader = new FileReader(); reader.onload = function(e) { try { const data = new Uint8Array(e.target.result); const workbook = XLSX.read(data, {type: 'array'}); const sheetName = workbook.SheetNames[0]; const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1}); let aggregated = {}; for (let i = 1; i < rows.length; i++) { let rowData = Object.values(rows[i]); let targetText = ""; for(let cell of rowData) { if(typeof cell === 'string' && cell.includes("[") && cell.includes("| 02 |")) { targetText += cell + " "; } } if (!targetText) continue; let itemMatches = targetText.match(/\[(.*?)\]/g); if(itemMatches) { for(let itemBlock of itemMatches) { let cleanText = itemBlock.replace(/\[|\]/g, '').trim(); let parts = cleanText.split('|').map(s => s.trim()); if(parts.length >= 6 && parts[1] === "02") { let rawName = parts[3]; let qty = parseFloat(parts[4]) || 0; let unitPrice = parseFloat(parts[5]) || 0; let totalPrice = parts.length >= 7 ? parseFloat(parts[6]) || (qty * unitPrice) : (qty * unitPrice); let code = "-"; let name = rawName; let codeMatch = rawName.match(/^([A-Za-z0-9\-]+)\s+(.*)$/); if(codeMatch) { code = codeMatch[1]; name = codeMatch[2]; } let key = rawName + "_" + unitPrice; if (!aggregated[key]) { aggregated[key] = { code: code, name: name, rawName: rawName, qty: 0, unitPrice: unitPrice, total: 0 }; } aggregated[key].qty += qty; aggregated[key].total += totalPrice; } } } } globalReportData = Object.values(aggregated); if(globalReportData.length === 0) throw new Error("ไม่พบข้อมูลการใช้อุปกรณ์หมวด 02 ในไฟล์นี้ครับ"); globalReportData.sort((a, b) => { let nameA = a.name.toLowerCase(); let nameB = b.name.toLowerCase(); if (nameA < nameB) return -1; if (nameA > nameB) return 1; return a.unitPrice - b.unitPrice; }); renderReportTable(globalReportData); document.getElementById('loadingReport').classList.add('d-none'); section.classList.remove('d-none'); } catch (err) { document.getElementById('loadingReport').classList.add('d-none'); errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i>เกิดข้อผิดพลาด: ${err.message}`; errorAlert.classList.remove('d-none'); } }; reader.readAsArrayBuffer(fileInput.files[0]); }
+    function renderReportTable(dataList) { const tbody = document.getElementById('reportTableBody'); tbody.innerHTML = ''; let grandQty = 0, grandPrice = 0; dataList.forEach((item, index) => { grandQty += item.qty; grandPrice += item.total; tbody.innerHTML += `<tr><td class="td-center text-muted">${index + 1}</td><td class="td-center fw-bold text-secondary">${item.code}</td><td class="td-text fw-semibold text-dark">${item.name}</td><td class="td-center fw-bold fs-5 text-primary">${item.qty.toLocaleString()}</td><td class="td-num text-muted">${item.unitPrice.toLocaleString(undefined, {minimumFractionDigits: 2})}</td><td class="td-num fw-bold text-dark">${item.total.toLocaleString(undefined, {minimumFractionDigits: 2})}</td></tr>`; }); document.getElementById('reportItemCount').textContent = `แสดง ${dataList.length} รายการ`; document.getElementById('grandTotalQty').textContent = grandQty.toLocaleString(); document.getElementById('grandTotalPrice').textContent = grandPrice.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' ฿'; }
+    function filterReportTable() { const codeQuery = document.getElementById('filterCode').value.toLowerCase().trim(); const nameQuery = document.getElementById('filterName').value.toLowerCase().trim(); const filtered = globalReportData.filter(item => { const matchCode = item.code.toLowerCase().includes(codeQuery); const matchName = item.name.toLowerCase().includes(nameQuery) || item.rawName.toLowerCase().includes(nameQuery); return matchCode && matchName; }); renderReportTable(filtered); }
+    function resetReportFilter() { document.getElementById('filterCode').value = ''; document.getElementById('filterName').value = ''; renderReportTable(globalReportData); }
+
+    // ================= 6. อัปเดตราคาตามประกาศ =================
+    async function processSyncFile() {
+      const fileInput = document.getElementById('syncUpload');
+      const errorAlert = document.getElementById('errorSync');
+      const section = document.getElementById('syncSection');
+      const rightsVal = document.getElementById('syncRightsTarget').value;
+      selectedRightsToUpdate = rightsVal.split(',');
+      
+      errorAlert.classList.add('d-none'); section.classList.add('d-none');
+      
+      if (!fileInput.files.length) { 
+          errorAlert.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i> กรุณาเลือกไฟล์ PDF หรือ Excel ประกาศราคาใหม่ก่อนครับ'; 
+          errorAlert.classList.remove('d-none'); 
+          return; 
+      }
+
+      document.getElementById('loadingSync').classList.remove('d-none');
+      document.getElementById('syncLoadingText').innerText = "กำลังอ่านและประมวลผลไฟล์...";
+
+      const file = fileInput.files[0];
+      const fileName = file.name.toLowerCase();
+      const fileReader = new FileReader();
+
+      fileReader.onload = async function(e) {
+          try {
+              let rawUpdates = [];
+
+              if (fileName.endsWith('.pdf')) {
+                  document.getElementById('syncLoadingText').innerText = "กำลังอ่านข้อความจากไฟล์ PDF...";
+                  const typedarray = new Uint8Array(e.target.result);
+                  const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                  let fullText = "";
+                  
+                  for (let i = 1; i <= pdf.numPages; i++) {
+                      const page = await pdf.getPage(i);
+                      const textContent = await page.getTextContent();
+                      const pageStrings = textContent.items.map(item => item.str.trim()).filter(s => s.length > 0);
+                      fullText += pageStrings.join(" ") + " \n ";
+                  }
+                  fullText = fullText.replace(/\s+/g, ' ');
+
+                  document.getElementById('syncLoadingText').innerText = "กำลังสกัดรหัสและราคาด้วยความแม่นยำสูง...";
+                  
+                  const codePattern = /\b([0-9]{4}[A-Z]?)\b/g;
+                  const matches = [...fullText.matchAll(codePattern)];
+                  const ignoreCodes = ['2568', '2569', '2566', '2567', '1000', '2000', '3000', '4000', '5000', '6000', '7000', '8000', '9000'];
+                  
+                  let validMatches = matches.filter(m => !ignoreCodes.includes(m[1]));
+
+                  for (let i = 0; i < validMatches.length; i++) {
+                      let code = validMatches[i][1];
+                      let start = validMatches[i].index + code.length;
+                      let nextIndex = (i + 1 < validMatches.length) ? validMatches[i+1].index : fullText.length;
+                      
+                      let block = fullText.substring(start, nextIndex);
+                      let price = null;
+
+                      let commaMatches = [...block.matchAll(/\b([1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]{1,2})?)\b/g)];
+                      if (commaMatches.length > 0) {
+                          price = parseFloat(commaMatches[commaMatches.length - 1][1].replace(/,/g, ''));
+                      } 
+                      else {
+                          let unitMatch = block.match(/(?:ชุด|แผ่น|อัน|เส้น|ข้อ|หลอด|ครั้ง|ชิ้น|คู่|ซีซี|ซม\.?|ถุง|ระดับ|ขวด|เครื่อง)\s*ละ\s*([1-9][0-9]*(?:\.[0-9]{1,2})?)/);
+                          if (unitMatch) {
+                              price = parseFloat(unitMatch[1].replace(/,/g, ''));
+                          }
+                      }
+
+                      if (price !== null && price > 0 && !rawUpdates.find(u => u.code === code)) {
+                          rawUpdates.push({ code: code, price: price });
+                      }
+                  }
+              } 
+              else if (fileName.endsWith('.xls') || fileName.endsWith('.xlsx')) {
+                  document.getElementById('syncLoadingText').innerText = "กำลังอ่านข้อมูลจากตาราง Excel...";
+                  const data = new Uint8Array(e.target.result);
+                  const workbook = XLSX.read(data, {type: 'array'});
+                  const sheetName = workbook.SheetNames[0];
+                  const rows = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], {header: 1});
+
+                  let codeIdx = -1, priceIdx = -1;
+                  for (let i = 0; i < Math.min(10, rows.length); i++) {
+                     let row = rows[i];
+                     for(let j=0; j<row.length; j++) {
+                        let val = (row[j]||'').toString().replace(/\s/g, '');
+                        if(val.includes('รหัส')) codeIdx = j;
+                        if(val.includes('อัตรา') || val.includes('ราคา')) priceIdx = j;
+                     }
+                     if(codeIdx !== -1 && priceIdx !== -1) {
+                         for(let r = i+1; r < rows.length; r++) {
+                             let c = rows[r][codeIdx];
+                             let p = rows[r][priceIdx];
+                             if (c && p !== undefined && p !== "") {
+                                 rawUpdates.push({
+                                     code: c.toString().trim(),
+                                     price: parseFloat(p.toString().replace(/,/g, '')) || 0
+                                 });
+                             }
+                         }
+                         break;
+                     }
+                  }
+              } 
+              else {
+                  throw new Error("นามสกุลไฟล์ไม่รองรับ กรุณาเลือกไฟล์ .pdf, .xls หรือ .xlsx เท่านั้นครับ");
+              }
+
+              if (rawUpdates.length === 0) throw new Error('ไม่พบข้อมูลรหัสและราคาในรูปแบบตารางจากไฟล์นี้ครับ');
+
+              document.getElementById('syncLoadingText').innerText = "กำลังเทียบราคากับฐานข้อมูล ชีต1...";
+              await compareAndRenderDifferences(rawUpdates);
+
+          } catch (err) {
+              document.getElementById('loadingSync').classList.add('d-none');
+              errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i> ${err.message}`; 
+              errorAlert.classList.remove('d-none');
+          }
+      };
+      fileReader.readAsArrayBuffer(file);
+    }
+
+    async function compareAndRenderDifferences(uploadedUpdates) {
+      const res = await callGoogleAPI('searchSheet1Data', { code: '', name: '' });
+      if (res.error) throw new Error(res.error);
+      
+      const currentData = res.data;
+      currentSyncList = []; 
+      const tbody = document.getElementById('syncTableBody');
+      tbody.innerHTML = '';
+      
+      let primaryRight = selectedRightsToUpdate[0].toLowerCase();
+      let diffCount = 0;
+
+      uploadedUpdates.forEach(upd => {
+          let foundCurrent = currentData.find(c => c.code.toLowerCase() === upd.code.toLowerCase());
+          if (foundCurrent) {
+              let oldPrice = foundCurrent[primaryRight];
+              if (oldPrice !== upd.price) {
+                  if (!currentSyncList.find(p => p.code === upd.code)) {
+                      currentSyncList.push({ code: upd.code, newPrice: upd.price });
+                      let idx = currentSyncList.length - 1; 
+                      
+                      tbody.innerHTML += `<tr id="syncRow-${idx}" class="row-highlight">
+                        <td class="td-center fw-bold">${upd.code}</td>
+                        <td class="td-text fw-semibold">${foundCurrent.name}</td>
+                        <td class="td-num text-danger text-decoration-line-through">${oldPrice.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+                        <td class="td-num text-success fw-bold fs-5">${upd.price.toLocaleString(undefined, {minimumFractionDigits:2})}</td>
+                        <td class="td-center">
+                           <button id="btnSync-${idx}" class="btn btn-sm btn-success fw-bold px-3 shadow-sm" onclick="updateSinglePrice(${idx})">
+                             <i class="bi bi-cloud-arrow-up-fill"></i> อัปเดตราคานี้
+                           </button>
+                        </td>
+                      </tr>`;
+                      diffCount++;
+                  }
+              }
+          }
+      });
+
+      if (diffCount === 0) {
+          tbody.innerHTML = `<tr><td colspan="5" class="text-center text-success py-5 fs-5"><i class="bi bi-check-circle-fill fs-1 d-block mb-2"></i><strong>ไม่พบรายการเปลี่ยนแปลง</strong><br><span class="text-muted fs-6">ราคาในระบบปัจจุบันตรงกับประกาศทุกรายการแล้ว</span></td></tr>`;
+      }
+      
+      document.getElementById('loadingSync').classList.add('d-none');
+      document.getElementById('syncSection').classList.remove('d-none');
+    }
+
+    async function updateSinglePrice(index) {
+        const itemToUpdate = currentSyncList[index];
+        const btn = document.getElementById(`btnSync-${index}`);
+        const row = document.getElementById(`syncRow-${index}`);
+        
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+        btn.disabled = true;
+
+        try {
+            const res = await callGoogleAPI('updateSheet1Prices', { 
+                updates: [itemToUpdate], 
+                rights: selectedRightsToUpdate 
+            });
+            
+            if (res.error) throw new Error(res.error);
+            
+            row.classList.remove('row-highlight');
+            btn.classList.replace('btn-success', 'btn-outline-secondary');
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i> อัปเดตแล้ว';
+            
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: `อัปเดตรหัส ${itemToUpdate.code} สำเร็จ`,
+                showConfirmButton: false,
+                timer: 2000
+            });
+
+        } catch (e) {
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: e.message });
+            btn.innerHTML = '<i class="bi bi-cloud-arrow-up-fill"></i> ลองใหม่';
+            btn.disabled = false;
+        }
+    }
+
+    // ================= 7. แดชบอร์ด (ดึงข้อมูลอัตโนมัติ) =================
+    async function fetchDashboardData() {
+        const errorAlert = document.getElementById('errorDashboard');
+        const section = document.getElementById('dashboardSection');
+        const loading = document.getElementById('loadingDashboard');
+        
+        errorAlert.classList.add('d-none');
+        section.classList.add('d-none');
+        loading.classList.remove('d-none');
+        
+        try {
+            const res = await callGoogleAPI('getDashboardData', {});
+            
+            if (res.error) {
+                loading.classList.add('d-none');
+                errorAlert.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i>${res.error}`;
+                errorAlert.classList.remove('d-none');
+                return;
+            }
+            
+            renderDashboard(res.monthly || [], res.total || []);
+            loading.classList.add('d-none');
+            section.classList.remove('d-none');
+            
+        } catch (e) {
+            loading.classList.add('d-none');
+            errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i>เกิดข้อผิดพลาดในการดึงข้อมูล: ${e.message}`;
+            errorAlert.classList.remove('d-none');
+        }
+    }
+
+    function renderDashboard(monthlyData, totalData) {
+        let sumOpCount = 0, sumOpComp = 0, sumIpCount = 0, sumIpComp = 0;
+        let labelsMonth = [];
+        let opCompTrend = [];
+        let ipCompTrend = [];
+        
+        // ประมวลผลข้อมูลรายเดือน (Monthly)
+        if (monthlyData.length > 0) {
+            const keys = Object.keys(monthlyData[0]);
+            const kMonth = keys.find(k => k.includes("เดือน"));
+            const kOpCount = keys.find(k => k.includes("OP(ครั้ง)") || k.includes("OP-จำนวน"));
+            const kOpComp = keys.find(k => k.includes("OP(ชดเชย)") || k.includes("OP-ชดเชย"));
+            const kIpCount = keys.find(k => k.includes("IP(ครั้ง)") || k.includes("IP-จำนวน"));
+            const kIpComp = keys.find(k => k.includes("IP(ชดเชย)") || k.includes("IP-ชดเชย"));
+            
+            monthlyData.forEach(row => {
+                if (!row[kMonth]) return;
+                labelsMonth.push(row[kMonth]);
+                let opComp = parseFloat(row[kOpComp]) || 0;
+                let ipComp = parseFloat(row[kIpComp]) || 0;
+                
+                opCompTrend.push(opComp);
+                ipCompTrend.push(ipComp);
+                
+                sumOpCount += parseFloat(row[kOpCount]) || 0;
+                sumOpComp += opComp;
+                sumIpCount += parseFloat(row[kIpCount]) || 0;
+                sumIpComp += ipComp;
+            });
+        }
+        
+        // ถ้าไม่มีรายเดือน ให้ใช้ข้อมูลสรุปรวมมาโชว์ตัวเลขแทน
+        if (monthlyData.length === 0 && totalData.length > 0) {
+            const keys = Object.keys(totalData[0]);
+            const kOpCount = keys.find(k => k.includes("OP-จำนวน"));
+            const kOpComp = keys.find(k => k.includes("OP-ชดเชย"));
+            const kIpCount = keys.find(k => k.includes("IP-จำนวน"));
+            const kIpComp = keys.find(k => k.includes("IP-ชดเชย"));
+            
+            totalData.forEach(row => {
+                sumOpCount += parseFloat(row[kOpCount]) || 0;
+                sumOpComp += parseFloat(row[kOpComp]) || 0;
+                sumIpCount += parseFloat(row[kIpCount]) || 0;
+                sumIpComp += parseFloat(row[kIpComp]) || 0;
             });
         }
 
@@ -320,36 +1085,505 @@
         document.getElementById('dashIpCount').textContent = sumIpCount.toLocaleString();
         document.getElementById('dashIpComp').textContent = sumIpComp.toLocaleString(undefined, {minimumFractionDigits: 2});
         
-        let lOp = [], dOp = [], lIp = [], dIp = [];
+        let labelsOpItems = [], dataOpValue = [];
+        let labelsIpItems = [], dataIpValue = [];
+        
+        // ประมวลผลข้อมูลสรุป (Total) สำหรับแยก OP และ IP
         if (totalData.length > 0) {
             const keys = Object.keys(totalData[0]);
-            const kItem = keys.find(k => k.includes("รายการ")), kOpC = keys.find(k => k.includes("OP-ชดเชย")), kIpC = keys.find(k => k.includes("IP-ชดเชย"));
-            let pOp = totalData.map(r => ({ name: r[kItem]?r[kItem].toString():"", v: parseFloat(r[kOpC])||0 })).filter(i => i.v>0).sort((a,b)=>b.v-a.v).slice(0,10);
-            lOp = pOp.map(i => i.name.substring(0, 25)); dOp = pOp.map(i => i.v);
-            let pIp = totalData.map(r => ({ name: r[kItem]?r[kItem].toString():"", v: parseFloat(r[kIpC])||0 })).filter(i => i.v>0).sort((a,b)=>b.v-a.v).slice(0,10);
-            lIp = pIp.map(i => i.name.substring(0, 25)); dIp = pIp.map(i => i.v);
-        }
+            const kItem = keys.find(k => k.includes("รายการ"));
+            const kOpComp = keys.find(k => k.includes("OP-ชดเชย"));
+            const kIpComp = keys.find(k => k.includes("IP-ชดเชย"));
+            
+            // ชุดข้อมูล OP
+            let parsedOpItems = totalData.map(row => ({
+                name: row[kItem] ? row[kItem].toString() : "Unknown",
+                value: parseFloat(row[kOpComp]) || 0
+            })).filter(item => item.value > 0);
+            
+            parsedOpItems.sort((a, b) => b.value - a.value);
+            let top10Op = parsedOpItems.slice(0, 10);
+            labelsOpItems = top10Op.map(item => item.name.length > 25 ? item.name.substring(0, 25) + '...' : item.name);
+            dataOpValue = top10Op.map(item => item.value);
 
-        let lIpU = [], dIpU = [];
-        if (ipUsageData.length > 0) {
-            const keys = Object.keys(ipUsageData[0]);
-            const kItem = keys.find(k => k.includes("รายการ")||k.includes("ชื่อ"))||keys[0];
-            const kQty = keys.find(k => k.includes("จำนวน")||k.includes("ปริมาณ"))||keys[1];
-            let pU = ipUsageData.map(r => ({ name: r[kItem]?r[kItem].toString():"", v: parseFloat(r[kQty])||0 })).filter(i => i.v>0).sort((a,b)=>b.v-a.v).slice(0,10);
-            lIpU = pU.map(i => i.name.substring(0, 25)); dIpU = pU.map(i => i.v);
+            // ชุดข้อมูล IP
+            let parsedIpItems = totalData.map(row => ({
+                name: row[kItem] ? row[kItem].toString() : "Unknown",
+                value: parseFloat(row[kIpComp]) || 0
+            })).filter(item => item.value > 0);
+            
+            parsedIpItems.sort((a, b) => b.value - a.value);
+            let top10Ip = parsedIpItems.slice(0, 10);
+            labelsIpItems = top10Ip.map(item => item.name.length > 25 ? item.name.substring(0, 25) + '...' : item.name);
+            dataIpValue = top10Ip.map(item => item.value);
         }
         
+        renderCharts(labelsMonth, opCompTrend, ipCompTrend, labelsOpItems, dataOpValue, labelsIpItems, dataIpValue);
+    }
+
+    function renderCharts(labelsMonth, opCompTrend, ipCompTrend, labelsOpItems, dataOpValue, labelsIpItems, dataIpValue) {
+        // กราฟ Monthly
         if (monthlyChartInstance) monthlyChartInstance.destroy();
-        monthlyChartInstance = new Chart(document.getElementById('monthlyChart').getContext('2d'), { type: 'bar', data: { labels: labelsMonth.length?labelsMonth:['N/A'], datasets: [{ label: 'OP', data: opCompTrend.length?opCompTrend:[0], backgroundColor: '#0d6efd' }, { label: 'IP', data: ipCompTrend.length?ipCompTrend:[0], backgroundColor: '#dc3545' }] } });
+        const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+        monthlyChartInstance = new Chart(ctxMonthly, {
+            type: 'bar',
+            data: {
+                labels: labelsMonth.length > 0 ? labelsMonth : ['ไม่มีข้อมูลรายเดือน'],
+                datasets: [
+                    {
+                        label: 'ยอดชดเชย OP',
+                        data: opCompTrend.length > 0 ? opCompTrend : [0],
+                        backgroundColor: 'rgba(13, 110, 253, 0.7)',
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'ยอดชดเชย IP',
+                        data: ipCompTrend.length > 0 ? ipCompTrend : [0],
+                        backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString(); } } } },
+                plugins: { tooltip: { callbacks: { label: function(context) { return context.dataset.label + ': ' + context.raw.toLocaleString() + ' บาท'; } } } }
+            }
+        });
         
+        // กราฟ Top 10 OP
         if (topItemsOpChartInstance) topItemsOpChartInstance.destroy();
-        topItemsOpChartInstance = new Chart(document.getElementById('topItemsOpChart').getContext('2d'), { type: 'bar', data: { labels: lOp.length?lOp:['N/A'], datasets: [{ label: 'OP (บาท)', data: dOp.length?dOp:[0], backgroundColor: '#198754' }] }, options: { indexAxis: 'y' } });
+        const ctxTopOp = document.getElementById('topItemsOpChart').getContext('2d');
+        topItemsOpChartInstance = new Chart(ctxTopOp, {
+            type: 'bar',
+            data: {
+                labels: labelsOpItems.length > 0 ? labelsOpItems : ['ไม่มีข้อมูล'],
+                datasets: [{
+                    label: 'ยอดเงินชดเชย OP (บาท)',
+                    data: dataOpValue.length > 0 ? dataOpValue : [0],
+                    backgroundColor: 'rgba(25, 135, 84, 0.7)',
+                    borderColor: 'rgba(25, 135, 84, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                scales: { x: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString(); } } } },
+                plugins: { tooltip: { callbacks: { label: function(context) { return context.raw.toLocaleString() + ' บาท'; } } } }
+            }
+        });
 
+        // กราฟ Top 10 IP
         if (topItemsIpChartInstance) topItemsIpChartInstance.destroy();
-        topItemsIpChartInstance = new Chart(document.getElementById('topItemsIpChart').getContext('2d'), { type: 'bar', data: { labels: lIp.length?lIp:['N/A'], datasets: [{ label: 'IP (บาท)', data: dIp.length?dIp:[0], backgroundColor: '#dc3545' }] }, options: { indexAxis: 'y' } });
+        const ctxTopIp = document.getElementById('topItemsIpChart').getContext('2d');
+        topItemsIpChartInstance = new Chart(ctxTopIp, {
+            type: 'bar',
+            data: {
+                labels: labelsIpItems.length > 0 ? labelsIpItems : ['ไม่มีข้อมูล'],
+                datasets: [{
+                    label: 'ยอดเงินชดเชย IP (บาท)',
+                    data: dataIpValue.length > 0 ? dataIpValue : [0],
+                    backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                    borderColor: 'rgba(220, 53, 69, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                scales: { x: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString(); } } } },
+                plugins: { tooltip: { callbacks: { label: function(context) { return context.raw.toLocaleString() + ' บาท'; } } } }
 
-        if (topItemsIpUsageChartInstance) topItemsIpUsageChartInstance.destroy();
-        topItemsIpUsageChartInstance = new Chart(document.getElementById('topItemsIpUsageChart').getContext('2d'), { type: 'bar', data: { labels: lIpU.length?lIpU:['N/A'], datasets: [{ label: 'IP Usage (ชิ้น)', data: dIpU.length?dIpU:[0], backgroundColor: '#ffc107' }] }, options: { indexAxis: 'y' } });
+      <!-- ================= PAGE 7: แดชบอร์ดสรุปข้อมูล ================= -->
+      <div id="page-dashboard">
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <h2 class="page-title text-info mb-0"><i class="bi bi-speedometer2"></i> แดชบอร์ดสรุปข้อมูลการชดเชย</h2>
+            <button class="btn btn-outline-info fw-bold shadow-sm" onclick="fetchDashboardData()">
+                <i class="bi bi-arrow-clockwise me-1"></i> รีเฟรชข้อมูล
+            </button>
+        </div>
+        
+        <div id="loadingDashboard" class="text-center my-5">
+           <div class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status"></div>
+           <div class="mt-3 fw-bold text-info">กำลังดึงข้อมูลจาก Google Sheet...</div>
+        </div>
+        
+        <div id="errorDashboard" class="alert alert-danger d-none shadow-sm rounded-3 fw-bold"></div>
+
+        <div id="dashboardSection" class="d-none">
+          <!-- การ์ดสรุปยอด -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-3">
+              <div class="card bg-primary text-white shadow-sm h-100 border-0 rounded-4">
+                <div class="card-body text-center py-4">
+                  <h6 class="card-title fw-normal"><i class="bi bi-people-fill me-1"></i> รวมจำนวนครั้ง OP</h6>
+                  <h2 class="fw-bold mb-0 mt-2" id="dashOpCount">0</h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-success text-white shadow-sm h-100 border-0 rounded-4">
+                <div class="card-body text-center py-4">
+                  <h6 class="card-title fw-normal"><i class="bi bi-cash-stack me-1"></i> ยอดชดเชย OP (บาท)</h6>
+                  <h2 class="fw-bold mb-0 mt-2" id="dashOpComp">0</h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-danger text-white shadow-sm h-100 border-0 rounded-4">
+                <div class="card-body text-center py-4">
+                  <h6 class="card-title fw-normal"><i class="bi bi-hospital-fill me-1"></i> รวมจำนวนครั้ง IP</h6>
+                  <h2 class="fw-bold mb-0 mt-2" id="dashIpCount">0</h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card bg-warning text-dark shadow-sm h-100 border-0 rounded-4">
+                <div class="card-body text-center py-4">
+                  <h6 class="card-title fw-normal"><i class="bi bi-coin me-1"></i> ยอดชดเชย IP (บาท)</h6>
+                  <h2 class="fw-bold mb-0 mt-2" id="dashIpComp">0</h2>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- กราฟ แนวโน้มรายเดือน -->
+          <div class="row g-4 mb-4">
+            <div class="col-lg-12">
+              <div class="card shadow-sm border-0 h-100 rounded-4">
+                <div class="card-header bg-white fw-bold text-primary border-bottom-0 pt-4 pb-0 fs-5">
+                  <i class="bi bi-graph-up me-2"></i> แนวโน้มยอดชดเชยรายเดือน (Monthly Trend)
+                </div>
+                <div class="card-body px-4 pb-4">
+                  <canvas id="monthlyChart" height="80"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- กราฟ เปรียบเทียบ IP Usage vs IP Comp (ใหม่) -->
+          <div class="row g-4 mb-4">
+            <div class="col-lg-12">
+              <div class="card shadow-sm border-0 h-100 rounded-4 border-start border-warning border-4">
+                <div class="card-header bg-white fw-bold text-dark border-bottom-0 pt-4 pb-0 fs-5">
+                  <i class="bi bi-activity me-2 text-warning"></i> เปรียบเทียบปริมาณการใช้อุปกรณ์ และ ยอดชดเชย <span class="badge bg-danger ms-2">ผู้ป่วยใน (IP)</span>
+                </div>
+                <div class="card-body px-4 pb-4">
+                  <canvas id="ipCompareChart" height="90"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- กราฟ Top 10 แยก OP และ IP -->
+          <div class="row g-4 mb-4">
+            <div class="col-lg-6">
+              <div class="card shadow-sm border-0 h-100 rounded-4">
+                <div class="card-header bg-white fw-bold text-success border-bottom-0 pt-4 pb-0 fs-5">
+                  <i class="bi bi-bar-chart-steps me-2"></i> 10 อันดับอุปกรณ์มียอดชดเชยสูงสุด <span class="badge bg-success">ผู้ป่วยนอก (OP)</span>
+                </div>
+                <div class="card-body px-4 pb-4">
+                  <canvas id="topItemsOpChart" height="250"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="card shadow-sm border-0 h-100 rounded-4">
+                <div class="card-header bg-white fw-bold text-danger border-bottom-0 pt-4 pb-0 fs-5">
+                  <i class="bi bi-bar-chart-steps me-2"></i> 10 อันดับอุปกรณ์มียอดชดเชยสูงสุด <span class="badge bg-danger">ผู้ป่วยใน (IP)</span>
+                </div>
+                <div class="card-body px-4 pb-4">
+                  <canvas id="topItemsIpChart" height="250"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal และส่วนที่เหลือคงเดิม -->
+
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxLy8-GzLbliBTDsQBLa1D0vDxyNbdiGSSAtPeOuOwQvZ9qyu70SuVcwy-dHbciwPU2jQ/exec'; 
+
+    async function callGoogleAPI(action, payload) {
+      try {
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: action, ...payload }) });
+        return await response.json();
+      } catch (error) { return { error: "ไม่สามารถเชื่อมต่อฐานข้อมูลได้ (โปรดตรวจสอบ API URL)" }; }
+    }
+
+    // [ฟังก์ชันเก่าอื่นๆ คงเดิม...]
+
+    let monthlyChartInstance = null; 
+    let topItemsOpChartInstance = null; 
+    let topItemsIpChartInstance = null;
+    let ipCompareChartInstance = null; // เพิ่มตัวแปรสำหรับกราฟใหม่
+
+    // ================= 7. แดชบอร์ด (แก้ไขส่วนนี้) =================
+    async function fetchDashboardData() {
+        const errorAlert = document.getElementById('errorDashboard');
+        const section = document.getElementById('dashboardSection');
+        const loading = document.getElementById('loadingDashboard');
+        
+        errorAlert.classList.add('d-none');
+        section.classList.add('d-none');
+        loading.classList.remove('d-none');
+        
+        try {
+            // ส่งค่า Sheet ID และ Sheet Name ไปยัง API
+            const res = await callGoogleAPI('getDashboardData', {
+                ipUsageSheetId: '1K7bYjEMbcauGUOMn58JJU7l2jqAnCrPyxJh-9AENUUw',
+                ipUsageSheetName: 'IP'
+            });
+            
+            if (res.error) {
+                loading.classList.add('d-none');
+                errorAlert.innerHTML = `<i class="bi bi-exclamation-triangle-fill me-2"></i>${res.error}`;
+                errorAlert.classList.remove('d-none');
+                return;
+            }
+            
+            // ส่งมอบข้อมูลทั้งหมดรวมถึงข้อมูล IP ที่ส่งมาจาก backend 
+            renderDashboard(res.monthly || [], res.total || [], res.ipData || []);
+            loading.classList.add('d-none');
+            section.classList.remove('d-none');
+            
+        } catch (e) {
+            loading.classList.add('d-none');
+            errorAlert.innerHTML = `<i class="bi bi-x-circle-fill me-2"></i>เกิดข้อผิดพลาดในการดึงข้อมูล: ${e.message}`;
+            errorAlert.classList.remove('d-none');
+        }
+    }
+
+    function renderDashboard(monthlyData, totalData, ipUsageData) {
+        let sumOpCount = 0, sumOpComp = 0, sumIpCount = 0, sumIpComp = 0;
+        let labelsMonth = [], opCompTrend = [], ipCompTrend = [];
+        
+        if (monthlyData.length > 0) {
+            const keys = Object.keys(monthlyData[0]);
+            const kMonth = keys.find(k => k.includes("เดือน"));
+            const kOpCount = keys.find(k => k.includes("OP(ครั้ง)") || k.includes("OP-จำนวน"));
+            const kOpComp = keys.find(k => k.includes("OP(ชดเชย)") || k.includes("OP-ชดเชย"));
+            const kIpCount = keys.find(k => k.includes("IP(ครั้ง)") || k.includes("IP-จำนวน"));
+            const kIpComp = keys.find(k => k.includes("IP(ชดเชย)") || k.includes("IP-ชดเชย"));
+            
+            monthlyData.forEach(row => {
+                if (!row[kMonth]) return;
+                labelsMonth.push(row[kMonth]);
+                let opComp = parseFloat(row[kOpComp]) || 0;
+                let ipComp = parseFloat(row[kIpComp]) || 0;
+                opCompTrend.push(opComp);
+                ipCompTrend.push(ipComp);
+                sumOpCount += parseFloat(row[kOpCount]) || 0;
+                sumOpComp += opComp;
+                sumIpCount += parseFloat(row[kIpCount]) || 0;
+                sumIpComp += ipComp;
+            });
+        }
+        
+        if (monthlyData.length === 0 && totalData.length > 0) {
+            const keys = Object.keys(totalData[0]);
+            const kOpCount = keys.find(k => k.includes("OP-จำนวน"));
+            const kOpComp = keys.find(k => k.includes("OP-ชดเชย"));
+            const kIpCount = keys.find(k => k.includes("IP-จำนวน"));
+            const kIpComp = keys.find(k => k.includes("IP-ชดเชย"));
+            
+            totalData.forEach(row => {
+                sumOpCount += parseFloat(row[kOpCount]) || 0;
+                sumOpComp += parseFloat(row[kOpComp]) || 0;
+                sumIpCount += parseFloat(row[kIpCount]) || 0;
+                sumIpComp += parseFloat(row[kIpComp]) || 0;
+            });
+        }
+
+        document.getElementById('dashOpCount').textContent = sumOpCount.toLocaleString();
+        document.getElementById('dashOpComp').textContent = sumOpComp.toLocaleString(undefined, {minimumFractionDigits: 2});
+        document.getElementById('dashIpCount').textContent = sumIpCount.toLocaleString();
+        document.getElementById('dashIpComp').textContent = sumIpComp.toLocaleString(undefined, {minimumFractionDigits: 2});
+        
+        let labelsOpItems = [], dataOpValue = [];
+        let labelsIpItems = [], dataIpValue = [];
+        
+        // ข้อมูลสำหรับกราฟเปรียบเทียบใหม่
+        let labelsIpCompare = [], dataIpUsageCompare = [], dataIpCompCompare = [];
+        
+        if (totalData.length > 0) {
+            const keys = Object.keys(totalData[0]);
+            const kItem = keys.find(k => k.includes("รายการ"));
+            const kOpComp = keys.find(k => k.includes("OP-ชดเชย"));
+            const kIpCount = keys.find(k => k.includes("IP-จำนวน")); // แกะจำนวนเพื่อใช้เปรียบเทียบ
+            const kIpComp = keys.find(k => k.includes("IP-ชดเชย"));
+            
+            // เตรียม Top 10 OP
+            let parsedOpItems = totalData.map(row => ({
+                name: row[kItem] ? row[kItem].toString() : "Unknown",
+                value: parseFloat(row[kOpComp]) || 0
+            })).filter(item => item.value > 0);
+            parsedOpItems.sort((a, b) => b.value - a.value);
+            let top10Op = parsedOpItems.slice(0, 10);
+            labelsOpItems = top10Op.map(item => item.name.length > 25 ? item.name.substring(0, 25) + '...' : item.name);
+            dataOpValue = top10Op.map(item => item.value);
+
+            // เตรียม Top 10 IP
+            let parsedIpItems = totalData.map(row => ({
+                name: row[kItem] ? row[kItem].toString() : "Unknown",
+                value: parseFloat(row[kIpComp]) || 0
+            })).filter(item => item.value > 0);
+            parsedIpItems.sort((a, b) => b.value - a.value);
+            let top10Ip = parsedIpItems.slice(0, 10);
+            labelsIpItems = top10Ip.map(item => item.name.length > 25 ? item.name.substring(0, 25) + '...' : item.name);
+            dataIpValue = top10Ip.map(item => item.value);
+
+            // ==========================================
+            // สร้างชุดข้อมูลเปรียบเทียบ IP Usage vs IP Comp
+            // ==========================================
+            let parsedCompare = [];
+            
+            // หาก Backend ส่งข้อมูล ipUsageData ที่เจาะจงมาจากชีท IP มาให้
+            if (ipUsageData && ipUsageData.length > 0) {
+                const keysIp = Object.keys(ipUsageData[0]);
+                const kName = keysIp[0]; 
+                const kUsage = keysIp[1];
+                
+                // แมพค่าชดเชยจาก totalData
+                let compMap = {};
+                totalData.forEach(r => {
+                    if (r[kItem]) compMap[r[kItem].toString().trim()] = parseFloat(r[kIpComp]) || 0;
+                });
+
+                parsedCompare = ipUsageData.map(row => {
+                    let name = row[kName] ? row[kName].toString().trim() : "Unknown";
+                    let count = parseFloat(row[kUsage]) || 0;
+                    let comp = compMap[name] || 0;
+                    return { name, count, comp };
+                }).filter(item => item.count > 0 || item.comp > 0);
+
+            } else {
+                // หากไม่มี จะดึงจาก totalData เดิมที่มีคอลัมน์ IP-จำนวน อยู่แล้ว
+                parsedCompare = totalData.map(row => ({
+                    name: row[kItem] ? row[kItem].toString() : "Unknown",
+                    count: parseFloat(row[kIpCount]) || 0,
+                    comp: parseFloat(row[kIpComp]) || 0
+                })).filter(item => item.count > 0 || item.comp > 0);
+            }
+
+            parsedCompare.sort((a, b) => b.comp - a.comp);
+            let topCompare = parsedCompare.slice(0, 15);
+            
+            labelsIpCompare = topCompare.map(item => item.name.length > 20 ? item.name.substring(0, 20) + '...' : item.name);
+            dataIpUsageCompare = topCompare.map(item => item.count);
+            dataIpCompCompare = topCompare.map(item => item.comp);
+        }
+        
+        renderCharts(labelsMonth, opCompTrend, ipCompTrend, labelsOpItems, dataOpValue, labelsIpItems, dataIpValue, labelsIpCompare, dataIpUsageCompare, dataIpCompCompare);
+    }
+
+    function renderCharts(labelsMonth, opCompTrend, ipCompTrend, labelsOpItems, dataOpValue, labelsIpItems, dataIpValue, labelsIpCompare, dataIpUsage, dataIpComp) {
+        
+        // 1. กราฟ Monthly
+        if (monthlyChartInstance) monthlyChartInstance.destroy();
+        const ctxMonthly = document.getElementById('monthlyChart').getContext('2d');
+        monthlyChartInstance = new Chart(ctxMonthly, {
+            type: 'bar',
+            data: {
+                labels: labelsMonth.length > 0 ? labelsMonth : ['ไม่มีข้อมูลรายเดือน'],
+                datasets: [
+                    { label: 'ยอดชดเชย OP', data: opCompTrend.length > 0 ? opCompTrend : [0], backgroundColor: 'rgba(13, 110, 253, 0.7)', borderColor: 'rgba(13, 110, 253, 1)', borderWidth: 1 },
+                    { label: 'ยอดชดเชย IP', data: ipCompTrend.length > 0 ? ipCompTrend : [0], backgroundColor: 'rgba(220, 53, 69, 0.7)', borderColor: 'rgba(220, 53, 69, 1)', borderWidth: 1 }
+                ]
+            },
+            options: { responsive: true, scales: { y: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString(); } } } }, plugins: { tooltip: { callbacks: { label: function(context) { return context.dataset.label + ': ' + context.raw.toLocaleString() + ' บาท'; } } } } }
+        });
+        
+        // 2. กราฟเปรียบเทียบ (กราฟใหม่แบบ Dual-Axis)
+        if (ipCompareChartInstance) ipCompareChartInstance.destroy();
+        const ctxIpCompare = document.getElementById('ipCompareChart').getContext('2d');
+        ipCompareChartInstance = new Chart(ctxIpCompare, {
+            type: 'bar',
+            data: {
+                labels: labelsIpCompare.length > 0 ? labelsIpCompare : ['ไม่มีข้อมูล'],
+                datasets: [
+                    {
+                        label: 'ปริมาณการใช้อุปกรณ์ (ชิ้น)',
+                        data: dataIpUsage.length > 0 ? dataIpUsage : [0],
+                        type: 'line',
+                        backgroundColor: 'rgba(255, 193, 7, 1)',
+                        borderColor: 'rgba(255, 193, 7, 1)',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        tension: 0.3,
+                        yAxisID: 'y1'
+                    },
+                    {
+                        label: 'ยอดเงินชดเชย (บาท)',
+                        data: dataIpComp.length > 0 ? dataIpComp : [0],
+                        backgroundColor: 'rgba(220, 53, 69, 0.7)',
+                        borderColor: 'rgba(220, 53, 69, 1)',
+                        borderWidth: 1,
+                        yAxisID: 'y'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: { mode: 'index', intersect: false },
+                scales: {
+                    y: {
+                        type: 'linear', display: true, position: 'left',
+                        title: { display: true, text: 'ยอดเงินชดเชย (บาท)' },
+                        ticks: { callback: function(value) { return value.toLocaleString(); } }
+                    },
+                    y1: {
+                        type: 'linear', display: true, position: 'right',
+                        title: { display: true, text: 'ปริมาณการใช้อุปกรณ์ (ชิ้น)' },
+                        grid: { drawOnChartArea: false },
+                        ticks: { callback: function(value) { return value.toLocaleString(); } }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                if (context.dataset.yAxisID === 'y') {
+                                    label += context.raw.toLocaleString() + ' บาท';
+                                } else {
+                                    label += context.raw.toLocaleString() + ' ชิ้น';
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 3. กราฟ Top 10 OP
+        if (topItemsOpChartInstance) topItemsOpChartInstance.destroy();
+        const ctxTopOp = document.getElementById('topItemsOpChart').getContext('2d');
+        topItemsOpChartInstance = new Chart(ctxTopOp, {
+            type: 'bar',
+            data: { labels: labelsOpItems.length > 0 ? labelsOpItems : ['ไม่มีข้อมูล'], datasets: [{ label: 'ยอดเงินชดเชย OP (บาท)', data: dataOpValue.length > 0 ? dataOpValue : [0], backgroundColor: 'rgba(25, 135, 84, 0.7)', borderColor: 'rgba(25, 135, 84, 1)', borderWidth: 1 }] },
+            options: { indexAxis: 'y', responsive: true, scales: { x: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString(); } } } }, plugins: { tooltip: { callbacks: { label: function(context) { return context.raw.toLocaleString() + ' บาท'; } } } } }
+        });
+
+        // 4. กราฟ Top 10 IP
+        if (topItemsIpChartInstance) topItemsIpChartInstance.destroy();
+        const ctxTopIp = document.getElementById('topItemsIpChart').getContext('2d');
+        topItemsIpChartInstance = new Chart(ctxTopIp, {
+            type: 'bar',
+            data: { labels: labelsIpItems.length > 0 ? labelsIpItems : ['ไม่มีข้อมูล'], datasets: [{ label: 'ยอดเงินชดเชย IP (บาท)', data: dataIpValue.length > 0 ? dataIpValue : [0], backgroundColor: 'rgba(220, 53, 69, 0.7)', borderColor: 'rgba(220, 53, 69, 1)', borderWidth: 1 }] },
+            options: { indexAxis: 'y', responsive: true, scales: { x: { beginAtZero: true, ticks: { callback: function(value) { return value.toLocaleString(); } } } }, plugins: { tooltip: { callbacks: { label: function(context) { return context.raw.toLocaleString() + ' บาท'; } } } } }
+        });
     }
   </script>
 </body>
