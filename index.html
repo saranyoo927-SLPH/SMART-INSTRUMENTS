@@ -127,7 +127,7 @@
         </div>
       </div>
       
-      <!-- PAGE 2: Table -->
+      <!-- ================= PAGE 2: ตารางอ้างอิง ================= -->
       <div id="page-table" class="d-none">
         <div class="page-header"><h2 class="page-title"><i class="bi bi-table text-primary"></i> ตารางอ้างอิงค่าอวัยวะเทียม</h2></div>
         <div class="custom-card">
@@ -140,7 +140,7 @@
         </div>
       </div>
 
-      <!-- PAGE 3: Verify -->
+      <!-- ================= PAGE 3: วิเคราะห์รายบุคคล ================= -->
       <div id="page-verify" class="d-none">
         <div class="page-header"><h2 class="page-title text-success"><i class="bi bi-person-check-fill"></i> วิเคราะห์รายบุคคล</h2></div>
         <div class="custom-card border-success border-top border-4">
@@ -160,7 +160,7 @@
         </div>
       </div>
 
-      <!-- PAGE 4: Audit -->
+      <!-- ================= PAGE 4: Audit ================= -->
       <div id="page-audit" class="d-none">
         <div class="page-header"><h2 class="page-title text-success"><i class="bi bi-shield-fill-check"></i> ตรวจสอบความสอดคล้อง (กลุ่ม)</h2></div>
         <div class="custom-card border-success border-top border-4">
@@ -180,7 +180,7 @@
         </div>
       </div>
 
-      <!-- PAGE 5: Report -->
+      <!-- ================= PAGE 5: Report ================= -->
       <div id="page-report" class="d-none">
         <div class="page-header"><h2 class="page-title text-primary"><i class="bi bi-graph-up-arrow"></i> รายงานข้อมูลการใช้อุปกรณ์</h2></div>
         <div class="custom-card border-primary border-top border-4">
@@ -194,7 +194,7 @@
         </div>
       </div>
 
-      <!-- PAGE 6: Sync -->
+      <!-- ================= PAGE 6: Sync ================= -->
       <div id="page-sync" class="d-none">
         <div class="page-header"><h2 class="page-title text-warning"><i class="bi bi-arrow-repeat"></i> อัปเดตราคาให้ตรงประกาศ</h2></div>
         <div class="custom-card border-warning border-top border-4">
@@ -208,7 +208,7 @@
         </div>
       </div>
 
-      <!-- PAGE 7: Dashboard -->
+      <!-- ================= PAGE 7: Dashboard ================= -->
       <div id="page-dashboard" class="d-none">
         <div class="page-header d-flex justify-content-between align-items-center"><h2 class="page-title text-info mb-0"><i class="bi bi-speedometer2"></i> แดชบอร์ดสรุปข้อมูล</h2><button class="btn btn-outline-info fw-bold shadow-sm" onclick="fetchDashboardData()"><i class="bi bi-arrow-clockwise me-1"></i> รีเฟรช</button></div>
         <div id="loadingDashboard" class="text-center my-5"><div class="spinner-border text-info" style="width: 3rem; height: 3rem;" role="status"></div><div class="mt-3 fw-bold text-info">กำลังดึงข้อมูลจาก Google Sheet...</div></div>
@@ -295,41 +295,30 @@
     async function processSyncFile(){let fi=document.getElementById('syncUpload'),ea=document.getElementById('errorSync');selectedRightsToUpdate=document.getElementById('syncRightsTarget').value.split(',');ea.classList.add('d-none');if(!fi.files.length)return ea.classList.remove('d-none');document.getElementById('loadingSync').classList.remove('d-none');let rd=new FileReader();rd.onload=async e=>{try{let d=new Uint8Array(e.target.result),up=[];if(fi.files[0].name.toLowerCase().endsWith('.pdf')){let pdf=await pdfjsLib.getDocument(d).promise,ft="";for(let i=1;i<=pdf.numPages;i++){let pg=await pdf.getPage(i),tc=await pg.getTextContent();ft+=tc.items.map(x=>x.str.trim()).filter(x=>x.length>0).join(" ")+" \n ";}ft=ft.replace(/\s+/g,' ');let m=[...ft.matchAll(/\b([0-9]{4}[A-Z]?)\b/g)].filter(x=>!['2568','2569','2566','2567','1000','2000','3000','4000','5000','6000','7000','8000','9000'].includes(x[1]));for(let i=0;i<m.length;i++){let c=m[i][1],st=m[i].index+c.length,nd=i+1<m.length?m[i+1].index:ft.length,bl=ft.substring(st,nd),pr=null,cm=[...bl.matchAll(/\b([1-9][0-9]{0,2}(?:,[0-9]{3})+(?:\.[0-9]{1,2})?)\b/g)];if(cm.length>0)pr=parseFloat(cm[cm.length-1][1].replace(/,/g,''));else{let um=bl.match(/(?:ชุด|แผ่น|อัน|เส้น|ข้อ|หลอด|ครั้ง|ชิ้น|คู่|ซีซี|ซม\.?|ถุง|ระดับ|ขวด|เครื่อง)\s*ละ\s*([1-9][0-9]*(?:\.[0-9]{1,2})?)/);if(um)pr=parseFloat(um[1].replace(/,/g,''));}if(pr&&pr>0&&!up.find(x=>x.code===c))up.push({code:c,price:pr});}}else{let wb=XLSX.read(d,{type:'array'}),rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1}),ci=-1,pi=-1;for(let i=0;i<Math.min(10,rows.length);i++){let r=rows[i];for(let j=0;j<r.length;j++){let v=(r[j]||'').toString().replace(/\s/g,'');if(v.includes('รหัส'))ci=j;if(v.includes('อัตรา')||v.includes('ราคา'))pi=j;}if(ci!==-1&&pi!==-1){for(let x=i+1;x<rows.length;x++)if(rows[x][ci]&&rows[x][pi]!=="")up.push({code:rows[x][ci].toString().trim(),price:parseFloat(rows[x][pi].toString().replace(/,/g,''))||0});break;}}}if(up.length===0)throw new Error("ไม่พบราคา");let res=await callGoogleAPI('searchSheet1Data',{code:'',name:''});if(res.error)throw new Error(res.error);currentSyncList=[];let tb=document.getElementById('syncTableBody');tb.innerHTML='';let pr=selectedRightsToUpdate[0].toLowerCase();up.forEach(u=>{let fc=res.data.find(c=>c.code.toLowerCase()===u.code.toLowerCase());if(fc&&fc[pr]!==u.price&&!currentSyncList.find(x=>x.code===u.code)){currentSyncList.push({code:u.code,newPrice:u.price});let idx=currentSyncList.length-1;tb.innerHTML+=`<tr><td class="td-center">${u.code}</td><td>${fc.name}</td><td class="td-num text-danger text-decoration-line-through">${fc[pr]}</td><td class="td-num text-success fw-bold">${u.price}</td><td class="td-center"><button class="btn btn-sm btn-success" id="btnSync-${idx}" onclick="updateSinglePrice(${idx})">อัปเดต</button></td></tr>`;}});document.getElementById('loadingSync').classList.add('d-none');document.getElementById('syncSection').classList.remove('d-none');}catch(er){document.getElementById('loadingSync').classList.add('d-none');ea.innerHTML=er.message;ea.classList.remove('d-none');}};rd.readAsArrayBuffer(fi.files[0]);}
     async function updateSinglePrice(i){let u=currentSyncList[i],b=document.getElementById(`btnSync-${i}`);b.disabled=true;let r=await callGoogleAPI('updateSheet1Prices',{updates:[u],rights:selectedRightsToUpdate});if(!r.error){b.classList.replace('btn-success','btn-secondary');b.innerHTML='สำเร็จ';}}
 
-    // ================= 7. ฟังก์ชัน Dashboard (ดึงข้อมูลอัตโนมัติ) =================
-    async function fetchDashboardData(){
-        let ea=document.getElementById('errorDashboard'),sc=document.getElementById('dashboardSection'),ld=document.getElementById('loadingDashboard');
-        ea.classList.add('d-none');sc.classList.add('d-none');ld.classList.remove('d-none');
-        try{
-            let res=await callGoogleAPI('getDashboardData',{});
-            if(res.error)throw new Error(res.error);
-            renderDashboard(res.monthly||[], res.total||[], res.ipUsage||[], res.opUsage||[]);
-            ld.classList.add('d-none');sc.classList.remove('d-none');
-        }catch(e){
-            ld.classList.add('d-none');ea.innerHTML=e.message;ea.classList.remove('d-none');
-        }
-    }
+    // ================= 7. ฟังก์ชัน Dashboard =================
+    async function fetchDashboardData(){let ea=document.getElementById('errorDashboard'),sc=document.getElementById('dashboardSection'),ld=document.getElementById('loadingDashboard');ea.classList.add('d-none');sc.classList.add('d-none');ld.classList.remove('d-none');try{let res=await callGoogleAPI('getDashboardData',{});if(res.error)throw new Error(res.error);renderDashboard(res.monthly||[],res.total||[],res.ipUsage||[],res.opUsage||[]);ld.classList.add('d-none');sc.classList.remove('d-none');}catch(e){ld.classList.add('d-none');ea.innerHTML=e.message;ea.classList.remove('d-none');}}
     
-    // ฟังก์ชันพิเศษสำหรับแกะข้อความดิบจากคอลัมน์ OP (BB) และ IP (P)
-    function parseRawUsageData(usageData, targetColIndex) {
+    // ================== ลอจิกการสกัดข้อมูลอัจฉริยะแบบหน้ารายงาน ==================
+    function parseRawUsageData(usageData) {
         let agg = {};
         usageData.forEach(row => {
-            // ดึงค่าตาม Index คอลัมน์ที่ระบุ: OP=53 (BB), IP=15 (P)
-            let cellVals = Object.values(row);
-            if (cellVals.length <= targetColIndex) return;
+            // รวมข้อมูลทุกคอลัมน์ในแถวนั้นเป็นข้อความเดียว เหมือนระบบรายงาน
+            let rowText = Object.values(row).join(" ");
             
-            let cellVal = cellVals[targetColIndex] ? cellVals[targetColIndex].toString() : "";
-            if (!cellVal || (!cellVal.includes("| 02 |") && !cellVal.includes("[ 02 |"))) return;
-
-            let matches = cellVal.match(/\[(.*?)\]/g);
+            // ค้นหาแพทเทิร์น [ ... | 02 | ... ]
+            let matches = rowText.match(/\[(.*?)\]/g);
             if (matches) {
                 matches.forEach(m => {
                     let parts = m.replace(/\[|\]/g, '').split('|').map(s => s.trim());
+                    // ตรวจสอบว่าเป็นหมวด 02 และมีข้อมูลครบ
                     if (parts.length >= 6 && parts[1] === "02") {
                         let rawName = parts[3];
                         let qty = parseFloat(parts[4]) || 0;
+                        
+                        // ตัดรหัส 4 หลักด้านหน้าออก เอาเฉพาะชื่อ
                         let name = rawName;
                         let cm = rawName.match(/^([A-Za-z0-9\-]+)\s+(.*)$/);
-                        if (cm) name = cm[2]; // เอาเฉพาะชื่อ ตัดรหัสออกให้อ่านง่าย
+                        if (cm) name = cm[2]; 
                         
                         if (qty > 0) {
                             if (!agg[name]) agg[name] = 0;
@@ -343,6 +332,7 @@
         let finalUsage = Object.keys(agg).map(k => ({name: k, value: agg[k]}));
         finalUsage.sort((a, b) => b.value - a.value);
         let top10 = finalUsage.slice(0, 10);
+        
         return {
             labels: top10.map(item => item.name.length > 30 ? item.name.substring(0, 30) + '...' : item.name),
             data: top10.map(item => item.value)
@@ -352,7 +342,6 @@
     function renderDashboard(monthlyData, totalData, ipUsageData, opUsageData) {
         let sumOpCount = 0, sumOpComp = 0, sumIpCount = 0, sumIpComp = 0;
         let labelsMonth = [], opCompTrend = [], ipCompTrend = [];
-        
         let mData = monthlyData.length > 0 ? monthlyData : (totalData.length > 0 ? totalData : []);
         if (mData.length > 0) {
             const kMonth = Object.keys(mData[0]).find(k => k.includes("เดือน"));
@@ -383,16 +372,16 @@
             lIp = pIp.map(i => i.name.substring(0, 30) + '...'); dIp = pIp.map(i => i.v);
         }
 
-        // ประมวลผลกราฟการใช้ (OP = คอลัมน์ BB index 53, IP = คอลัมน์ P index 15)
-        let opUsage = parseRawUsageData(opUsageData, 53);
-        let ipUsage = parseRawUsageData(ipUsageData, 15);
+        // ประมวลผลกราฟการใช้ (OP และ IP) ด้วยฟังก์ชันใหม่
+        let opUsage = parseRawUsageData(opUsageData);
+        let ipUsage = parseRawUsageData(ipUsageData);
         
         renderCharts(labelsMonth, opCompTrend, ipCompTrend, lOp, dOp, lIp, dIp, opUsage.labels, opUsage.data, ipUsage.labels, ipUsage.data);
     }
 
     function renderCharts(labelsMonth, opCompTrend, ipCompTrend, labelsOpItems, dataOpValue, labelsIpItems, dataIpValue, labelsOpUsage, dataOpUsage, labelsIpUsage, dataIpUsage) {
         if (monthlyChartInstance) monthlyChartInstance.destroy();
-        monthlyChartInstance = new Chart(document.getElementById('monthlyChart').getContext('2d'), { type: 'bar', data: { labels: labelsMonth.length?labelsMonth:['ไม่มีข้อมูลรายเดือน'], datasets: [{ label: 'OP', data: opCompTrend.length?opCompTrend:[0], backgroundColor: '#0d6efd' }, { label: 'IP', data: ipCompTrend.length?ipCompTrend:[0], backgroundColor: '#dc3545' }] } });
+        monthlyChartInstance = new Chart(document.getElementById('monthlyChart').getContext('2d'), { type: 'bar', data: { labels: labelsMonth.length?labelsMonth:['ไม่มีข้อมูลรายเดือน'], datasets: [{ label: 'OP (บาท)', data: opCompTrend.length?opCompTrend:[0], backgroundColor: '#0d6efd' }, { label: 'IP (บาท)', data: ipCompTrend.length?ipCompTrend:[0], backgroundColor: '#dc3545' }] } });
         
         if (topItemsOpChartInstance) topItemsOpChartInstance.destroy();
         topItemsOpChartInstance = new Chart(document.getElementById('topItemsOpChart').getContext('2d'), { type: 'bar', data: { labels: labelsOpItems.length?labelsOpItems:['ไม่มีข้อมูล'], datasets: [{ label: 'OP ชดเชย (บาท)', data: dataOpValue.length?dataOpValue:[0], backgroundColor: '#198754' }] }, options: { indexAxis: 'y' } });
